@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working Tools</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h1>Working Tools</h1>
+  <p class="subtitle">Tools internal untuk cek bonus deposit, bonus dobel, dan first deposit member baru.</p>
+
+  <section class="section">
+    <h2 class="section-title">Data Sumber</h2>
+    <div class="row">
+      <div class="card">
+        <h2>History QR Pay</h2>
+        <textarea id="txData" placeholder="1&#9;BBC@ima888&#9;BCA&#10;M hehsan&#10;2130448227&#9;PrabuPay&#10;77a4809a-b1a4-4aaa-984d-64805abb0a6b&#9;100.000&#9;17887102578404499&#10;&#10;06/09/2026 11:57:38 PM&#9;QR Pay&#9;Confirmed"></textarea>
+      </div>
+      <div class="card">
+        <h2>History</h2>
+        <textarea id="givenData" placeholder="1&#9;BBC@mantap93&#9;BRI&#10;dimpan hutasoit&#10;062101045686506&#9;SCB&#10;SCB A BONUS DEPOSIT HARIAN&#10;01&#9;25.000&#9;07/09/2026 00:01&#9;bbc@rehansya"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Tools</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>1. Cek Bonus Pending</h3>
+        <div class="controls">
+          <label for="pctSelect">Persentase:</label>
+          <select id="pctSelect">
+            <option value="5">5%</option>
+            <option value="10">10%</option>
+          </select>
+          <button class="primary" id="processBtn">Proses data</button>
+        </div>
+      </div>
+
+      <div id="warnBox"></div>
+
+      <div id="resultCard" style="display:none;">
+        <div class="summary-bar">
+          <span class="result-title">Belum dapat bonus</span>
+          <span class="badge" id="countBadge">0 member</span>
+        </div>
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Nominal</th>
+              <th>Bonus</th>
+              <th>Waktu terakhir</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+
+      <div id="emptyCard">
+        <div class="empty-state">Paste data transaksi QR Pay dan history bonus, lalu klik "Proses data".</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>2. Cek Double Bonus</h3>
+        <button class="ghost" id="doubleBtn">Cek Double Bonus</button>
+      </div>
+
+      <div id="doubleWarnBox"></div>
+
+      <div id="doubleResultCard" style="display:none;">
+        <div class="summary-bar">
+          <span class="result-title">Bonus dobel ditemukan</span>
+          <span class="badge badge-warn" id="doubleCountBadge">0 username dobel</span>
+        </div>
+        <table id="doubleResultTable">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Jumlah</th>
+              <th>Nominal</th>
+              <th>Waktu</th>
+              <th>Admin</th>
+            </tr>
+          </thead>
+          <tbody id="doubleResultBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>3. New Member First Deposit</h3>
+      </div>
+
+      <textarea id="newMemberIds" placeholder="BBC@Refli&#10;BBC@Masduqe&#10;BBC@venansius&#10;BBC@davidbaky&#10;BBC@Jasmin64&#10;BBC@Hartati647&#10;BBC@Suliadi&#10;BBC@lena36"></textarea>
+      <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
+
+      <div id="newMemberWarnBox"></div>
+
+      <div id="newMemberResultCard" style="display:none;">
+        <div class="summary-bar">
+          <span class="result-title">Member yang sudah deposit</span>
+          <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
+        </div>
+        <table id="newMemberResultTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tanggal</th>
+              <th>Nominal</th>
+              <th>Sumber</th>
+            </tr>
+          </thead>
+          <tbody id="newMemberResultBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
