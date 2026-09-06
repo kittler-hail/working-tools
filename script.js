@@ -2,7 +2,10 @@
 // username (selalu ada tanda "@"), misalnya "1\tBBC@ima888\tBCA". Baris lain yang
 // juga punya tab tapi "@"-nya ada di kolom lain (mis. baris admin di akhir record)
 // tidak dianggap awal record baru.
-const AMOUNT_RE = /\b\d{1,3}(?:\.\d{3})+\b/;
+// Pakai lookbehind/lookahead (bukan \b) supaya nominal yang nempel langsung ke
+// prefix mata uang tanpa spasi (mis. "Rp1.000.000") tetap terbaca penuh — \b gagal
+// di sini karena huruf dan digit sama-sama dianggap "word character".
+const AMOUNT_RE = /(?<![\d.])\d{1,3}(?:\.\d{3})+(?!\d)/;
 // Mendukung "DD/MM/YYYY hh:mm:ss AM/PM" maupun "DD/MM/YYYY HH:mm" (24 jam, tanpa detik).
 const DATETIME_RE = /(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i;
 const STATUS_RE = /\b(Confirmed|Pending|Failed|Rejected|Success|Cancelled)\b/i;
