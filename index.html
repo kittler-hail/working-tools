@@ -99,27 +99,17 @@
         <h3>3. New Member First Deposit</h3>
       </div>
 
-      <textarea id="newMemberIds" placeholder="BBC@Refli&#10;BBC@Masduqe&#10;BBC@venansius&#10;BBC@davidbaky&#10;BBC@Jasmin64&#10;BBC@Hartati647&#10;BBC@Suliadi&#10;BBC@lena36"></textarea>
+      <textarea id="newMemberIds" placeholder="1&#9;9/6/2026 20:43:00&#9;BBC@Refli&#9;Rp0&#9;Rp0&#10;2&#9;9/6/2026 20:31:00&#9;BBC@Masduqe&#9;Rp0&#9;Rp0&#10;3&#9;9/6/2026 20:26:00&#9;BBC@venansius&#9;Rp0&#9;Rp0"></textarea>
       <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
 
       <div id="newMemberWarnBox"></div>
 
       <div id="newMemberResultCard" style="display:none;">
         <div class="summary-bar">
-          <span class="result-title">Member yang sudah deposit</span>
+          <span class="result-title">First deposit ditemukan</span>
           <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
         </div>
-        <table id="newMemberResultTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tanggal</th>
-              <th>Nominal</th>
-              <th>Sumber</th>
-            </tr>
-          </thead>
-          <tbody id="newMemberResultBody"></tbody>
-        </table>
+        <textarea id="newMemberResultText" readonly style="min-height:100px;"></textarea>
       </div>
     </div>
   </section>

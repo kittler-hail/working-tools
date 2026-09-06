@@ -5,7 +5,9 @@
 // Pakai lookbehind/lookahead (bukan \b) supaya nominal yang nempel langsung ke
 // prefix mata uang tanpa spasi (mis. "Rp1.000.000") tetap terbaca penuh — \b gagal
 // di sini karena huruf dan digit sama-sama dianggap "word character".
-const AMOUNT_RE = /(?<![\d.])\d{1,3}(?:\.\d{3})+(?!\d)/;
+// Pemisah ribuan kadang titik ("1.000.000"), kadang koma di grup pertama
+// ("1,000.000") — jadi keduanya diterima dan sama-sama dibuang saat parseInt.
+const AMOUNT_RE = /(?<![\d.,])\d{1,3}(?:[.,]\d{3})+(?!\d)/;
 // Mendukung "DD/MM/YYYY hh:mm:ss AM/PM" maupun "DD/MM/YYYY HH:mm" (24 jam, tanpa detik).
 const DATETIME_RE = /(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i;
 const STATUS_RE = /\b(Confirmed|Pending|Failed|Rejected|Success|Cancelled)\b/i;
@@ -68,7 +70,7 @@ function parseRecords(raw) {
       const admin = stripCode(extractAdmin(blockLines, rawUsername));
 
       const amountMatch = block.match(AMOUNT_RE);
-      const amount = amountMatch ? parseInt(amountMatch[0].replace(/\./g, ''), 10) : 0;
+      const amount = amountMatch ? parseInt(amountMatch[0].replace(/[.,]/g, ''), 10) : 0;
 
       const { timestamp, text: dateText } = parseDateTime(block.match(DATETIME_RE));
 
@@ -120,14 +122,37 @@ function formatRupiah(num) {
   return num.toLocaleString('id-ID');
 }
 
-// Daftar id member baru dipaste satu per baris, boleh pakai kode di depan "@" atau tidak.
+// Format "M/D/YYYY HH:mm:ss" (bulan/tanggal tanpa nol di depan, jam 24 jam).
+function formatCopyDate(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+// Daftar id member baru boleh dipaste polos (satu id per baris) atau dalam format
+// "nomor\ttanggal registrasi\tid\tRp0\tRp0" (sama seperti bentuk output tool ini).
+// Tanggal registrasi (kalau ada) dipakai sebagai pengganti "0" waktu id ternyata
+// belum pernah deposit sama sekali.
+const REG_DATETIME_RE = /\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2}:\d{2}/;
+
 function parseIdList(raw) {
-  const ids = raw
+  const seen = new Set();
+  const result = [];
+  raw
     .split(/\r?\n/)
     .map(s => s.trim())
     .filter(Boolean)
-    .map(s => (s.includes('@') ? s.slice(s.indexOf('@') + 1) : s));
-  return Array.from(new Set(ids));
+    .forEach(line => {
+      const cols = line.split('\t').map(c => c.trim());
+      const idCol = cols.find(c => c.includes('@')) || cols[0];
+      const id = idCol.includes('@') ? idCol.slice(idCol.indexOf('@') + 1) : idCol;
+      const key = id.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      const dateMatch = line.match(REG_DATETIME_RE);
+      result.push({ id, raw: idCol, regDate: dateMatch ? dateMatch[0] : '' });
+    });
+  return result;
 }
 
 // Tampilan pakai pemisah ribuan, tapi pemisahnya diberi user-select:none
@@ -258,55 +283,29 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
     return;
   }
 
-  const qrDeposits = parseRecords(txRaw)
-    .filter(r => r.status.toLowerCase() === 'confirmed')
-    .map(r => Object.assign({}, r, { source: 'QR Pay' }));
-  const bonusDeposits = parseRecords(givenRaw)
-    .filter(isBonusDeposit)
-    .map(r => Object.assign({}, r, { source: 'Bonus Deposit' }));
+  const qrDeposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
+  const bonusDeposits = parseRecords(givenRaw).filter(isBonusDeposit);
   const allDeposits = qrDeposits.concat(bonusDeposits);
 
-  const body = document.getElementById('newMemberResultBody');
-  body.innerHTML = '';
+  let depositedCount = 0;
 
-  let matchedCount = 0;
+  // Urutan baris hasil ikut urutan id apa adanya waktu dipaste (tidak disusun ulang).
+  const lines = memberIds.map(({ id, raw, regDate }, i) => {
+    const matches = allDeposits.filter(d => d.username.toLowerCase() === id.toLowerCase());
 
-  memberIds.forEach(id => {
-    const matches = allDeposits
-      .filter(d => d.username.toLowerCase() === id.toLowerCase())
-      .sort((a, b) => a.timestamp - b.timestamp);
+    if (matches.length === 0) {
+      // Belum pernah deposit: nominal 0, tanggalnya pakai tanggal registrasi kalau ada.
+      return [i + 1, regDate || '0', raw, 'Rp0', 'Rp0'].join('\t');
+    }
 
-    if (matches.length === 0) return;
-    matchedCount++;
-
-    matches.forEach(d => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${d.username}</td>
-        <td>${d.dateText || '-'}</td>
-        <td class="amount">${formatRupiah(d.amount)}</td>
-        <td>${d.source}</td>
-      `;
-      body.appendChild(tr);
-    });
-
-    const total = matches.reduce((sum, d) => sum + d.amount, 0);
-    const totalTr = document.createElement('tr');
-    totalTr.classList.add('total-row');
-    totalTr.innerHTML = `
-      <td colspan="2">Total ${matches[0].username}</td>
-      <td class="amount">${formatRupiah(total)}</td>
-      <td></td>
-    `;
-    body.appendChild(totalTr);
+    depositedCount++;
+    // Deposit pertama = timestamp paling awal di antara semua deposit member ini.
+    const first = matches.reduce((earliest, d) => (d.timestamp < earliest.timestamp ? d : earliest));
+    const idWithCode = first.code ? first.code + '@' + first.username : first.username;
+    return [i + 1, formatCopyDate(first.timestamp), idWithCode, 'Rp' + formatRupiah(first.amount), 'Rp0'].join('\t');
   });
 
-  if (matchedCount === 0) {
-    warnBox.innerHTML = '<div class="warn-box">Tidak ada id dari daftar yang ditemukan melakukan deposit di History QR Pay maupun History.</div>';
-    document.getElementById('newMemberResultCard').style.display = 'none';
-    return;
-  }
-
   document.getElementById('newMemberResultCard').style.display = 'block';
-  document.getElementById('newMemberCountBadge').textContent = matchedCount + ' dari ' + memberIds.length + ' id';
+  document.getElementById('newMemberCountBadge').textContent = depositedCount + ' dari ' + memberIds.length + ' id sudah deposit';
+  document.getElementById('newMemberResultText').value = lines.join('\n');
 });
