@@ -171,6 +171,102 @@ function formatCopyableAmount(num) {
     .join('');
 }
 
+// --- Daftar ID Bermasalah (persisten via localStorage) ---
+const FLAG_STORAGE_KEY = 'workingTools.flaggedIds';
+const FLAG_CATEGORY_LABELS = { safety: 'Safety', 'no-bonus': 'Tidak Dapat Bonus', other: 'Lainnya' };
+
+function loadFlags() {
+  try {
+    const raw = localStorage.getItem(FLAG_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFlags(flags) {
+  localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(flags));
+}
+
+function stripIdCode(v) {
+  return v.includes('@') ? v.slice(v.indexOf('@') + 1) : v;
+}
+
+function findFlag(flags, username) {
+  const key = (username || '').toLowerCase();
+  return flags.find(f => f.id.toLowerCase() === key);
+}
+
+function renderFlagTable() {
+  const flags = loadFlags();
+  const table = document.getElementById('flagTable');
+  const emptyState = document.getElementById('flagEmptyState');
+  const body = document.getElementById('flagTableBody');
+  body.innerHTML = '';
+
+  if (flags.length === 0) {
+    table.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  table.style.display = 'table';
+  emptyState.style.display = 'none';
+
+  flags
+    .slice()
+    .sort((a, b) => b.addedAt - a.addedAt)
+    .forEach(flag => {
+      const tr = document.createElement('tr');
+      const badgeClass = 'badge-' + flag.category;
+      tr.innerHTML = `
+        <td>${flag.id}</td>
+        <td><span class="badge ${badgeClass}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span></td>
+        <td>${flag.note || '-'}</td>
+        <td>${new Date(flag.addedAt).toLocaleString('id-ID')}</td>
+        <td><button class="flag-delete" data-id="${flag.id}">Hapus</button></td>
+      `;
+      body.appendChild(tr);
+    });
+
+  body.querySelectorAll('.flag-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const remaining = loadFlags().filter(f => f.id !== id);
+      saveFlags(remaining);
+      renderFlagTable();
+    });
+  });
+}
+
+document.getElementById('addFlagBtn').addEventListener('click', () => {
+  const idInput = document.getElementById('flagIdInput');
+  const categorySelect = document.getElementById('flagCategorySelect');
+  const noteInput = document.getElementById('flagNoteInput');
+  const warnBox = document.getElementById('flagWarnBox');
+  warnBox.innerHTML = '';
+
+  const rawId = idInput.value.trim();
+  if (!rawId) {
+    warnBox.innerHTML = '<div class="warn-box">Isi id/username dulu.</div>';
+    return;
+  }
+
+  const id = stripIdCode(rawId);
+  const category = categorySelect.value;
+  const note = noteInput.value.trim();
+
+  const flags = loadFlags().filter(f => f.id.toLowerCase() !== id.toLowerCase());
+  flags.push({ id, category, note, addedAt: Date.now() });
+  saveFlags(flags);
+  renderFlagTable();
+
+  idInput.value = '';
+  noteInput.value = '';
+});
+
+renderFlagTable();
+
 document.getElementById('processBtn').addEventListener('click', () => {
   const txRaw = document.getElementById('txData').value;
   const givenRaw = document.getElementById('givenData').value;
@@ -207,17 +303,25 @@ document.getElementById('processBtn').addEventListener('click', () => {
   document.getElementById('resultCard').style.display = 'block';
   document.getElementById('countBadge').textContent = pending.length + ' member';
 
+  const flags = loadFlags();
+
   pending
     .sort((a, b) => b.timestamp - a.timestamp)
     .forEach(r => {
       const rawBonus = Math.round(r.amount * pct / 100);
       const bonus = Math.min(rawBonus, getBonusCap(pct, r.code));
+      const flag = findFlag(flags, r.username);
+      const statusCell = flag
+        ? `<span class="badge badge-${flag.category}" title="${flag.note || ''}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}${flag.note ? ' — ' + flag.note : ''}</span>`
+        : '-';
       const tr = document.createElement('tr');
+      if (flag) tr.classList.add('flagged-row');
       tr.innerHTML = `
         <td>${r.username}</td>
         <td class="amount">${formatRupiah(r.amount)}</td>
         <td class="cashback">${formatCopyableAmount(bonus)}</td>
         <td>${r.dateText || '-'}</td>
+        <td class="status-cell">${statusCell}</td>
       `;
       body.appendChild(tr);
     });
@@ -288,6 +392,18 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
   const allDeposits = qrDeposits.concat(bonusDeposits);
 
   let depositedCount = 0;
+
+  const flags = loadFlags();
+  const flaggedMatches = memberIds
+    .map(({ id }) => findFlag(flags, id))
+    .filter(Boolean);
+
+  if (flaggedMatches.length > 0) {
+    const items = flaggedMatches
+      .map(f => `${f.id} (${FLAG_CATEGORY_LABELS[f.category] || f.category}${f.note ? ': ' + f.note : ''})`)
+      .join(', ');
+    warnBox.innerHTML = `<div class="warn-box">Ditemukan id bermasalah di daftar ini: ${items}</div>`;
+  }
 
   // Urutan baris hasil ikut urutan id apa adanya waktu dipaste (tidak disusun ulang).
   const lines = memberIds.map(({ id, raw, regDate }, i) => {

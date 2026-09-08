@@ -10,6 +10,8 @@
   --success-bg: #ecfdf3;
   --warn-bg: #fff7ed;
   --warn-border: #fdba74;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
   --radius: 10px;
 }
 * { box-sizing: border-box; }
@@ -139,3 +141,31 @@ tr.total-row td {
   margin-bottom: 12px;
   color: #92400e;
 }
+.flag-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.flag-form input[type="text"] {
+  flex: 1;
+  min-width: 160px;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.flag-form button { flex-shrink: 0; }
+.badge-safety { background: var(--danger-bg); color: var(--danger); }
+.badge-no-bonus { background: var(--warn-bg); color: #92400e; }
+.badge-other { background: #f1f2f4; color: var(--text-muted); }
+.flag-delete {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12.5px;
+  padding: 2px 6px;
+}
+.flag-delete:hover { color: var(--danger); }
+td.status-cell { font-size: 12.5px; }
