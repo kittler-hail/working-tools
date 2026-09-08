@@ -89,10 +89,10 @@ function isBonusDeposit(record) {
   return record.depositType === 'bonus';
 }
 
-// Batas maksimal bonus: 5% dibatasi 100rb, 10% dibatasi 200rb — kecuali kode "BFY"
-// yang tetap dibatasi 100rb walau pilihan persennya 10%.
+// Batas maksimal bonus: 5% selalu dibatasi 100rb. Untuk 10%, hanya kode "BGG"
+// yang dibatasi 200rb — kode lainnya tetap dibatasi 100rb walau pilihan persennya 10%.
 function getBonusCap(pct, code) {
-  if (pct === 10 && (code || '').toUpperCase() !== 'BFY') return 200000;
+  if (pct === 10 && (code || '').toUpperCase() === 'BGG') return 200000;
   return 100000;
 }
 
