@@ -133,19 +133,22 @@
         <button class="primary" id="addFlagBtn">Tambah</button>
       </div>
       <div id="flagWarnBox"></div>
-      <table id="flagTable" style="display:none;">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Kategori</th>
-            <th>Keterangan</th>
-            <th>Ditambahkan</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="flagTableBody"></tbody>
-      </table>
-      <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
+      <button class="ghost" id="toggleFlagListBtn">Lihat Daftar ID Bermasalah</button>
+      <div id="flagListContainer" style="display:none;margin-top:14px;">
+        <table id="flagTable" style="display:none;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Kategori</th>
+              <th>Keterangan</th>
+              <th>Ditambahkan</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="flagTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
+      </div>
     </div>
   </section>
 </div>

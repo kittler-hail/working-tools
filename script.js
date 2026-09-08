@@ -232,12 +232,22 @@ function renderFlagTable() {
   body.querySelectorAll('.flag-delete').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
+      if (!confirm(`Yakin ingin menghapus id "${id}" dari daftar id bermasalah?`)) return;
+      if (!confirm(`Konfirmasi sekali lagi: hapus "${id}" secara permanen dari daftar?`)) return;
       const remaining = loadFlags().filter(f => f.id !== id);
       saveFlags(remaining);
       renderFlagTable();
     });
   });
 }
+
+document.getElementById('toggleFlagListBtn').addEventListener('click', () => {
+  const container = document.getElementById('flagListContainer');
+  const btn = document.getElementById('toggleFlagListBtn');
+  const isHidden = container.style.display === 'none';
+  container.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Sembunyikan Daftar ID Bermasalah' : 'Lihat Daftar ID Bermasalah';
+});
 
 document.getElementById('addFlagBtn').addEventListener('click', () => {
   const idInput = document.getElementById('flagIdInput');
