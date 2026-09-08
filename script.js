@@ -375,7 +375,7 @@ document.getElementById('doubleBtn').addEventListener('click', () => {
           <td>${i === 0 ? group.length + 'x' : ''}</td>
           <td class="amount">${formatRupiah(r.amount)}</td>
           <td>${r.dateText || '-'}</td>
-          <td>${r.admin || '-'}</td>
+          <td>${r.admin ? '**@admin' : '-'}</td>
         `;
         body.appendChild(tr);
       });
