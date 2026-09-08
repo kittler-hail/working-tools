@@ -241,6 +241,14 @@ function renderFlagTable() {
   });
 }
 
+document.getElementById('toggleTutorialBtn').addEventListener('click', () => {
+  const section = document.getElementById('tutorialSection');
+  const btn = document.getElementById('toggleTutorialBtn');
+  const isHidden = section.style.display === 'none';
+  section.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Sembunyikan Tutorial Penggunaan' : 'Lihat Tutorial Penggunaan';
+});
+
 document.getElementById('toggleFlagListBtn').addEventListener('click', () => {
   const container = document.getElementById('flagListContainer');
   const btn = document.getElementById('toggleFlagListBtn');

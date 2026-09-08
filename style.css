@@ -44,6 +44,9 @@ h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
 .card:last-child { margin-bottom: 0; }
 .card h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
 .card h3 { font-size: 15px; font-weight: 600; margin: 0; }
+.card h3 + .card-desc { margin-top: 8px; }
+.card-desc { font-size: 13px; color: var(--text-muted); margin: 4px 0 12px; line-height: 1.5; }
+.card-desc:last-child { margin-bottom: 0; }
 .card-header {
   display: flex;
   align-items: center;
