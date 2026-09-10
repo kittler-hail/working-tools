@@ -400,14 +400,19 @@ function evaluateBonusAmount(expected, given) {
   return { status: 'ok', diff: 0 };
 }
 
-// Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya, jadi tiap
-// bonus dipasangkan ke deposit confirmed milik username yang sama secara berurutan
-// (bonus paling lama ke deposit belum terpakai paling lama), dan satu deposit hanya
-// bisa dipakai untuk satu bonus. Ini penting supaya deposit baru yang dibuat SETELAH
-// sebuah bonus diberikan tidak ikut kepakai ulang untuk mengevaluasi bonus lama itu
-// (yang sebelumnya menyebabkan bonus lama salah terbaca "kekurangan"/"tidak sesuai").
-// Deposit yang tersisa (belum dapat bonus) untuk tiap username, yang paling baru,
-// dianggap sebagai deposit yang masih pending.
+// Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya. Sesuai cara
+// admin menghitungnya di dunia nyata: tiap bonus dicocokkan ke deposit confirmed
+// PALING BARU milik username yang sama PADA SAAT bonus itu diberikan (waktu deposit
+// <= waktu bonus) — bukan deposit pertama/paling lama. Karena pencariannya berbasis
+// waktu per bonus (bukan "pakai sekali lalu buang" bergaya antrian), deposit yang
+// terjadi SETELAH sebuah bonus otomatis tidak pernah ikut kepakai untuk bonus itu,
+// jadi bonus lama tidak salah terbaca "tidak sesuai" gara-gara deposit baru.
+//
+// Status "pending" (belum dapat bonus) dicek terpisah per username: deposit PALING
+// BARU milik id itu dianggap pending kalau tidak ada bonus dengan waktu >= waktu
+// deposit tersebut. Jadi begitu ada deposit baru setelah bonus terakhir diberikan,
+// id itu otomatis pending lagi untuk deposit barunya — walau deposit-deposit lamanya
+// sudah pernah dapat bonus sebelumnya.
 function matchDepositsAndBonuses(deposits, bonusRecords) {
   const byUser = new Map();
   const ensure = username => {
@@ -425,28 +430,34 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
   byUser.forEach(data => {
     const ds = data.deposits.slice().sort((a, b) => a.timestamp - b.timestamp);
     const bs = data.bonuses.slice().sort((a, b) => a.timestamp - b.timestamp);
-    const consumed = new Array(ds.length).fill(false);
 
     bs.forEach(bonus => {
-      let idx = ds.findIndex((d, i) => !consumed[i] && d.timestamp <= bonus.timestamp);
-      if (idx === -1) {
-        // Tidak ada deposit belum terpakai sebelum waktu bonus (data janggal/tidak
-        // lengkap) — fallback ke deposit belum terpakai dengan selisih waktu terkecil.
-        ds.forEach((d, i) => {
-          if (consumed[i]) return;
-          if (idx === -1 || Math.abs(d.timestamp - bonus.timestamp) < Math.abs(ds[idx].timestamp - bonus.timestamp)) idx = i;
-        });
+      // ds terurut naik — cari dari belakang supaya yang pertama ketemu adalah
+      // deposit paling baru yang waktunya <= waktu bonus.
+      let matched = null;
+      for (let i = ds.length - 1; i >= 0; i--) {
+        if (ds[i].timestamp <= bonus.timestamp) { matched = ds[i]; break; }
       }
-      if (idx === -1) {
+      if (!matched && ds.length > 0) {
+        // Tidak ada deposit sebelum waktu bonus (data janggal/tidak lengkap) —
+        // fallback ke deposit dengan selisih waktu terkecil, arah manapun.
+        matched = ds.reduce((closest, d) =>
+          Math.abs(d.timestamp - bonus.timestamp) < Math.abs(closest.timestamp - bonus.timestamp) ? d : closest
+        );
+      }
+      if (!matched) {
         unmatchedCount++;
       } else {
-        consumed[idx] = true;
-        pairs.push({ deposit: ds[idx], bonus });
+        pairs.push({ deposit: matched, bonus });
       }
     });
 
-    for (let i = ds.length - 1; i >= 0; i--) {
-      if (!consumed[i]) { pendingDeposits.push(ds[i]); break; }
+    if (ds.length > 0) {
+      const latestDeposit = ds[ds.length - 1];
+      const latestBonusTs = bs.length > 0 ? Math.max(...bs.map(b => b.timestamp)) : -Infinity;
+      if (latestBonusTs < latestDeposit.timestamp) {
+        pendingDeposits.push(latestDeposit);
+      }
     }
   });
 
