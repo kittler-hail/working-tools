@@ -408,6 +408,13 @@ function evaluateBonusAmount(expected, given) {
 // terjadi SETELAH sebuah bonus otomatis tidak pernah ikut kepakai untuk bonus itu,
 // jadi bonus lama tidak salah terbaca "tidak sesuai" gara-gara deposit baru.
 //
+// PENTING: kalau tidak ada satu pun deposit dengan waktu <= waktu bonus (mis. History
+// QR Pay yang di-paste tidak mencakup deposit lama yang jadi dasar bonus itu), bonus
+// itu ditandai "tidak bisa diverifikasi" (unmatchedCount) — TIDAK "menebak" pakai
+// deposit lain yang tersedia (termasuk deposit yang lebih baru). Kalau sampai
+// menebak pakai deposit yang lebih baru, bonus lama bisa salah terbaca
+// "kekurangan"/"kelebihan" padahal cuma karena datanya tidak lengkap.
+//
 // Status "pending" (belum dapat bonus) dicek terpisah per username: deposit PALING
 // BARU milik id itu dianggap pending kalau tidak ada bonus dengan waktu >= waktu
 // deposit tersebut. Jadi begitu ada deposit baru setelah bonus terakhir diberikan,
@@ -433,17 +440,11 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
 
     bs.forEach(bonus => {
       // ds terurut naik — cari dari belakang supaya yang pertama ketemu adalah
-      // deposit paling baru yang waktunya <= waktu bonus.
+      // deposit paling baru yang waktunya <= waktu bonus. Tidak ada fallback ke
+      // deposit yang lebih baru — kalau tidak ketemu, biarkan unmatched.
       let matched = null;
       for (let i = ds.length - 1; i >= 0; i--) {
         if (ds[i].timestamp <= bonus.timestamp) { matched = ds[i]; break; }
-      }
-      if (!matched && ds.length > 0) {
-        // Tidak ada deposit sebelum waktu bonus (data janggal/tidak lengkap) —
-        // fallback ke deposit dengan selisih waktu terkecil, arah manapun.
-        matched = ds.reduce((closest, d) =>
-          Math.abs(d.timestamp - bonus.timestamp) < Math.abs(closest.timestamp - bonus.timestamp) ? d : closest
-        );
       }
       if (!matched) {
         unmatchedCount++;
