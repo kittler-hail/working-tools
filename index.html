@@ -234,6 +234,7 @@
           </div>
           <div id="flagWarnBox"></div>
           <button class="ghost" id="toggleFlagListBtn" data-i18n="flagged.toggleShow">Lihat Daftar ID Bermasalah</button>
+          <div class="admin-only-note" id="flagListAdminNote" style="display:none;" data-i18n="flagged.viewAdminOnly">Login admin untuk melihat daftar ID Bermasalah.</div>
           <div id="flagListContainer" style="display:none;margin-top:14px;">
             <table id="flagTable" style="display:none;">
               <thead>
@@ -255,11 +256,12 @@
           <div class="card-header">
             <h3 data-i18n="flagged.backupTitle">Backup &amp; Restore</h3>
           </div>
-          <div class="backup-actions">
+          <div class="backup-actions" id="flagBackupActions">
             <button class="ghost" id="exportFlagsBtn" data-i18n="flagged.exportBtn">Export Backup (.json)</button>
             <button class="ghost" id="importFlagsBtn" data-i18n="flagged.importBtn">Import Backup</button>
             <input type="file" id="importFlagsFile" accept=".json,application/json" hidden>
           </div>
+          <div class="admin-only-note" id="flagBackupAdminNote" style="display:none;" data-i18n="flagged.backupAdminOnly">Login admin untuk mengakses backup &amp; restore.</div>
         </div>
       </section>
 

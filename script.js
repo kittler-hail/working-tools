@@ -81,6 +81,8 @@ const I18N = {
     'flagged.addBtn': 'Tambah',
     'flagged.toggleShow': 'Lihat Daftar ID Bermasalah',
     'flagged.toggleHide': 'Sembunyikan Daftar ID Bermasalah',
+    'flagged.viewAdminOnly': 'Login admin untuk melihat daftar ID Bermasalah.',
+    'flagged.backupAdminOnly': 'Login admin untuk mengakses backup & restore.',
     'flagged.thId': 'ID',
     'flagged.thCategory': 'Kategori',
     'flagged.thNote': 'Keterangan',
@@ -208,6 +210,8 @@ const I18N = {
     'flagged.addBtn': 'Add',
     'flagged.toggleShow': 'Show Flagged ID List',
     'flagged.toggleHide': 'Hide Flagged ID List',
+    'flagged.viewAdminOnly': 'Log in as admin to view the flagged id list.',
+    'flagged.backupAdminOnly': 'Log in as admin to access backup & restore.',
     'flagged.thId': 'ID',
     'flagged.thCategory': 'Category',
     'flagged.thNote': 'Note',
@@ -736,6 +740,18 @@ function updateAdminUI() {
   // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap.
   if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email.split('@')[0];
   document.getElementById('importFlagsBtn').disabled = !admin;
+
+  // Lihat daftar ID Bermasalah & Backup/Restore: khusus admin. Menambah id baru
+  // (form "Tambah" di atas) tetap terbuka untuk semua, tidak ikut dibatasi di sini.
+  document.getElementById('toggleFlagListBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('flagListAdminNote').style.display = admin ? 'none' : 'block';
+  document.getElementById('flagBackupActions').style.display = admin ? 'flex' : 'none';
+  document.getElementById('flagBackupAdminNote').style.display = admin ? 'none' : 'block';
+  if (!admin) {
+    // Kalau admin logout saat daftarnya lagi kebuka, tutup lagi & reset teks tombolnya.
+    document.getElementById('flagListContainer').style.display = 'none';
+    document.getElementById('toggleFlagListBtn').textContent = t('flagged.toggleShow');
+  }
 }
 
 auth.onAuthStateChanged(user => {
