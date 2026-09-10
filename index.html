@@ -42,6 +42,22 @@
         </div>
       </div>
     </nav>
+
+    <div class="sidebar-admin">
+      <div id="adminLoggedOut">
+        <button class="admin-toggle" id="adminLoginToggle" type="button">Login Admin</button>
+        <div class="admin-login-form" id="adminLoginForm" style="display:none;">
+          <input type="email" id="adminEmailInput" placeholder="Email admin">
+          <input type="password" id="adminPasswordInput" placeholder="Password">
+          <button class="primary" id="adminLoginBtn" type="button">Login</button>
+          <div class="admin-login-error" id="adminLoginError"></div>
+        </div>
+      </div>
+      <div id="adminLoggedIn" style="display:none;">
+        <span class="admin-email" id="adminEmailLabel"></span>
+        <button class="ghost" id="adminLogoutBtn" type="button">Logout</button>
+      </div>
+    </div>
   </aside>
 
   <main class="content">
@@ -285,6 +301,9 @@
   </main>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

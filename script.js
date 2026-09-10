@@ -218,22 +218,52 @@ function formatCopyableAmount(num) {
     .join('');
 }
 
-// --- Daftar ID Bermasalah (persisten via localStorage) ---
-const FLAG_STORAGE_KEY = 'workingTools.flaggedIds';
+// --- Daftar ID Bermasalah (tersimpan terpusat di Firestore, sinkron di semua browser) ---
+// Siapa pun boleh menambahkan id baru (allow create kalau dokumennya belum ada); hapus
+// atau ubah id yang sudah ada dibatasi khusus akun admin. Ini ditegakkan di DUA lapis:
+// disembunyikan di UI (di bawah) DAN dipaksa lewat Firestore Security Rules, supaya
+// tidak bisa diakali orang yang otak-atik lewat console browser.
+const firebaseConfig = {
+  apiKey: "AIzaSyDdAYyCjoxt2xcU2IblQroAS0zpZZvOfmU",
+  authDomain: "working-tools-1354f.firebaseapp.com",
+  projectId: "working-tools-1354f",
+  storageBucket: "working-tools-1354f.firebasestorage.app",
+  messagingSenderId: "660179896468",
+  appId: "1:660179896468:web:faa676d46b851639740c81",
+  measurementId: "G-F4ZYF9XV2F",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const ADMIN_EMAIL = 'adminrey@workingtools.com';
+const FLAGS_COLLECTION = 'flags';
 const FLAG_CATEGORY_LABELS = { safety: 'Safety', 'no-bonus': 'Tidak Dapat Bonus', other: 'Lainnya' };
+const FLAG_CATEGORY_KEYS = Object.keys(FLAG_CATEGORY_LABELS);
+
+// Id dipakai sebagai document id (huruf kecil, supaya "Sama" dan "sama" dianggap id
+// yang sama) — "/" disingkirkan karena tidak boleh ada di satu path segment Firestore.
+function flagDocId(id) {
+  return id.toLowerCase().replace(/\//g, '_');
+}
+
+let flagsCache = [];
+let currentUser = null;
 
 function loadFlags() {
-  try {
-    const raw = localStorage.getItem(FLAG_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return flagsCache;
 }
 
-function saveFlags(flags) {
-  localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(flags));
+function isAdminUser() {
+  return !!(currentUser && currentUser.email === ADMIN_EMAIL);
 }
+
+db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
+  flagsCache = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+  renderFlagTable();
+  renderDashboard();
+}, err => {
+  console.error('Gagal memuat daftar ID Bermasalah dari Firestore:', err);
+});
 
 function stripIdCode(v) {
   return v.includes('@') ? v.slice(v.indexOf('@') + 1) : v;
@@ -259,6 +289,7 @@ function renderFlagTable() {
 
   table.style.display = 'table';
   emptyState.style.display = 'none';
+  const admin = isAdminUser();
 
   flags
     .slice()
@@ -271,7 +302,7 @@ function renderFlagTable() {
         <td><span class="badge ${badgeClass}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span></td>
         <td>${flag.note || '-'}</td>
         <td>${new Date(flag.addedAt).toLocaleString('id-ID')}</td>
-        <td><button class="flag-delete" data-id="${flag.id}">Hapus</button></td>
+        <td>${admin ? `<button class="flag-delete" data-doc-id="${flag.docId}" data-id="${flag.id}">Hapus</button>` : ''}</td>
       `;
       body.appendChild(tr);
     });
@@ -279,14 +310,53 @@ function renderFlagTable() {
   body.querySelectorAll('.flag-delete').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
+      const docId = btn.getAttribute('data-doc-id');
       if (!confirm(`Yakin ingin menghapus id "${id}" dari daftar id bermasalah?`)) return;
       if (!confirm(`Konfirmasi sekali lagi: hapus "${id}" secara permanen dari daftar?`)) return;
-      const remaining = loadFlags().filter(f => f.id !== id);
-      saveFlags(remaining);
-      renderFlagTable();
+      db.collection(FLAGS_COLLECTION).doc(docId).delete().catch(err => {
+        alert('Gagal menghapus: ' + err.message);
+      });
     });
   });
 }
+
+// --- Login admin (Firebase Auth) ---
+function updateAdminUI() {
+  const admin = isAdminUser();
+  document.getElementById('adminLoggedOut').style.display = admin ? 'none' : 'block';
+  document.getElementById('adminLoggedIn').style.display = admin ? 'flex' : 'none';
+  if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email;
+  document.getElementById('importFlagsBtn').disabled = !admin;
+}
+
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  updateAdminUI();
+  renderFlagTable();
+});
+
+document.getElementById('adminLoginToggle').addEventListener('click', () => {
+  const form = document.getElementById('adminLoginForm');
+  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+});
+
+document.getElementById('adminLoginBtn').addEventListener('click', () => {
+  const email = document.getElementById('adminEmailInput').value.trim();
+  const password = document.getElementById('adminPasswordInput').value;
+  const errBox = document.getElementById('adminLoginError');
+  errBox.textContent = '';
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      document.getElementById('adminEmailInput').value = '';
+      document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('adminLoginForm').style.display = 'none';
+    })
+    .catch(() => {
+      errBox.textContent = 'Email atau password salah.';
+    });
+});
+
+document.getElementById('adminLogoutBtn').addEventListener('click', () => auth.signOut());
 
 // --- Navigasi sidebar: satu halaman ("page") aktif ditampilkan, sisanya disembunyikan ---
 const navItems = document.querySelectorAll('.nav-item');
@@ -365,23 +435,26 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
   const category = categorySelect.value;
   const note = noteInput.value.trim();
 
-  const flags = loadFlags().filter(f => f.id.toLowerCase() !== id.toLowerCase());
-  flags.push({ id, category, note, addedAt: Date.now() });
-  saveFlags(flags);
-  renderFlagTable();
-
-  idInput.value = '';
-  noteInput.value = '';
+  // create ditolak Firestore Rules kalau id ini sudah ada dan yang menambahkan
+  // bukan admin — itu memang disengaja (lihat komentar di bagian atas file).
+  db.collection(FLAGS_COLLECTION).doc(flagDocId(id)).set({ id, category, note, addedAt: Date.now() })
+    .then(() => {
+      idInput.value = '';
+      noteInput.value = '';
+    })
+    .catch(err => {
+      warnBox.innerHTML = err.code === 'permission-denied'
+        ? `<div class="warn-box">Id "${id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu di bagian bawah sidebar.</div>`
+        : `<div class="warn-box">Gagal menyimpan: ${err.message}</div>`;
+    });
 });
 
-renderFlagTable();
-
 // --- Backup & restore daftar ID Bermasalah ---
-// Data ini cuma ada di localStorage browser, jadi bisa hilang kalau ganti
-// perangkat/browser atau cache dibersihkan. Export/import lewat file JSON
-// supaya daftarnya bisa dipulihkan kapan saja, tidak bergantung ke satu browser saja.
+// Export tetap terbuka untuk siapa saja (cuma baca/unduh). Import bisa menimpa entri
+// yang sudah ada dalam jumlah banyak sekaligus, jadi dibatasi khusus admin — sama
+// seperti hapus/ubah satuan.
 function exportFlags() {
-  const flags = loadFlags();
+  const flags = loadFlags().map(({ docId, ...rest }) => rest);
   const blob = new Blob([JSON.stringify(flags, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -394,11 +467,15 @@ function exportFlags() {
   URL.revokeObjectURL(url);
 }
 
-const FLAG_CATEGORY_KEYS = Object.keys(FLAG_CATEGORY_LABELS);
-
-// Import digabung (upsert per id), bukan menimpa seluruh daftar — supaya import
-// backup lama tidak menghapus id yang sudah ditambahkan lagi setelah backup itu dibuat.
+// Import digabung (upsert per id) lewat satu batch write, bukan menimpa seluruh
+// koleksi — supaya import backup lama tidak menghapus id yang sudah ditambahkan lagi
+// setelah backup itu dibuat.
 function importFlagsFromJson(text, warnBox) {
+  if (!isAdminUser()) {
+    warnBox.innerHTML = '<div class="warn-box">Hanya admin yang bisa import backup. Login admin dulu di bagian bawah sidebar.</div>';
+    return;
+  }
+
   let incoming;
   try {
     incoming = JSON.parse(text);
@@ -411,26 +488,32 @@ function importFlagsFromJson(text, warnBox) {
     return;
   }
 
-  const byId = new Map(loadFlags().map(f => [f.id.toLowerCase(), f]));
+  const existingDocIds = new Set(loadFlags().map(f => f.docId));
+  const batch = db.batch();
   let added = 0;
   let updated = 0;
 
   incoming.forEach(item => {
     if (!item || typeof item.id !== 'string' || !item.id.trim()) return;
-    const key = item.id.toLowerCase();
+    const id = item.id.trim();
+    const docId = flagDocId(id);
     const entry = {
-      id: item.id.trim(),
+      id,
       category: FLAG_CATEGORY_KEYS.includes(item.category) ? item.category : 'other',
       note: typeof item.note === 'string' ? item.note : '',
       addedAt: typeof item.addedAt === 'number' ? item.addedAt : Date.now(),
     };
-    if (byId.has(key)) updated++; else added++;
-    byId.set(key, entry);
+    if (existingDocIds.has(docId)) updated++; else added++;
+    batch.set(db.collection(FLAGS_COLLECTION).doc(docId), entry);
   });
 
-  saveFlags(Array.from(byId.values()));
-  renderFlagTable();
-  warnBox.innerHTML = `<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">Import selesai: ${added} id baru, ${updated} id diperbarui.</div>`;
+  batch.commit()
+    .then(() => {
+      warnBox.innerHTML = `<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">Import selesai: ${added} id baru, ${updated} id diperbarui.</div>`;
+    })
+    .catch(err => {
+      warnBox.innerHTML = `<div class="warn-box">Import gagal: ${err.message}</div>`;
+    });
 }
 
 document.getElementById('exportFlagsBtn').addEventListener('click', exportFlags);
