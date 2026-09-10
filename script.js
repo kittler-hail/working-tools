@@ -36,6 +36,7 @@ const I18N = {
     'dashboard.statSafety': 'Kategori Safety',
     'dashboard.statNoBonus': 'Tidak Dapat Bonus',
     'dashboard.statLatest': 'Terakhir Ditambahkan',
+    'dashboard.statsAdminOnly': 'Login admin untuk melihat statistik ID Bermasalah.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Cek Bonus',
     'dashboard.linkBonusDesc': 'Deteksi bonus pending, tidak sesuai, dan dobel.',
@@ -165,6 +166,7 @@ const I18N = {
     'dashboard.statSafety': 'Safety Category',
     'dashboard.statNoBonus': 'No Bonus',
     'dashboard.statLatest': 'Last Added',
+    'dashboard.statsAdminOnly': 'Log in as admin to view the flagged id statistics.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Check Bonus',
     'dashboard.linkBonusDesc': 'Detect pending, mismatched, and duplicate bonuses.',
@@ -747,6 +749,11 @@ function updateAdminUI() {
   document.getElementById('flagListAdminNote').style.display = admin ? 'none' : 'block';
   document.getElementById('flagBackupActions').style.display = admin ? 'flex' : 'none';
   document.getElementById('flagBackupAdminNote').style.display = admin ? 'none' : 'block';
+
+  // Statistik ID Bermasalah di Dashboard juga khusus admin.
+  document.getElementById('dashAdminStats').style.display = admin ? 'flex' : 'none';
+  document.getElementById('dashStatsAdminNote').style.display = admin ? 'none' : 'block';
+
   if (!admin) {
     // Kalau admin logout saat daftarnya lagi kebuka, tutup lagi & reset teks tombolnya.
     document.getElementById('flagListContainer').style.display = 'none';

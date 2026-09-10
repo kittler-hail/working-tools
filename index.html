@@ -106,7 +106,7 @@
       <section class="page" id="page-dashboard" data-page="dashboard">
         <h2 class="page-title" data-i18n="dashboard.title">Dashboard</h2>
 
-        <div class="row dash-stats">
+        <div class="row dash-stats" id="dashAdminStats">
           <div class="card stat-card">
             <span class="stat-value" id="dashFlagTotal">0</span>
             <span class="stat-label" data-i18n="dashboard.statTotal">Total ID Bermasalah</span>
@@ -123,6 +123,9 @@
             <span class="stat-value small" id="dashFlagLatest">-</span>
             <span class="stat-label" data-i18n="dashboard.statLatest">Terakhir Ditambahkan</span>
           </div>
+        </div>
+        <div class="card" id="dashStatsAdminNote" style="display:none;">
+          <p class="admin-only-note" style="margin:0;" data-i18n="dashboard.statsAdminOnly">Login admin untuk melihat statistik ID Bermasalah.</p>
         </div>
 
         <div class="card">
