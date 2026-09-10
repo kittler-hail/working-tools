@@ -101,6 +101,12 @@ const I18N = {
 
     'winlose.title': 'Win/Lose Member All Game',
     'winlose.dataTitle': 'Data Win/Lose',
+    'winlose.uploadTitle': 'Upload file Excel',
+    'winlose.uploadHint': 'Seret & lepas di sini, atau klik untuk pilih file (.xlsx, .xls, .csv)',
+    'winlose.uploadOr': 'atau paste manual',
+    'winlose.uploadRemove': 'Hapus file',
+    'winlose.uploadReadError': 'Gagal membaca file: {error}',
+    'winlose.uploadEmpty': 'File tidak berisi data yang bisa dibaca.',
     'winlose.sortTitle': 'Urutkan',
     'winlose.thresholdAll': 'Semua ID',
     'winlose.threshold200rb': 'Min 200rb',
@@ -221,6 +227,12 @@ const I18N = {
 
     'winlose.title': 'Win/Lose Member All Game',
     'winlose.dataTitle': 'Win/Lose Data',
+    'winlose.uploadTitle': 'Upload Excel file',
+    'winlose.uploadHint': 'Drag & drop here, or click to choose a file (.xlsx, .xls, .csv)',
+    'winlose.uploadOr': 'or paste manually',
+    'winlose.uploadRemove': 'Remove file',
+    'winlose.uploadReadError': 'Failed to read file: {error}',
+    'winlose.uploadEmpty': "The file doesn't contain any readable data.",
     'winlose.sortTitle': 'Sort',
     'winlose.thresholdAll': 'All IDs',
     'winlose.threshold200rb': 'Min 200K',
@@ -277,6 +289,9 @@ function applyStaticI18n() {
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.getAttribute('data-i18n-title'));
   });
 }
 
@@ -1256,6 +1271,83 @@ document.getElementById('winloseCopyBtn').addEventListener('click', () => {
     btn.textContent = t('winlose.copyBtnDone');
     setTimeout(() => { btn.textContent = original; }, 1000);
   });
+});
+
+// --- Upload file Excel untuk Data Win/Lose (alternatif dari paste manual) ---
+// Sheet pertama dibaca lalu tiap baris/selnya digabung jadi teks tab-separated
+// persis seperti hasil copy-paste — jadi baris parser yang sudah ada
+// (parseWinLoseRecords dkk.) langsung bisa dipakai lagi tanpa logika baca-Excel
+// terpisah. Angka negatif format akuntansi Excel, mis. "(965.67)", diubah dulu ke
+// "-965.67" supaya tetap terbaca oleh parser yang sama.
+function excelSheetToTabText(workbook) {
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+  return rows
+    .map(row => row.map(cell => String(cell).trim().replace(/^\(([\d,]+\.?\d*)\)$/, '-$1')).join('\t'))
+    .join('\n');
+}
+
+function setWinloseFileChip(fileName) {
+  document.getElementById('winloseFileName').textContent = fileName;
+  document.getElementById('winloseFileChip').style.display = fileName ? 'flex' : 'none';
+}
+
+function handleWinloseFile(file) {
+  const warnBox = document.getElementById('winloseWarnBox');
+  warnBox.innerHTML = '';
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const workbook = XLSX.read(e.target.result, { type: 'array' });
+      const text = excelSheetToTabText(workbook);
+      if (!text.trim()) {
+        warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadEmpty')}</div>`;
+        return;
+      }
+      document.getElementById('winloseData').value = text;
+      setWinloseFileChip(file.name);
+    } catch (err) {
+      warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadReadError', { error: err.message })}</div>`;
+    }
+  };
+  reader.onerror = () => {
+    warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadReadError', { error: reader.error && reader.error.message })}</div>`;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+const winloseUploadZone = document.getElementById('winloseUploadZone');
+const winloseFileInput = document.getElementById('winloseFileInput');
+
+winloseUploadZone.addEventListener('click', () => winloseFileInput.click());
+
+winloseFileInput.addEventListener('change', (e) => {
+  handleWinloseFile(e.target.files[0]);
+  e.target.value = '';
+});
+
+['dragover', 'dragenter'].forEach(evt => {
+  winloseUploadZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    winloseUploadZone.classList.add('dragover');
+  });
+});
+['dragleave', 'dragend'].forEach(evt => {
+  winloseUploadZone.addEventListener(evt, () => winloseUploadZone.classList.remove('dragover'));
+});
+winloseUploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  winloseUploadZone.classList.remove('dragover');
+  handleWinloseFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('winloseFileRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  setWinloseFileChip('');
+  document.getElementById('winloseData').value = '';
 });
 
 // Terapkan bahasa tersimpan (atau default Indonesia) — ditaruh paling akhir supaya
