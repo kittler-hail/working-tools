@@ -400,26 +400,25 @@ function evaluateBonusAmount(expected, given) {
   return { status: 'ok', diff: 0 };
 }
 
+// Bonus itu SEKALI PER ID — begitu sebuah id pernah dapat bonus (untuk deposit
+// manapun, kapan pun), id itu tidak pernah dianggap "pending" lagi, walau dia
+// deposit lagi setelahnya. "Pending" (belum dapat bonus) HANYA untuk id yang belum
+// pernah punya baris BONUS DEPOSIT sama sekali di History — dan hanya dihitung dari
+// deposit confirmed (parameter `deposits` di sini memang sudah difilter status
+// confirmed dari pemanggilnya).
+//
 // Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya. Sesuai cara
 // admin menghitungnya di dunia nyata: tiap bonus dicocokkan ke deposit confirmed
 // PALING BARU milik username yang sama PADA SAAT bonus itu diberikan (waktu deposit
 // <= waktu bonus) — bukan deposit pertama/paling lama. Karena pencariannya berbasis
-// waktu per bonus (bukan "pakai sekali lalu buang" bergaya antrian), deposit yang
-// terjadi SETELAH sebuah bonus otomatis tidak pernah ikut kepakai untuk bonus itu,
-// jadi bonus lama tidak salah terbaca "tidak sesuai" gara-gara deposit baru.
+// waktu per bonus, deposit yang terjadi SETELAH sebuah bonus otomatis tidak pernah
+// ikut kepakai untuk bonus itu, jadi bonus lama tidak salah terbaca "tidak sesuai"
+// gara-gara deposit baru.
 //
 // PENTING: kalau tidak ada satu pun deposit dengan waktu <= waktu bonus (mis. History
 // QR Pay yang di-paste tidak mencakup deposit lama yang jadi dasar bonus itu), bonus
 // itu ditandai "tidak bisa diverifikasi" (unmatchedCount) — TIDAK "menebak" pakai
-// deposit lain yang tersedia (termasuk deposit yang lebih baru). Kalau sampai
-// menebak pakai deposit yang lebih baru, bonus lama bisa salah terbaca
-// "kekurangan"/"kelebihan" padahal cuma karena datanya tidak lengkap.
-//
-// Status "pending" (belum dapat bonus) dicek terpisah per username: deposit PALING
-// BARU milik id itu dianggap pending kalau tidak ada bonus dengan waktu >= waktu
-// deposit tersebut. Jadi begitu ada deposit baru setelah bonus terakhir diberikan,
-// id itu otomatis pending lagi untuk deposit barunya — walau deposit-deposit lamanya
-// sudah pernah dapat bonus sebelumnya.
+// deposit lain yang tersedia (termasuk deposit yang lebih baru).
 function matchDepositsAndBonuses(deposits, bonusRecords) {
   const byUser = new Map();
   const ensure = username => {
@@ -453,12 +452,10 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
       }
     });
 
-    if (ds.length > 0) {
-      const latestDeposit = ds[ds.length - 1];
-      const latestBonusTs = bs.length > 0 ? Math.max(...bs.map(b => b.timestamp)) : -Infinity;
-      if (latestBonusTs < latestDeposit.timestamp) {
-        pendingDeposits.push(latestDeposit);
-      }
+    // Id ini belum pernah dapat bonus sama sekali -> deposit confirmed TERBARUnya
+    // yang ditampilkan sebagai pending (menunjukkan nominal bonus yang seharusnya).
+    if (ds.length > 0 && bs.length === 0) {
+      pendingDeposits.push(ds[ds.length - 1]);
     }
   });
 
