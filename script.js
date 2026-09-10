@@ -45,16 +45,6 @@ function parseDateTime(match) {
   return { timestamp, text: full.trim() };
 }
 
-// Field admin/operator biasanya ada di baris terakhir record, mis. "...\tbbc@rehansya".
-function extractAdmin(blockLines, username) {
-  for (let i = blockLines.length - 1; i >= 1; i--) {
-    const cols = blockLines[i].split('\t').map(c => c.trim());
-    const found = cols.find(c => c.includes('@') && c !== username);
-    if (found) return found;
-  }
-  return '';
-}
-
 function parseRecords(raw) {
   return splitIntoRecordBlocks(raw)
     .map(blockLines => {
@@ -62,12 +52,11 @@ function parseRecords(raw) {
       const cols = blockLines[0].split('\t').map(c => c.trim());
       const rawUsername = cols.find(c => c.includes('@')) || '';
       // Kode di depan "@" (mis. "BBC", "BFY") bisa berubah-ubah, jadi id yang
-      // ditampilkan murni bagian setelah "@" (berlaku juga untuk field admin).
-      // Kodenya sendiri tetap disimpan (field "code") karena dipakai untuk aturan cap bonus.
+      // ditampilkan murni bagian setelah "@". Kodenya sendiri tetap disimpan
+      // (field "code") karena dipakai untuk aturan cap bonus.
       const stripCode = v => (v.includes('@') ? v.slice(v.indexOf('@') + 1) : v);
       const code = rawUsername.includes('@') ? rawUsername.slice(0, rawUsername.indexOf('@')) : '';
       const username = stripCode(rawUsername);
-      const admin = stripCode(extractAdmin(blockLines, rawUsername));
 
       const amountMatch = block.match(AMOUNT_RE);
       const amount = amountMatch ? parseInt(amountMatch[0].replace(/[.,]/g, ''), 10) : 0;
@@ -80,7 +69,7 @@ function parseRecords(raw) {
       const depositTypeMatch = block.match(DEPOSIT_TYPE_RE);
       const depositType = depositTypeMatch ? depositTypeMatch[1].toLowerCase() : '';
 
-      return { username, amount, timestamp, dateText, status, admin, depositType, code };
+      return { username, amount, timestamp, dateText, status, depositType, code };
     })
     .filter(r => r.username);
 }
@@ -112,22 +101,57 @@ function evaluateBonusAmount(expected, given) {
   return { status: 'ok', diff: 0 };
 }
 
-// Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya, jadi dicari
-// deposit confirmed milik username yang sama dengan waktu paling dekat sebelum
-// (atau bertepatan dengan) waktu bonus diberikan. Kalau tidak ada deposit sebelum
-// waktu bonus (data janggal/tidak lengkap), fallback ke deposit dengan selisih
-// waktu paling kecil.
-function findMatchingDeposit(deposits, username, bonusTimestamp) {
-  const userDeposits = deposits.filter(d => d.username.toLowerCase() === username.toLowerCase());
-  if (userDeposits.length === 0) return null;
+// Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya, jadi tiap
+// bonus dipasangkan ke deposit confirmed milik username yang sama secara berurutan
+// (bonus paling lama ke deposit belum terpakai paling lama), dan satu deposit hanya
+// bisa dipakai untuk satu bonus. Ini penting supaya deposit baru yang dibuat SETELAH
+// sebuah bonus diberikan tidak ikut kepakai ulang untuk mengevaluasi bonus lama itu
+// (yang sebelumnya menyebabkan bonus lama salah terbaca "kekurangan"/"tidak sesuai").
+// Deposit yang tersisa (belum dapat bonus) untuk tiap username, yang paling baru,
+// dianggap sebagai deposit yang masih pending.
+function matchDepositsAndBonuses(deposits, bonusRecords) {
+  const byUser = new Map();
+  const ensure = username => {
+    const key = username.toLowerCase();
+    if (!byUser.has(key)) byUser.set(key, { deposits: [], bonuses: [] });
+    return byUser.get(key);
+  };
+  deposits.forEach(d => ensure(d.username).deposits.push(d));
+  bonusRecords.forEach(b => ensure(b.username).bonuses.push(b));
 
-  const before = userDeposits.filter(d => d.timestamp <= bonusTimestamp);
-  if (before.length > 0) {
-    return before.reduce((latest, d) => (d.timestamp > latest.timestamp ? d : latest));
-  }
-  return userDeposits.reduce((closest, d) =>
-    Math.abs(d.timestamp - bonusTimestamp) < Math.abs(closest.timestamp - bonusTimestamp) ? d : closest
-  );
+  const pairs = [];
+  const pendingDeposits = [];
+  let unmatchedCount = 0;
+
+  byUser.forEach(data => {
+    const ds = data.deposits.slice().sort((a, b) => a.timestamp - b.timestamp);
+    const bs = data.bonuses.slice().sort((a, b) => a.timestamp - b.timestamp);
+    const consumed = new Array(ds.length).fill(false);
+
+    bs.forEach(bonus => {
+      let idx = ds.findIndex((d, i) => !consumed[i] && d.timestamp <= bonus.timestamp);
+      if (idx === -1) {
+        // Tidak ada deposit belum terpakai sebelum waktu bonus (data janggal/tidak
+        // lengkap) — fallback ke deposit belum terpakai dengan selisih waktu terkecil.
+        ds.forEach((d, i) => {
+          if (consumed[i]) return;
+          if (idx === -1 || Math.abs(d.timestamp - bonus.timestamp) < Math.abs(ds[idx].timestamp - bonus.timestamp)) idx = i;
+        });
+      }
+      if (idx === -1) {
+        unmatchedCount++;
+      } else {
+        consumed[idx] = true;
+        pairs.push({ deposit: ds[idx], bonus });
+      }
+    });
+
+    for (let i = ds.length - 1; i >= 0; i--) {
+      if (!consumed[i]) { pendingDeposits.push(ds[i]); break; }
+    }
+  });
+
+  return { pairs, pendingDeposits, unmatchedCount };
 }
 
 function findDuplicateGroups(records) {
@@ -139,17 +163,6 @@ function findDuplicateGroups(records) {
   return Array.from(groups.values())
     .filter(list => list.length >= 2)
     .sort((a, b) => b.length - a.length);
-}
-
-function dedupeLatest(records) {
-  const byUsername = new Map();
-  records.forEach(r => {
-    const existing = byUsername.get(r.username);
-    if (!existing || r.timestamp >= existing.timestamp) {
-      byUsername.set(r.username, r);
-    }
-  });
-  return byUsername;
 }
 
 function formatRupiah(num) {
@@ -278,16 +291,54 @@ function renderFlagTable() {
 // --- Navigasi sidebar: satu halaman ("page") aktif ditampilkan, sisanya disembunyikan ---
 const navItems = document.querySelectorAll('.nav-item');
 const pages = document.querySelectorAll('.page');
+const dataSumber = document.querySelector('.data-sumber');
+// Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
+// Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose']);
+
+function activatePage(target) {
+  navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
+  pages.forEach(p => {
+    p.style.display = p.dataset.page === target ? 'block' : 'none';
+  });
+  dataSumber.style.display = PAGES_WITHOUT_DATA_SUMBER.has(target) ? 'none' : 'block';
+
+  // Buka grup accordion yang memuat halaman ini, supaya item aktifnya kelihatan.
+  const activeBtn = Array.from(navItems).find(b => b.dataset.page === target);
+  const group = activeBtn && activeBtn.closest('.nav-group');
+  if (group) group.classList.add('open');
+
+  if (target === 'dashboard') renderDashboard();
+}
 
 navItems.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.page;
-    navItems.forEach(b => b.classList.toggle('active', b === btn));
-    pages.forEach(p => {
-      p.style.display = p.dataset.page === target ? 'block' : 'none';
-    });
+  btn.addEventListener('click', () => activatePage(btn.dataset.page));
+});
+
+// --- Grup menu sidebar bisa dibuka/tutup (accordion) ---
+document.querySelectorAll('.nav-group-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.nav-group').classList.toggle('open');
   });
 });
+
+document.querySelectorAll('.dash-link').forEach(btn => {
+  btn.addEventListener('click', () => activatePage(btn.dataset.goto));
+});
+
+// --- Dashboard: ringkasan daftar ID Bermasalah (satu-satunya data yang persisten). ---
+function renderDashboard() {
+  const flags = loadFlags();
+  document.getElementById('dashFlagTotal').textContent = flags.length;
+  document.getElementById('dashFlagSafety').textContent = flags.filter(f => f.category === 'safety').length;
+  document.getElementById('dashFlagNoBonus').textContent = flags.filter(f => f.category === 'no-bonus').length;
+  const latest = flags.slice().sort((a, b) => b.addedAt - a.addedAt)[0];
+  document.getElementById('dashFlagLatest').textContent = latest ? new Date(latest.addedAt).toLocaleDateString('id-ID') : '-';
+}
+
+// Dashboard adalah halaman default saat pertama dibuka — activatePage juga yang
+// mengurus sembunyikan Data Sumber (bukan cuma render statistiknya).
+activatePage('dashboard');
 
 document.getElementById('toggleFlagListBtn').addEventListener('click', () => {
   const container = document.getElementById('flagListContainer');
@@ -397,10 +448,6 @@ document.getElementById('importFlagsFile').addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
-// Label & badge class per jenis isu pada tabel Cek Bonus gabungan.
-const BONUS_ISSUE_LABELS = { pending: 'Pending', excess: 'Tidak Sesuai', shortage: 'Tidak Sesuai', double: 'Dobel' };
-const BONUS_ISSUE_BADGE_CLASS = { pending: 'badge-pending', excess: 'badge-excess', shortage: 'badge-shortage', double: 'badge-warn' };
-
 // Menggabungkan tiga pengecekan (pending, kesesuaian nominal, dobel) jadi satu daftar
 // baris hasil. Tiap "item" bisa berisi lebih dari satu baris tabel (grup dobel bonus
 // tetap ditampilkan berurutan per kemunculan), tapi disortir sebagai satu kesatuan
@@ -409,43 +456,32 @@ function buildBonusReport(txRaw, givenRaw, pct) {
   const deposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
   const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit);
 
+  const { pairs, pendingDeposits, unmatchedCount } = matchDepositsAndBonuses(deposits, bonusRecords);
+
   const items = [];
 
-  // Pending: sudah deposit confirmed tapi belum ada bonus sama sekali.
-  const latestDepositByUsername = dedupeLatest(deposits);
-  const bonusUsernames = new Set(bonusRecords.map(r => r.username));
-  Array.from(latestDepositByUsername.values())
-    .filter(r => !bonusUsernames.has(r.username))
-    .forEach(r => {
-      const expected = computeExpectedBonus(r.amount, pct, r.code);
-      items.push({
-        sortTs: r.timestamp,
-        rows: [{
-          username: r.username, jenis: 'pending', depositAmount: r.amount,
-          expected, given: null, note: '-', waktu: r.dateText || '-', admin: '-',
-        }],
-      });
+  // Pending: deposit confirmed yang belum kebagian bonus (deposit yang sudah
+  // dipasangkan ke bonus lain tidak dihitung lagi di sini).
+  pendingDeposits.forEach(r => {
+    const expected = computeExpectedBonus(r.amount, pct, r.code);
+    items.push({
+      sortTs: r.timestamp,
+      rows: [{ kind: 'pending', username: r.username, expected, given: null, note: 'Belum dapat bonus', waktu: r.dateText || '-' }],
     });
+  });
 
   // Tidak Sesuai: bonus sudah diberikan tapi nominalnya beda dari seharusnya
   // (di luar toleransi pembulatan ke ribuan terdekat).
-  let unmatchedCount = 0;
-  bonusRecords.forEach(bonusRec => {
-    const deposit = findMatchingDeposit(deposits, bonusRec.username, bonusRec.timestamp);
-    if (!deposit) {
-      unmatchedCount++;
-      return;
-    }
+  pairs.forEach(({ deposit, bonus }) => {
     const expected = computeExpectedBonus(deposit.amount, pct, deposit.code);
-    const evaluation = evaluateBonusAmount(expected, bonusRec.amount);
+    const evaluation = evaluateBonusAmount(expected, bonus.amount);
     if (evaluation.status === 'ok') return;
     items.push({
-      sortTs: bonusRec.timestamp,
+      sortTs: bonus.timestamp,
       rows: [{
-        username: bonusRec.username, jenis: evaluation.status, depositAmount: deposit.amount,
-        expected, given: bonusRec.amount,
+        kind: 'mismatch', username: bonus.username, expected, given: bonus.amount,
         note: (evaluation.status === 'excess' ? 'Kelebihan Rp' : 'Kekurangan Rp') + formatRupiah(evaluation.diff),
-        waktu: bonusRec.dateText || '-', admin: bonusRec.admin ? '**@admin' : '-',
+        waktu: bonus.dateText || '-',
       }],
     });
   });
@@ -454,9 +490,9 @@ function buildBonusReport(txRaw, givenRaw, pct) {
   findDuplicateGroups(bonusRecords).forEach(group => {
     const sorted = group.slice().sort((a, b) => a.timestamp - b.timestamp);
     const rows = sorted.map((r, i) => ({
-      username: r.username, jenis: 'double', depositAmount: null, expected: null,
+      kind: 'double', username: r.username, expected: null,
       given: r.amount, note: i === 0 ? sorted.length + 'x diberikan' : '-',
-      waktu: r.dateText || '-', admin: r.admin ? '**@admin' : '-', groupStart: i === 0,
+      waktu: r.dateText || '-', groupStart: i === 0,
     }));
     items.push({ sortTs: sorted[sorted.length - 1].timestamp, rows });
   });
@@ -466,12 +502,24 @@ function buildBonusReport(txRaw, givenRaw, pct) {
   return {
     rows: items.flatMap(it => it.rows),
     counts: {
-      pending: items.filter(it => it.rows[0].jenis === 'pending').length,
-      mismatch: items.filter(it => it.rows[0].jenis === 'excess' || it.rows[0].jenis === 'shortage').length,
-      double: items.filter(it => it.rows[0].jenis === 'double').length,
+      pending: items.filter(it => it.rows[0].kind === 'pending').length,
+      mismatch: items.filter(it => it.rows[0].kind === 'mismatch').length,
+      double: items.filter(it => it.rows[0].kind === 'double').length,
     },
     unmatchedCount,
   };
+}
+
+// Klik nilai berformat (id atau nominal) untuk copy versi polosnya ke clipboard.
+function makeCopyable(el, plainText) {
+  el.classList.add('copyable');
+  el.title = 'Klik untuk copy';
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText(plainText).then(() => {
+      el.classList.add('copied');
+      setTimeout(() => el.classList.remove('copied'), 500);
+    });
+  });
 }
 
 document.getElementById('bonusProcessBtn').addEventListener('click', () => {
@@ -517,22 +565,21 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   report.rows.forEach(r => {
     const flag = findFlag(flags, r.username);
     const tr = document.createElement('tr');
+    tr.classList.add('kind-' + r.kind);
     if (flag) tr.classList.add('flagged-row');
     if (r.groupStart) tr.classList.add('group-start');
-    const jenisLabel = (r.jenis === 'double' && !r.groupStart)
-      ? ''
-      : `<span class="badge ${BONUS_ISSUE_BADGE_CLASS[r.jenis]}">${BONUS_ISSUE_LABELS[r.jenis]}</span>`;
     tr.innerHTML = `
-      <td>${r.username}${flag ? `<br><span class="badge badge-${flag.category}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>${flag.note ? ` <span class="flag-note">${flag.note}</span>` : ''}` : ''}</td>
-      <td>${jenisLabel}</td>
-      <td class="amount">${r.depositAmount != null ? formatRupiah(r.depositAmount) : '-'}</td>
-      <td class="amount${r.expected != null ? ' cashback' : ''}">${r.expected != null ? formatCopyableAmount(r.expected) : '-'}</td>
-      <td class="amount">${r.given != null ? formatRupiah(r.given) : '-'}</td>
+      <td class="idcell">${r.username}${flag ? `<br><span class="badge badge-${flag.category}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>${flag.note ? ` <span class="flag-note">${flag.note}</span>` : ''}` : ''}</td>
+      <td class="amount">${r.expected != null ? formatCopyableAmount(r.expected) : '-'}</td>
+      <td class="amount">${r.given != null ? formatCopyableAmount(r.given) : '-'}</td>
       <td>${r.note}</td>
       <td>${r.waktu}</td>
-      <td>${r.admin}</td>
     `;
     body.appendChild(tr);
+
+    makeCopyable(tr.querySelector('.idcell'), r.username);
+    if (r.expected != null) makeCopyable(tr.children[1], String(r.expected));
+    if (r.given != null) makeCopyable(tr.children[2], String(r.given));
   });
 });
 
@@ -588,4 +635,157 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
   document.getElementById('newMemberResultCard').style.display = 'block';
   document.getElementById('newMemberCountBadge').textContent = depositedCount + ' dari ' + memberIds.length + ' id sudah deposit';
   document.getElementById('newMemberResultText').value = lines.join('\n');
+});
+
+// --- Win/Lose Member All Game ---
+// Game TIDAK ditebak otomatis dari isi paste (sempat salah baca tanggal/teks lain
+// sebagai nama game) — dipilih manual dari dropdown, lalu dipasang ke semua id hasil
+// paste itu sekaligus. Kode di depan id (mis. "BBC@") juga TIDAK dipotong di fitur ini
+// karena dibutuhkan utuh.
+// Mendukung dua bentuk laporan sekaligus dalam satu paste:
+// 1) "No" (angka) + "Account" per baris, tab-separated (atau satu nilai per baris —
+//    direkonstruksi dulu lewat reconstructSplitFieldLines()): 12 kolom angka sesudah
+//    kode mata uang (mis. "IDR") berurutan Amount, Valid Amount, Gross Com, lalu
+//    3x(W/L, Com, W/L + Com) untuk Members, Agent Profit, Company. Acuan win/lose
+//    dipakai Members > W/L + Com (kolom ke-6 dari kolom mata uang).
+// 2) Laporan ala "SSC": Account langsung di kolom pertama (tanpa "No"), lalu Count,
+//    BetAmt, WinLoseAmt, ... Acuan win/lose dipakai WinLoseAmt (kolom ke-4).
+const CUR_CODE_RE = /^[A-Z]{3,4}$/;
+const WINLOSE_NUMBER_RE = /^-?[\d,]+(?:\.\d+)?$/;
+
+function parseAmountNum(str) {
+  const n = parseFloat((str || '').replace(/,/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+
+// Menyatukan kembali record yang field-nya terpisah satu per baris (bukan per tab)
+// jadi satu baris ber-tab, supaya bisa diproses sama seperti format yang sudah rapi.
+// Pola record dikenali dari: baris nomor urut polos, lalu baris berisi "@", lalu baris
+// kode mata uang — sisanya (angka) ikut disatukan sampai polanya berhenti.
+function reconstructSplitFieldLines(lines) {
+  const isInt = s => /^\d+$/.test(s);
+  const out = [];
+  let i = 0;
+  while (i < lines.length) {
+    const a = (lines[i] || '').trim();
+    const b = (lines[i + 1] || '').trim();
+    const c = (lines[i + 2] || '').trim();
+    if (isInt(a) && b.includes('@') && CUR_CODE_RE.test(c)) {
+      // Selalu tepat 12 kolom angka sesudah kode mata uang — dibatasi hitungannya
+      // (bukan "selama masih berupa angka") supaya nomor urut record BERIKUTNYA
+      // (yang juga cuma digit polos) tidak ikut tertelan sebagai angka ke-13.
+      const fields = [a, b, c];
+      let j = i + 3;
+      let collected = 0;
+      while (j < lines.length && collected < 12 && WINLOSE_NUMBER_RE.test((lines[j] || '').trim())) {
+        fields.push(lines[j].trim());
+        j++;
+        collected++;
+      }
+      out.push(fields.join('\t'));
+      i = j;
+    } else {
+      out.push(lines[i]);
+      i++;
+    }
+  }
+  return out;
+}
+
+function parseWinLoseRecords(raw) {
+  const lines = reconstructSplitFieldLines(raw.split(/\r?\n/));
+  const records = [];
+
+  lines.forEach(line => {
+    const cols = line.split('\t').map(c => c.trim());
+
+    // Format "No" + Account (tab-separated, sudah ada aslinya atau hasil rekonstruksi).
+    if (cols.length >= 3 && /^\d+$/.test(cols[0]) && cols[1] && cols[1].includes('@')) {
+      const curIdx = cols.findIndex((c, i) => i >= 2 && CUR_CODE_RE.test(c));
+      if (curIdx === -1) return;
+      const nums = cols.slice(curIdx + 1).map(parseAmountNum);
+      if (nums.length < 6) return;
+      records.push({ id: cols[1], value: nums[5] });
+      return;
+    }
+
+    // Format "SSC": Account langsung di kolom pertama, lalu Count, BetAmt, WinLoseAmt.
+    if (cols.length >= 4 && cols[0] && cols[0].includes('@')) {
+      records.push({ id: cols[0], value: parseAmountNum(cols[3]) });
+    }
+  });
+
+  return records;
+}
+
+// Angka ditampilkan & di-copy persis format sumbernya (titik desimal, koma ribuan),
+// bukan dikonversi ke rupiah — sesuai satuan pada laporan yang dipaste.
+function formatSourceStyleAmount(num) {
+  const sign = num < 0 ? '-' : '';
+  const [intPart, decPart] = Math.abs(num).toFixed(2).split('.');
+  return sign + intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + decPart;
+}
+
+// Threshold berlaku dua arah dengan nominal yang sama: kekalahan minimal X, maupun
+// kemenangan minimal X. Diurutkan dari kekalahan (angka negatif) terbesar di atas ke
+// kemenangan terbesar di bawah. Satu game yang dipilih dipasang ke semua id sekaligus.
+function buildWinLoseReport(raw, threshold, game) {
+  return parseWinLoseRecords(raw)
+    .filter(r => Math.abs(r.value) >= threshold)
+    .map(r => ({ ...r, game }))
+    .sort((a, b) => a.value - b.value);
+}
+
+let lastWinLoseRecords = [];
+
+document.getElementById('winloseProcessBtn').addEventListener('click', () => {
+  const raw = document.getElementById('winloseData').value;
+  const threshold = parseInt(document.getElementById('winloseThresholdSelect').value, 10) || 0;
+  const game = document.getElementById('winloseGameSelect').value;
+  const warnBox = document.getElementById('winloseWarnBox');
+  warnBox.innerHTML = '';
+
+  const records = buildWinLoseReport(raw, threshold, game);
+  lastWinLoseRecords = records;
+  const body = document.getElementById('winloseResultBody');
+  body.innerHTML = '';
+
+  if (records.length === 0) {
+    document.getElementById('winloseResultCard').style.display = 'none';
+    document.getElementById('winloseEmptyCard').style.display = 'block';
+    document.getElementById('winloseEmptyCard').querySelector('.empty-state').textContent =
+      parseWinLoseRecords(raw).length === 0
+        ? 'Data belum diisi atau formatnya tidak terbaca.'
+        : 'Tidak ada id yang lolos ambang batas ini.';
+    return;
+  }
+
+  document.getElementById('winloseEmptyCard').style.display = 'none';
+  document.getElementById('winloseResultCard').style.display = 'block';
+  const loseCount = records.filter(r => r.value < 0).length;
+  const winCount = records.filter(r => r.value > 0).length;
+  document.getElementById('winloseCountBadge').textContent = `${loseCount} kalah · ${winCount} menang`;
+
+  records.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.classList.add(r.value < 0 ? 'row-lose' : 'row-win');
+    tr.innerHTML = `
+      <td class="idcell">${r.id}</td>
+      <td><span class="badge badge-game">${r.game}</span></td>
+      <td class="amount ${r.value < 0 ? 'lose' : 'win'}">${formatSourceStyleAmount(r.value)}</td>
+    `;
+    body.appendChild(tr);
+    makeCopyable(tr.querySelector('.idcell'), r.id);
+    makeCopyable(tr.querySelector('.amount'), formatSourceStyleAmount(r.value));
+  });
+});
+
+document.getElementById('winloseCopyBtn').addEventListener('click', () => {
+  const text = lastWinLoseRecords.map(r => `${r.id}\t${r.game}\t${formatSourceStyleAmount(r.value)}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('winloseCopyBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Tersalin!';
+    setTimeout(() => { btn.textContent = original; }, 1000);
+  });
 });

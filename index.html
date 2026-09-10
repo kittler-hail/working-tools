@@ -12,44 +12,105 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <h1>Working Tools</h1>
-      <p class="sidebar-subtitle">Cek bonus deposit &amp; member baru</p>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-item active" data-page="bonus">Bonus</button>
-      <button class="nav-item" data-page="newmember">New Member First Deposit</button>
-      <button class="nav-item" data-page="flagged">ID Bermasalah</button>
-      <button class="nav-item" data-page="tutorial">Tutorial Penggunaan</button>
+      <button class="nav-item nav-top active" data-page="dashboard">Dashboard</button>
+
+      <div class="nav-group open">
+        <button class="nav-group-header" type="button">
+          <span>1. Bonus</span>
+          <span class="chevron">&rsaquo;</span>
+        </button>
+        <div class="nav-group-items">
+          <div class="inner">
+            <button class="nav-item nav-sub" data-page="bonus">1.1 Cek Bonus</button>
+            <button class="nav-item nav-sub" data-page="flagged">1.2 ID Bermasalah</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-header" type="button">
+          <span>2. Member</span>
+          <span class="chevron">&rsaquo;</span>
+        </button>
+        <div class="nav-group-items">
+          <div class="inner">
+            <button class="nav-item nav-sub" data-page="newmember">2.1 New Member First Deposit</button>
+            <button class="nav-item nav-sub" data-page="winlose">2.2 Win/Lose All Game</button>
+          </div>
+        </div>
+      </div>
     </nav>
   </aside>
 
   <main class="content">
 
     <div class="data-sumber">
-      <h2 class="page-title">Data Sumber</h2>
-      <p class="page-desc">Dipakai bersama oleh semua menu.</p>
       <div class="row">
         <div class="card">
           <h2>History QR Pay</h2>
-          <p class="card-desc">Deposit dari QR Pay. Hanya status <strong>Confirmed</strong> yang dihitung.</p>
           <textarea id="txData"></textarea>
         </div>
         <div class="card">
           <h2>History</h2>
-          <p class="card-desc">Bonus yang sudah diberikan (baris <strong>BONUS DEPOSIT</strong>).</p>
           <textarea id="givenData"></textarea>
         </div>
       </div>
     </div>
 
-    <section class="page" id="page-bonus" data-page="bonus">
+    <section class="page" id="page-dashboard" data-page="dashboard">
+      <h2 class="page-title">Dashboard</h2>
+
+      <div class="row dash-stats">
+        <div class="card stat-card">
+          <span class="stat-value" id="dashFlagTotal">0</span>
+          <span class="stat-label">Total ID Bermasalah</span>
+        </div>
+        <div class="card stat-card">
+          <span class="stat-value" id="dashFlagSafety">0</span>
+          <span class="stat-label">Kategori Safety</span>
+        </div>
+        <div class="card stat-card">
+          <span class="stat-value" id="dashFlagNoBonus">0</span>
+          <span class="stat-label">Tidak Dapat Bonus</span>
+        </div>
+        <div class="card stat-card">
+          <span class="stat-value small" id="dashFlagLatest">-</span>
+          <span class="stat-label">Terakhir Ditambahkan</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Menu</h3>
+        <div class="dash-links">
+          <button class="dash-link" data-goto="bonus">
+            <span class="dash-link-title">Cek Bonus</span>
+            <span class="dash-link-desc">Deteksi bonus pending, tidak sesuai, dan dobel.</span>
+          </button>
+          <button class="dash-link" data-goto="flagged">
+            <span class="dash-link-title">ID Bermasalah</span>
+            <span class="dash-link-desc">Kelola daftar id yang perlu diwaspadai.</span>
+          </button>
+          <button class="dash-link" data-goto="newmember">
+            <span class="dash-link-title">New Member First Deposit</span>
+            <span class="dash-link-desc">Cari deposit pertama tiap id member baru.</span>
+          </button>
+          <button class="dash-link" data-goto="winlose">
+            <span class="dash-link-title">Win/Lose Member All Game</span>
+            <span class="dash-link-desc">Urutkan id berdasarkan menang/kalah.</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-bonus" data-page="bonus" style="display:none;">
       <h2 class="page-title">Bonus</h2>
-      <p class="page-desc">Cek bonus pending, kesesuaian nominal, dan bonus dobel sekaligus.</p>
 
       <div class="card">
         <div class="card-header">
           <h3>Cek Bonus</h3>
           <div class="controls">
-            <label for="pctSelect">Persentase:</label>
             <select id="pctSelect">
               <option value="5">5%</option>
               <option value="10">10%</option>
@@ -57,7 +118,6 @@
             <button class="primary" id="bonusProcessBtn">Proses Bonus</button>
           </div>
         </div>
-        <p class="card-desc">Tiga pengecekan sekaligus: <strong>Pending</strong> (belum dapat bonus), <strong>Tidak Sesuai</strong> (nominal beda dari seharusnya, toleransi pembulatan ke ribuan), <strong>Dobel</strong> (bonus diberikan lebih dari sekali).</p>
 
         <div id="bonusWarnBox"></div>
 
@@ -71,13 +131,10 @@
               <thead>
                 <tr>
                   <th>Username</th>
-                  <th>Jenis</th>
-                  <th>Nominal Deposit</th>
-                  <th>Bonus Seharusnya</th>
-                  <th>Bonus Diberikan</th>
+                  <th>Seharusnya</th>
+                  <th>Diberikan</th>
                   <th>Keterangan</th>
                   <th>Waktu</th>
-                  <th>Admin</th>
                 </tr>
               </thead>
               <tbody id="bonusResultBody"></tbody>
@@ -93,13 +150,11 @@
 
     <section class="page" id="page-newmember" data-page="newmember" style="display:none;">
       <h2 class="page-title">New Member First Deposit</h2>
-      <p class="page-desc">Cari deposit pertama tiap id member baru. Belum deposit = Rp0.</p>
 
       <div class="card">
         <div class="card-header">
           <h3>Daftar ID Member Baru</h3>
         </div>
-        <p class="card-desc">Paste daftar id member baru, lalu klik tombolnya. Data deposit diambil dari Data Sumber di atas.</p>
 
         <textarea id="newMemberIds"></textarea>
         <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
@@ -118,7 +173,6 @@
 
     <section class="page" id="page-flagged" data-page="flagged" style="display:none;">
       <h2 class="page-title">ID Bermasalah</h2>
-      <p class="page-desc">Tandai id yang perlu diwaspadai. Otomatis muncul di hasil menu Bonus dan New Member First Deposit.</p>
 
       <div class="card">
         <div class="card-header">
@@ -157,7 +211,6 @@
         <div class="card-header">
           <h3>Backup &amp; Restore</h3>
         </div>
-        <p class="card-desc">Daftar ini tersimpan di browser, jadi bisa hilang kalau ganti perangkat atau cache browser dibersihkan. Export ke file sebelum itu terjadi, lalu import lagi kapanpun perlu &mdash; id yang sama akan diperbarui, bukan diduplikasi.</p>
         <div class="backup-actions">
           <button class="ghost" id="exportFlagsBtn">Export Backup (.json)</button>
           <button class="ghost" id="importFlagsBtn">Import Backup</button>
@@ -166,18 +219,66 @@
       </div>
     </section>
 
-    <section class="page" id="page-tutorial" data-page="tutorial" style="display:none;">
-      <h2 class="page-title">Tutorial Penggunaan</h2>
+    <section class="page" id="page-winlose" data-page="winlose" style="display:none;">
+      <h2 class="page-title">Win/Lose Member All Game</h2>
+
       <div class="card">
-        <h3>1. Data Sumber</h3>
-        <p class="card-desc">Selalu tampil di atas. Paste history QR Pay dan history bonus di sini &mdash; dipakai bersama oleh Cek Bonus dan New Member First Deposit.</p>
-        <h3>2. Cek Bonus</h3>
-        <p class="card-desc">Pilih persentase, klik "Proses Bonus". Satu tabel menampilkan tiga jenis isu: <strong>Pending</strong> (belum dapat bonus), <strong>Tidak Sesuai</strong> (nominal beda dari seharusnya, kekurangan akibat pembulatan ke ribuan dianggap aman), <strong>Dobel</strong> (bonus diberikan lebih dari sekali).</p>
-        <h3>3. New Member First Deposit</h3>
-        <p class="card-desc">Paste daftar id member baru, klik tombolnya. Deposit pertama tiap id dicari dari Data Sumber; belum deposit = Rp0.</p>
-        <h3>4. ID Bermasalah</h3>
-        <p class="card-desc">Tandai id yang perlu diwaspadai beserta kategorinya. Otomatis muncul di hasil Cek Bonus dan New Member First Deposit; daftarnya tersembunyi sampai diklik, dan hapus id butuh 2x konfirmasi.</p>
-        <p class="card-desc">Daftar ini tersimpan di browser, jadi rawan hilang kalau ganti perangkat/browser. Pakai "Export Backup" untuk simpan ke file, dan "Import Backup" untuk memulihkannya kapan saja.</p>
+        <h2>Data Win/Lose</h2>
+        <textarea id="winloseData"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Urutkan</h3>
+          <div class="controls">
+            <select id="winloseGameSelect">
+              <option value="SPORT 1">SPORT 1</option>
+              <option value="SPORT 2">SPORT 2</option>
+              <option value="SPORT OMEGA">SPORT OMEGA</option>
+              <option value="SSC">SSC</option>
+              <option value="PG SOFT">PG SOFT</option>
+              <option value="PPLAY">PPLAY</option>
+              <option value="CT CASINO">CT CASINO</option>
+            </select>
+            <select id="winloseThresholdSelect">
+              <option value="all">Semua ID</option>
+              <option value="1000">Min 1jt</option>
+              <option value="2000">Min 2jt</option>
+              <option value="3000">Min 3jt</option>
+              <option value="4000">Min 4jt</option>
+              <option value="5000">Min 5jt</option>
+            </select>
+            <button class="primary" id="winloseProcessBtn">Proses</button>
+          </div>
+        </div>
+
+        <div id="winloseWarnBox"></div>
+
+        <div id="winloseResultCard" style="display:none;">
+          <div class="summary-bar">
+            <span class="result-title">Hasil urut win/lose</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="badge badge-warn" id="winloseCountBadge">0 kalah · 0 menang</span>
+              <button class="ghost" id="winloseCopyBtn">Copy Hasil</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table id="winloseResultTable">
+              <thead>
+                <tr>
+                  <th>ID Member</th>
+                  <th>Game</th>
+                  <th>Win/Lose</th>
+                </tr>
+              </thead>
+              <tbody id="winloseResultBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="winloseEmptyCard">
+          <div class="empty-state">Isi Data Win/Lose, lalu klik "Proses".</div>
+        </div>
       </div>
     </section>
 
