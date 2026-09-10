@@ -47,8 +47,8 @@ body {
 }
 .sidebar > * { flex-shrink: 0; }
 .app-shell.sidebar-collapsed .sidebar { width: 0; padding-left: 0; padding-right: 0; }
-.sidebar-brand { padding: 24px 16px 0; min-width: 224px; }
-.sidebar-brand h1 { font-size: 18px; font-weight: 600; margin: 0; color: #ffffff; white-space: nowrap; }
+.sidebar-brand { padding: 20px 16px 0; min-width: 224px; }
+.sidebar-logo { display: block; width: 150px; height: auto; max-width: 100%; object-fit: contain; }
 /* min-width cuma di nav (bukan semua anak sidebar) — biar teks menu tidak gepeng
    saat animasi collapse, tapi tetap dikombinasikan dengan margin kotak ticker di
    bawahnya tanpa membuat lebar totalnya melebihi lebar sidebar sendiri (240px). */
