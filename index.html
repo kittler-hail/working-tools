@@ -43,22 +43,35 @@
       </div>
     </nav>
 
-    <div class="sidebar-admin">
-      <div id="adminLoggedOut">
-        <button class="admin-toggle" id="adminLoginToggle" type="button">Login Admin</button>
-        <div class="admin-login-form" id="adminLoginForm" style="display:none;">
-          <input type="email" id="adminEmailInput" placeholder="Email admin">
-          <input type="password" id="adminPasswordInput" placeholder="Password">
-          <button class="primary" id="adminLoginBtn" type="button">Login</button>
-          <div class="admin-login-error" id="adminLoginError"></div>
-        </div>
-      </div>
-      <div id="adminLoggedIn" style="display:none;">
-        <span class="admin-email" id="adminEmailLabel"></span>
-        <button class="ghost" id="adminLogoutBtn" type="button">Logout</button>
-      </div>
+    <div class="sidebar-ticker" id="sidebarTicker">
+      <div class="ticker-track" id="tickerTrack"></div>
     </div>
   </aside>
+
+  <div class="admin-corner" id="adminCorner">
+    <div id="adminLoggedOut">
+      <button class="admin-toggle" id="adminLoginToggle" type="button">Login Admin</button>
+    </div>
+    <div id="adminLoggedIn" style="display:none;">
+      <span class="admin-email" id="adminEmailLabel"></span>
+      <button class="ghost" id="adminLogoutBtn" type="button">Logout</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="adminLoginModal" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Login Admin</h3>
+        <button class="modal-close" id="adminLoginClose" type="button">&times;</button>
+      </div>
+      <div class="admin-login-form">
+        <input type="email" id="adminEmailInput" placeholder="Email admin">
+        <input type="password" id="adminPasswordInput" placeholder="Password">
+        <button class="primary" id="adminLoginBtn" type="button">Login</button>
+        <div class="admin-login-error" id="adminLoginError"></div>
+      </div>
+    </div>
+  </div>
 
   <main class="content">
 

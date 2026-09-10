@@ -261,9 +261,29 @@ db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
   flagsCache = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
   renderFlagTable();
   renderDashboard();
+  renderSidebarTicker();
 }, err => {
   console.error('Gagal memuat daftar ID Bermasalah dari Firestore:', err);
 });
+
+// Ticker id bermasalah terbaru di bawah sidebar: daftarnya digandakan dua kali lalu
+// digeser ke atas separuh tingginya sendiri (translateY -50%) — begitu sampai di
+// ujung, posisinya identik dengan awal, jadi terlihat scroll tanpa putus/patah.
+function renderSidebarTicker() {
+  const track = document.getElementById('tickerTrack');
+  const recent = loadFlags().slice().sort((a, b) => b.addedAt - a.addedAt).slice(0, 15);
+
+  if (recent.length === 0) {
+    track.style.animation = 'none';
+    track.innerHTML = '<div class="ticker-item ticker-empty">Belum ada id bermasalah</div>';
+    return;
+  }
+
+  const itemsHtml = recent.map((f, i) => `<div class="ticker-item">${i + 1}. ${f.id}</div>`).join('');
+  track.innerHTML = itemsHtml + itemsHtml;
+  const duration = Math.max(recent.length * 1.4, 6);
+  track.style.animation = `ticker-scroll ${duration}s linear infinite`;
+}
 
 function stripIdCode(v) {
   return v.includes('@') ? v.slice(v.indexOf('@') + 1) : v;
@@ -335,25 +355,44 @@ auth.onAuthStateChanged(user => {
   renderFlagTable();
 });
 
-document.getElementById('adminLoginToggle').addEventListener('click', () => {
-  const form = document.getElementById('adminLoginForm');
-  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+function openAdminModal() {
+  document.getElementById('adminLoginModal').style.display = 'flex';
+  document.getElementById('adminEmailInput').focus();
+}
+
+function closeAdminModal() {
+  document.getElementById('adminLoginModal').style.display = 'none';
+  document.getElementById('adminLoginError').textContent = '';
+  document.getElementById('adminEmailInput').value = '';
+  document.getElementById('adminPasswordInput').value = '';
+}
+
+document.getElementById('adminLoginToggle').addEventListener('click', openAdminModal);
+document.getElementById('adminLoginClose').addEventListener('click', closeAdminModal);
+
+// Klik area gelap di luar kotak modal juga menutup modalnya.
+document.getElementById('adminLoginModal').addEventListener('click', (e) => {
+  if (e.target.id === 'adminLoginModal') closeAdminModal();
 });
 
-document.getElementById('adminLoginBtn').addEventListener('click', () => {
+function submitAdminLogin() {
   const email = document.getElementById('adminEmailInput').value.trim();
   const password = document.getElementById('adminPasswordInput').value;
   const errBox = document.getElementById('adminLoginError');
   errBox.textContent = '';
   auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      document.getElementById('adminEmailInput').value = '';
-      document.getElementById('adminPasswordInput').value = '';
-      document.getElementById('adminLoginForm').style.display = 'none';
-    })
+    .then(() => closeAdminModal())
     .catch(() => {
       errBox.textContent = 'Email atau password salah.';
     });
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', submitAdminLogin);
+
+['adminEmailInput', 'adminPasswordInput'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitAdminLogin();
+  });
 });
 
 document.getElementById('adminLogoutBtn').addEventListener('click', () => auth.signOut());
