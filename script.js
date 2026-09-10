@@ -24,7 +24,7 @@ const I18N = {
     'admin.editAdminOnly': 'Id "{id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu.',
     'admin.deleteFailed': 'Gagal menghapus: {error}',
 
-    'ticker.title': 'Member:',
+    'ticker.title': 'Member Safety Baru:',
     'ticker.empty': 'Belum ada Member Safety',
     'common.clickToCopy': 'Klik untuk copy',
 
@@ -154,7 +154,7 @@ const I18N = {
     'admin.editAdminOnly': 'Id "{id}" already exists in the list. Only admin can edit/delete existing ids — log in as admin first.',
     'admin.deleteFailed': 'Failed to delete: {error}',
 
-    'ticker.title': 'Members:',
+    'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
     'common.clickToCopy': 'Click to copy',
 
