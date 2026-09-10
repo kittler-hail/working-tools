@@ -27,27 +27,76 @@ body {
   background: var(--bg);
   color: var(--text);
 }
-.app-shell {
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* --- Topbar: hamburger + brand di kiri, profil/bahasa/login di kanan --- */
+.topbar {
+  height: 56px;
+  flex: 0 0 56px;
   display: flex;
-  min-height: 100vh;
-  align-items: stretch;
-}
-.sidebar {
-  flex: 0 0 240px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  align-self: flex-start;
-  height: 100vh;
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.hamburger {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.hamburger:hover { background: #f2f3f5; }
+.hamburger span { width: 18px; height: 2px; background: var(--text); border-radius: 2px; }
+.topbar-brand { font-size: 16px; font-weight: 700; color: var(--text); }
+.topbar-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 16px;
+}
+.topbar-icon:hover { background: #f2f3f5; color: var(--text); }
+.flag-icon { display: flex; border-radius: 3px; overflow: hidden; }
+
+/* --- Isi bawah topbar: sidebar + konten --- */
+.app-body { display: flex; align-items: stretch; flex: 1; min-height: 0; position: relative; }
+.sidebar {
+  flex: 0 0 auto;
+  width: 240px;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-x: hidden;
   overflow-y: auto;
   background: linear-gradient(165deg, var(--sidebar-bg-top) 0%, var(--sidebar-bg-mid) 45%, var(--sidebar-bg-bottom) 100%);
-  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  transition: width 0.28s ease, padding 0.28s ease;
 }
-.sidebar-brand h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; color: #ffffff; }
-.sidebar-subtitle { color: rgba(255,255,255,0.65); font-size: 12.5px; margin: 0; line-height: 1.4; }
-.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.sidebar > * { min-width: 224px; flex-shrink: 0; }
+.app-body.sidebar-collapsed .sidebar { width: 0; padding-left: 0; padding-right: 0; }
+.sidebar-nav { padding: 24px 16px 0; display: flex; flex-direction: column; gap: 4px; }
 .nav-item {
   display: block;
   width: 100%;
@@ -108,36 +157,46 @@ body {
   gap: 2px;
   padding-top: 2px;
 }
-/* --- Ticker id bermasalah terbaru, di bagian bawah sidebar --- */
+/* --- Ticker id bermasalah terbaru: kartu tersendiri di bagian bawah sidebar --- */
 .sidebar-ticker {
-  margin-top: auto;
-  height: 150px;
+  margin: auto 16px 20px;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #1d6f9e 0%, #0e3a56 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
   overflow: hidden;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  -webkit-mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
-  mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+}
+.ticker-header {
+  padding: 10px 12px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ticker-body {
+  height: 130px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
 }
 .ticker-track { display: flex; flex-direction: column; }
 .ticker-item {
-  padding: 7px 12px;
+  padding: 6px 12px;
   font-size: 12px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.ticker-item.ticker-empty { color: rgba(255,255,255,0.5); font-style: italic; }
+.ticker-item.ticker-empty { color: rgba(255,255,255,0.55); font-style: italic; }
 @keyframes ticker-scroll {
   from { transform: translateY(0); }
   to { transform: translateY(-50%); }
 }
 .sidebar-ticker:hover .ticker-track { animation-play-state: paused; }
 
-/* --- Tombol/status login admin, mengambang di kanan atas --- */
-.admin-corner { position: fixed; top: 16px; right: 20px; z-index: 40; }
+/* --- Tombol/status login admin, di dalam topbar kanan --- */
 .admin-corner .admin-toggle {
   background: var(--card);
   border: 1px solid var(--border);
@@ -147,20 +206,33 @@ body {
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .admin-corner .admin-toggle:hover { background: #f2f3f5; }
 .admin-corner #adminLoggedIn {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--card);
+  background: #f7f8fa;
   border: 1px solid var(--border);
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .admin-corner .admin-email { font-size: 12.5px; color: var(--text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- Backdrop gelap di belakang sidebar saat dibuka di layar sempit --- */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 56px 0 0 0;
+  background: rgba(15,23,42,0.4);
+  z-index: 25;
+}
+@media (max-width: 760px) {
+  .app-body.sidebar-collapsed .sidebar { position: fixed; left: 0; top: 56px; height: calc(100vh - 56px); z-index: 30; }
+  .app-body:not(.sidebar-collapsed) .sidebar { position: fixed; left: 0; top: 56px; height: calc(100vh - 56px); z-index: 30; width: 240px; }
+  .app-body:not(.sidebar-collapsed) .sidebar-backdrop { display: block; }
+  .content { padding: 20px; }
+}
 
 /* --- Modal login admin --- */
 .modal-overlay {
@@ -401,8 +473,3 @@ tr.total-row td {
 .dash-link-title { font-size: 14px; font-weight: 600; color: var(--text); }
 .dash-link-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.4; }
 
-@media (max-width: 760px) {
-  .app-shell { flex-direction: column; }
-  .sidebar { flex: 0 0 auto; height: auto; overflow-y: visible; }
-  .content { padding: 20px; }
-}

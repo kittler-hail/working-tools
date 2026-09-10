@@ -1,3 +1,302 @@
+// --- Bahasa (Indonesia/English) ---
+// Semua teks yang tampil ke pengguna lewat lookup di sini, supaya tombol bendera di
+// topbar bisa mengganti bahasa seluruh halaman (termasuk teks yang di-generate lewat
+// JS, bukan cuma teks statis di HTML). Preferensi bahasa disimpan per-browser
+// (localStorage) karena ini cuma pengaturan tampilan, bukan data yang perlu sinkron.
+const I18N = {
+  id: {
+    'nav.dashboard': 'Dashboard',
+    'nav.group1': '1. Bonus',
+    'nav.bonus': '1.1 Cek Bonus',
+    'nav.flagged': '1.2 ID Bermasalah',
+    'nav.group2': '2. Member',
+    'nav.newmember': '2.1 New Member First Deposit',
+    'nav.winlose': '2.2 Win/Lose All Game',
+
+    'admin.loginBtn': 'Login Admin',
+    'admin.logout': 'Logout',
+    'admin.modalTitle': 'Login Admin',
+    'admin.emailPlaceholder': 'Email admin',
+    'admin.passwordPlaceholder': 'Password',
+    'admin.loginSubmit': 'Login',
+    'admin.loginError': 'Email atau password salah.',
+    'admin.importAdminOnly': 'Hanya admin yang bisa import backup. Login admin dulu di bagian bawah sidebar.',
+    'admin.editAdminOnly': 'Id "{id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu di bagian bawah sidebar.',
+    'admin.deleteFailed': 'Gagal menghapus: {error}',
+
+    'ticker.title': 'Member:',
+    'ticker.empty': 'Belum ada id bermasalah',
+    'common.clickToCopy': 'Klik untuk copy',
+
+    'dataSumber.qr': 'History QR Pay',
+    'dataSumber.history': 'History',
+
+    'dashboard.title': 'Dashboard',
+    'dashboard.statTotal': 'Total ID Bermasalah',
+    'dashboard.statSafety': 'Kategori Safety',
+    'dashboard.statNoBonus': 'Tidak Dapat Bonus',
+    'dashboard.statLatest': 'Terakhir Ditambahkan',
+    'dashboard.menuTitle': 'Menu',
+    'dashboard.linkBonusTitle': 'Cek Bonus',
+    'dashboard.linkBonusDesc': 'Deteksi bonus pending, tidak sesuai, dan dobel.',
+    'dashboard.linkFlaggedTitle': 'ID Bermasalah',
+    'dashboard.linkFlaggedDesc': 'Kelola daftar id yang perlu diwaspadai.',
+    'dashboard.linkNewMemberTitle': 'New Member First Deposit',
+    'dashboard.linkNewMemberDesc': 'Cari deposit pertama tiap id member baru.',
+    'dashboard.linkWinloseTitle': 'Win/Lose Member All Game',
+    'dashboard.linkWinloseDesc': 'Urutkan id berdasarkan menang/kalah.',
+
+    'bonus.title': 'Bonus',
+    'bonus.cekBonusTitle': 'Cek Bonus',
+    'bonus.processBtn': 'Proses Bonus',
+    'bonus.emptyState': 'Isi Data Sumber, lalu klik "Proses Bonus".',
+    'bonus.resultTitle': 'Hasil cek bonus',
+    'bonus.thUsername': 'Username',
+    'bonus.thExpected': 'Seharusnya',
+    'bonus.thGiven': 'Diberikan',
+    'bonus.thNote': 'Keterangan',
+    'bonus.thTime': 'Waktu',
+    'bonus.noDataWarn': 'Data belum diisi atau formatnya tidak terbaca. Paste History QR Pay dan/atau History bonus dulu.',
+    'bonus.safeEmpty': 'Aman: tidak ada yang pending, tidak sesuai, atau dobel.',
+    'bonus.unmatchedNote': '{count} bonus tidak punya deposit confirmed yang cocok di History QR Pay, jadi tidak bisa dicek kesesuaiannya.',
+    'bonus.countBadge': '{pending} pending · {mismatch} tidak sesuai · {double} dobel',
+    'bonus.notePending': 'Belum dapat bonus',
+    'bonus.noteExcess': 'Kelebihan Rp',
+    'bonus.noteShortage': 'Kekurangan Rp',
+    'bonus.noteDouble': '{count}x diberikan',
+
+    'newmember.title': 'New Member First Deposit',
+    'newmember.listTitle': 'Daftar ID Member Baru',
+    'newmember.checkBtn': 'Cek New Member First Deposit',
+    'newmember.resultTitle': 'First deposit ditemukan',
+    'newmember.emptyIds': 'Daftar id member baru belum diisi.',
+    'newmember.flaggedWarn': 'Ditemukan id bermasalah di daftar ini: {items}',
+    'newmember.countBadge': '{deposited} dari {total} id sudah deposit',
+
+    'flagged.title': 'ID Bermasalah',
+    'flagged.listTitle': 'Daftar ID Bermasalah',
+    'flagged.catSafety': 'Safety',
+    'flagged.catNoBonus': 'Tidak Dapat Bonus',
+    'flagged.catOther': 'Lainnya',
+    'flagged.addBtn': 'Tambah',
+    'flagged.toggleShow': 'Lihat Daftar ID Bermasalah',
+    'flagged.toggleHide': 'Sembunyikan Daftar ID Bermasalah',
+    'flagged.thId': 'ID',
+    'flagged.thCategory': 'Kategori',
+    'flagged.thNote': 'Keterangan',
+    'flagged.thAdded': 'Ditambahkan',
+    'flagged.emptyState': 'Belum ada id bermasalah yang ditambahkan.',
+    'flagged.backupTitle': 'Backup & Restore',
+    'flagged.exportBtn': 'Export Backup (.json)',
+    'flagged.importBtn': 'Import Backup',
+    'flagged.deleteBtn': 'Hapus',
+    'flagged.fillIdFirst': 'Isi id/username dulu.',
+    'flagged.confirmDelete1': 'Yakin ingin menghapus id "{id}" dari daftar id bermasalah?',
+    'flagged.confirmDelete2': 'Konfirmasi sekali lagi: hapus "{id}" secara permanen dari daftar?',
+    'flagged.invalidJson': 'File backup tidak valid (bukan JSON).',
+    'flagged.invalidList': 'File backup tidak valid (isinya harus berupa daftar).',
+    'flagged.importDone': 'Import selesai: {added} id baru, {updated} id diperbarui.',
+    'flagged.importFailed': 'Import gagal: {error}',
+    'flagged.saveFailed': 'Gagal menyimpan: {error}',
+
+    'winlose.title': 'Win/Lose Member All Game',
+    'winlose.dataTitle': 'Data Win/Lose',
+    'winlose.sortTitle': 'Urutkan',
+    'winlose.thresholdAll': 'Semua ID',
+    'winlose.threshold1': 'Min 1jt',
+    'winlose.threshold2': 'Min 2jt',
+    'winlose.threshold3': 'Min 3jt',
+    'winlose.threshold4': 'Min 4jt',
+    'winlose.threshold5': 'Min 5jt',
+    'winlose.processBtn': 'Proses',
+    'winlose.resultTitle': 'Hasil urut win/lose',
+    'winlose.copyBtn': 'Copy Hasil',
+    'winlose.copyBtnDone': 'Tersalin!',
+    'winlose.thId': 'ID Member',
+    'winlose.thGame': 'Game',
+    'winlose.thWinLose': 'Win/Lose',
+    'winlose.emptyState': 'Isi Data Win/Lose, lalu klik "Proses".',
+    'winlose.emptyNoData': 'Data belum diisi atau formatnya tidak terbaca.',
+    'winlose.emptyNoMatch': 'Tidak ada id yang lolos ambang batas ini.',
+    'winlose.countBadge': '{lose} kalah · {win} menang',
+  },
+  en: {
+    'nav.dashboard': 'Dashboard',
+    'nav.group1': '1. Bonus',
+    'nav.bonus': '1.1 Check Bonus',
+    'nav.flagged': '1.2 Flagged IDs',
+    'nav.group2': '2. Member',
+    'nav.newmember': '2.1 New Member First Deposit',
+    'nav.winlose': '2.2 Win/Lose All Game',
+
+    'admin.loginBtn': 'Admin Login',
+    'admin.logout': 'Logout',
+    'admin.modalTitle': 'Admin Login',
+    'admin.emailPlaceholder': 'Admin email',
+    'admin.passwordPlaceholder': 'Password',
+    'admin.loginSubmit': 'Login',
+    'admin.loginError': 'Wrong email or password.',
+    'admin.importAdminOnly': 'Only admin can import a backup. Please log in as admin first.',
+    'admin.editAdminOnly': 'Id "{id}" already exists in the list. Only admin can edit/delete existing ids — log in as admin first.',
+    'admin.deleteFailed': 'Failed to delete: {error}',
+
+    'ticker.title': 'Members:',
+    'ticker.empty': 'No flagged ids yet',
+    'common.clickToCopy': 'Click to copy',
+
+    'dataSumber.qr': 'History QR Pay',
+    'dataSumber.history': 'History',
+
+    'dashboard.title': 'Dashboard',
+    'dashboard.statTotal': 'Total Flagged IDs',
+    'dashboard.statSafety': 'Safety Category',
+    'dashboard.statNoBonus': 'No Bonus',
+    'dashboard.statLatest': 'Last Added',
+    'dashboard.menuTitle': 'Menu',
+    'dashboard.linkBonusTitle': 'Check Bonus',
+    'dashboard.linkBonusDesc': 'Detect pending, mismatched, and duplicate bonuses.',
+    'dashboard.linkFlaggedTitle': 'Flagged IDs',
+    'dashboard.linkFlaggedDesc': 'Manage the list of ids to watch out for.',
+    'dashboard.linkNewMemberTitle': 'New Member First Deposit',
+    'dashboard.linkNewMemberDesc': "Find each new member id's first deposit.",
+    'dashboard.linkWinloseTitle': 'Win/Lose Member All Game',
+    'dashboard.linkWinloseDesc': 'Rank ids by win/loss amount.',
+
+    'bonus.title': 'Bonus',
+    'bonus.cekBonusTitle': 'Check Bonus',
+    'bonus.processBtn': 'Process Bonus',
+    'bonus.emptyState': 'Fill in the Data Source, then click "Process Bonus".',
+    'bonus.resultTitle': 'Bonus check result',
+    'bonus.thUsername': 'Username',
+    'bonus.thExpected': 'Expected',
+    'bonus.thGiven': 'Given',
+    'bonus.thNote': 'Note',
+    'bonus.thTime': 'Time',
+    'bonus.noDataWarn': "No data entered yet, or the format isn't recognized. Paste the QR Pay History and/or bonus History first.",
+    'bonus.safeEmpty': 'All clear: nothing pending, mismatched, or duplicated.',
+    'bonus.unmatchedNote': "{count} bonus(es) have no matching confirmed deposit in the QR Pay History, so they couldn't be checked.",
+    'bonus.countBadge': '{pending} pending · {mismatch} mismatched · {double} duplicate',
+    'bonus.notePending': 'No bonus yet',
+    'bonus.noteExcess': 'Excess Rp',
+    'bonus.noteShortage': 'Shortfall Rp',
+    'bonus.noteDouble': 'given {count}x',
+
+    'newmember.title': 'New Member First Deposit',
+    'newmember.listTitle': 'New Member ID List',
+    'newmember.checkBtn': 'Check New Member First Deposit',
+    'newmember.resultTitle': 'First deposits found',
+    'newmember.emptyIds': 'The new member id list is empty.',
+    'newmember.flaggedWarn': 'Found flagged ids in this list: {items}',
+    'newmember.countBadge': '{deposited} of {total} ids have deposited',
+
+    'flagged.title': 'Flagged IDs',
+    'flagged.listTitle': 'Flagged ID List',
+    'flagged.catSafety': 'Safety',
+    'flagged.catNoBonus': 'No Bonus',
+    'flagged.catOther': 'Other',
+    'flagged.addBtn': 'Add',
+    'flagged.toggleShow': 'Show Flagged ID List',
+    'flagged.toggleHide': 'Hide Flagged ID List',
+    'flagged.thId': 'ID',
+    'flagged.thCategory': 'Category',
+    'flagged.thNote': 'Note',
+    'flagged.thAdded': 'Added',
+    'flagged.emptyState': 'No flagged ids added yet.',
+    'flagged.backupTitle': 'Backup & Restore',
+    'flagged.exportBtn': 'Export Backup (.json)',
+    'flagged.importBtn': 'Import Backup',
+    'flagged.deleteBtn': 'Delete',
+    'flagged.fillIdFirst': 'Fill in the id/username first.',
+    'flagged.confirmDelete1': 'Delete id "{id}" from the flagged id list?',
+    'flagged.confirmDelete2': 'Confirm once more: permanently delete "{id}" from the list?',
+    'flagged.invalidJson': 'Invalid backup file (not JSON).',
+    'flagged.invalidList': 'Invalid backup file (content must be a list).',
+    'flagged.importDone': 'Import finished: {added} new id(s), {updated} updated.',
+    'flagged.importFailed': 'Import failed: {error}',
+    'flagged.saveFailed': 'Failed to save: {error}',
+
+    'winlose.title': 'Win/Lose Member All Game',
+    'winlose.dataTitle': 'Win/Lose Data',
+    'winlose.sortTitle': 'Sort',
+    'winlose.thresholdAll': 'All IDs',
+    'winlose.threshold1': 'Min 1M',
+    'winlose.threshold2': 'Min 2M',
+    'winlose.threshold3': 'Min 3M',
+    'winlose.threshold4': 'Min 4M',
+    'winlose.threshold5': 'Min 5M',
+    'winlose.processBtn': 'Process',
+    'winlose.resultTitle': 'Win/loss ranking result',
+    'winlose.copyBtn': 'Copy Result',
+    'winlose.copyBtnDone': 'Copied!',
+    'winlose.thId': 'Member ID',
+    'winlose.thGame': 'Game',
+    'winlose.thWinLose': 'Win/Loss',
+    'winlose.emptyState': 'Fill in the Win/Lose Data, then click "Process".',
+    'winlose.emptyNoData': "No data entered yet, or the format isn't recognized.",
+    'winlose.emptyNoMatch': 'No ids pass this threshold.',
+    'winlose.countBadge': '{lose} losing · {win} winning',
+  },
+};
+
+// Bendera digambar sebagai SVG inline (bukan emoji 🇮🇩/🇬🇧) karena emoji bendera
+// regional tidak selalu punya font pendukung di semua browser/OS — beberapa malah
+// menampilkan kode hurufnya ("ID"/"GB") apa adanya alih-alih gambar bendera.
+const FLAG_SVG = {
+  id: '<svg viewBox="0 0 24 16" width="20" height="14"><rect width="24" height="8" fill="#dc2626"/><rect y="8" width="24" height="8" fill="#ffffff"/></svg>',
+  en: '<svg viewBox="0 0 24 16" width="20" height="14"><rect width="24" height="16" fill="#1a3f8f"/><path d="M0,0 L24,16 M24,0 L0,16" stroke="#ffffff" stroke-width="3"/><path d="M0,0 L24,16 M24,0 L0,16" stroke="#dc2626" stroke-width="1.4"/><path d="M12,0 V16 M0,8 H24" stroke="#ffffff" stroke-width="4.5"/><path d="M12,0 V16 M0,8 H24" stroke="#dc2626" stroke-width="2.4"/></svg>',
+};
+
+let currentLang = localStorage.getItem('workingTools.lang') || 'id';
+
+function t(key, params) {
+  const dict = I18N[currentLang] || I18N.id;
+  let str = dict[key] !== undefined ? dict[key] : (I18N.id[key] !== undefined ? I18N.id[key] : key);
+  if (params) {
+    Object.keys(params).forEach(k => {
+      str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+    });
+  }
+  return str;
+}
+
+function localeCode() {
+  return currentLang === 'en' ? 'en-US' : 'id-ID';
+}
+
+function applyStaticI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+}
+
+// Dipanggil begitu isi halaman ganti bahasa: teks statis (data-i18n) diperbarui, lalu
+// bagian-bagian yang isinya digenerate lewat JS (tabel, ticker, dashboard) di-render
+// ulang supaya teks di dalamnya ikut berganti bahasa juga.
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('workingTools.lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('langFlag').innerHTML = lang === 'id' ? FLAG_SVG.id : FLAG_SVG.en;
+  applyStaticI18n();
+  if (typeof renderFlagTable === 'function') renderFlagTable();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
+  // Tombol ini teksnya tergantung status buka/tutup, jadi tidak dipakaikan
+  // data-i18n statis — disinkronkan manual di sini tiap ganti bahasa.
+  const flagListContainer = document.getElementById('flagListContainer');
+  const toggleBtn = document.getElementById('toggleFlagListBtn');
+  if (flagListContainer && toggleBtn) {
+    toggleBtn.textContent = flagListContainer.style.display === 'none' ? t('flagged.toggleShow') : t('flagged.toggleHide');
+  }
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  setLanguage(currentLang === 'id' ? 'en' : 'id');
+});
+
 // Record baru dikenali dari baris yang kolom ke-2 (setelah nomor urut) mengandung
 // username (selalu ada tanda "@"), misalnya "1\tBBC@ima888\tBCA". Baris lain yang
 // juga punya tab tapi "@"-nya ada di kolom lain (mis. baris admin di akhir record)
@@ -237,8 +536,13 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const ADMIN_EMAIL = 'adminrey@workingtools.com';
 const FLAGS_COLLECTION = 'flags';
-const FLAG_CATEGORY_LABELS = { safety: 'Safety', 'no-bonus': 'Tidak Dapat Bonus', other: 'Lainnya' };
-const FLAG_CATEGORY_KEYS = Object.keys(FLAG_CATEGORY_LABELS);
+// Kunci kategori tetap sama di semua bahasa (dipakai sebagai nilai data) — hanya
+// labelnya (lewat categoryLabel()) yang ikut berganti bahasa.
+const FLAG_CATEGORY_KEYS = ['safety', 'no-bonus', 'other'];
+const FLAG_CATEGORY_I18N_KEY = { safety: 'flagged.catSafety', 'no-bonus': 'flagged.catNoBonus', other: 'flagged.catOther' };
+function categoryLabel(category) {
+  return t(FLAG_CATEGORY_I18N_KEY[category] || 'flagged.catOther');
+}
 
 // Id dipakai sebagai document id (huruf kecil, supaya "Sama" dan "sama" dianggap id
 // yang sama) — "/" disingkirkan karena tidak boleh ada di satu path segment Firestore.
@@ -275,7 +579,7 @@ function renderSidebarTicker() {
 
   if (recent.length === 0) {
     track.style.animation = 'none';
-    track.innerHTML = '<div class="ticker-item ticker-empty">Belum ada id bermasalah</div>';
+    track.innerHTML = `<div class="ticker-item ticker-empty">${t('ticker.empty')}</div>`;
     return;
   }
 
@@ -319,10 +623,10 @@ function renderFlagTable() {
       const badgeClass = 'badge-' + flag.category;
       tr.innerHTML = `
         <td>${flag.id}</td>
-        <td><span class="badge ${badgeClass}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span></td>
+        <td><span class="badge ${badgeClass}">${categoryLabel(flag.category)}</span></td>
         <td>${flag.note || '-'}</td>
-        <td>${new Date(flag.addedAt).toLocaleString('id-ID')}</td>
-        <td>${admin ? `<button class="flag-delete" data-doc-id="${flag.docId}" data-id="${flag.id}">Hapus</button>` : ''}</td>
+        <td>${new Date(flag.addedAt).toLocaleString(localeCode())}</td>
+        <td>${admin ? `<button class="flag-delete" data-doc-id="${flag.docId}" data-id="${flag.id}">${t('flagged.deleteBtn')}</button>` : ''}</td>
       `;
       body.appendChild(tr);
     });
@@ -331,10 +635,10 @@ function renderFlagTable() {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
       const docId = btn.getAttribute('data-doc-id');
-      if (!confirm(`Yakin ingin menghapus id "${id}" dari daftar id bermasalah?`)) return;
-      if (!confirm(`Konfirmasi sekali lagi: hapus "${id}" secara permanen dari daftar?`)) return;
+      if (!confirm(t('flagged.confirmDelete1', { id }))) return;
+      if (!confirm(t('flagged.confirmDelete2', { id }))) return;
       db.collection(FLAGS_COLLECTION).doc(docId).delete().catch(err => {
-        alert('Gagal menghapus: ' + err.message);
+        alert(t('admin.deleteFailed', { error: err.message }));
       });
     });
   });
@@ -383,7 +687,7 @@ function submitAdminLogin() {
   auth.signInWithEmailAndPassword(email, password)
     .then(() => closeAdminModal())
     .catch(() => {
-      errBox.textContent = 'Email atau password salah.';
+      errBox.textContent = t('admin.loginError');
     });
 }
 
@@ -435,6 +739,32 @@ document.querySelectorAll('.dash-link').forEach(btn => {
   btn.addEventListener('click', () => activatePage(btn.dataset.goto));
 });
 
+// --- Hamburger: buka/tutup sidebar (geser lebar 0 <-> 240px, lihat CSS) ---
+const appBody = document.querySelector('.app-body');
+const SIDEBAR_AUTO_COLLAPSE_WIDTH = 760;
+
+function setSidebarCollapsed(collapsed) {
+  appBody.classList.toggle('sidebar-collapsed', collapsed);
+}
+
+setSidebarCollapsed(window.innerWidth < SIDEBAR_AUTO_COLLAPSE_WIDTH);
+
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  appBody.classList.toggle('sidebar-collapsed');
+});
+
+// Klik area gelap di belakang sidebar (muncul di layar sempit saat sidebar terbuka)
+// ikut menutup sidebarnya.
+document.getElementById('sidebarBackdrop').addEventListener('click', () => setSidebarCollapsed(true));
+
+// Di layar sempit, pilih halaman lalu sidebar-nya otomatis tertutup lagi supaya
+// konten yang baru dibuka langsung kelihatan penuh.
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (window.innerWidth < SIDEBAR_AUTO_COLLAPSE_WIDTH) setSidebarCollapsed(true);
+  });
+});
+
 // --- Dashboard: ringkasan daftar ID Bermasalah (satu-satunya data yang persisten). ---
 function renderDashboard() {
   const flags = loadFlags();
@@ -442,7 +772,7 @@ function renderDashboard() {
   document.getElementById('dashFlagSafety').textContent = flags.filter(f => f.category === 'safety').length;
   document.getElementById('dashFlagNoBonus').textContent = flags.filter(f => f.category === 'no-bonus').length;
   const latest = flags.slice().sort((a, b) => b.addedAt - a.addedAt)[0];
-  document.getElementById('dashFlagLatest').textContent = latest ? new Date(latest.addedAt).toLocaleDateString('id-ID') : '-';
+  document.getElementById('dashFlagLatest').textContent = latest ? new Date(latest.addedAt).toLocaleDateString(localeCode()) : '-';
 }
 
 // Dashboard adalah halaman default saat pertama dibuka — activatePage juga yang
@@ -454,7 +784,7 @@ document.getElementById('toggleFlagListBtn').addEventListener('click', () => {
   const btn = document.getElementById('toggleFlagListBtn');
   const isHidden = container.style.display === 'none';
   container.style.display = isHidden ? 'block' : 'none';
-  btn.textContent = isHidden ? 'Sembunyikan Daftar ID Bermasalah' : 'Lihat Daftar ID Bermasalah';
+  btn.textContent = isHidden ? t('flagged.toggleHide') : t('flagged.toggleShow');
 });
 
 document.getElementById('addFlagBtn').addEventListener('click', () => {
@@ -466,7 +796,7 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
 
   const rawId = idInput.value.trim();
   if (!rawId) {
-    warnBox.innerHTML = '<div class="warn-box">Isi id/username dulu.</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('flagged.fillIdFirst')}</div>`;
     return;
   }
 
@@ -483,8 +813,8 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
     })
     .catch(err => {
       warnBox.innerHTML = err.code === 'permission-denied'
-        ? `<div class="warn-box">Id "${id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu di bagian bawah sidebar.</div>`
-        : `<div class="warn-box">Gagal menyimpan: ${err.message}</div>`;
+        ? `<div class="warn-box">${t('admin.editAdminOnly', { id })}</div>`
+        : `<div class="warn-box">${t('flagged.saveFailed', { error: err.message })}</div>`;
     });
 });
 
@@ -511,7 +841,7 @@ function exportFlags() {
 // setelah backup itu dibuat.
 function importFlagsFromJson(text, warnBox) {
   if (!isAdminUser()) {
-    warnBox.innerHTML = '<div class="warn-box">Hanya admin yang bisa import backup. Login admin dulu di bagian bawah sidebar.</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('admin.importAdminOnly')}</div>`;
     return;
   }
 
@@ -519,11 +849,11 @@ function importFlagsFromJson(text, warnBox) {
   try {
     incoming = JSON.parse(text);
   } catch {
-    warnBox.innerHTML = '<div class="warn-box">File backup tidak valid (bukan JSON).</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('flagged.invalidJson')}</div>`;
     return;
   }
   if (!Array.isArray(incoming)) {
-    warnBox.innerHTML = '<div class="warn-box">File backup tidak valid (isinya harus berupa daftar).</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('flagged.invalidList')}</div>`;
     return;
   }
 
@@ -548,10 +878,10 @@ function importFlagsFromJson(text, warnBox) {
 
   batch.commit()
     .then(() => {
-      warnBox.innerHTML = `<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">Import selesai: ${added} id baru, ${updated} id diperbarui.</div>`;
+      warnBox.innerHTML = `<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">${t('flagged.importDone', { added, updated })}</div>`;
     })
     .catch(err => {
-      warnBox.innerHTML = `<div class="warn-box">Import gagal: ${err.message}</div>`;
+      warnBox.innerHTML = `<div class="warn-box">${t('flagged.importFailed', { error: err.message })}</div>`;
     });
 }
 
@@ -588,7 +918,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
     const expected = computeExpectedBonus(r.amount, pct, r.code);
     items.push({
       sortTs: r.timestamp,
-      rows: [{ kind: 'pending', username: r.username, expected, given: null, note: 'Belum dapat bonus', waktu: r.dateText || '-' }],
+      rows: [{ kind: 'pending', username: r.username, expected, given: null, note: t('bonus.notePending'), waktu: r.dateText || '-' }],
     });
   });
 
@@ -602,7 +932,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
       sortTs: bonus.timestamp,
       rows: [{
         kind: 'mismatch', username: bonus.username, expected, given: bonus.amount,
-        note: (evaluation.status === 'excess' ? 'Kelebihan Rp' : 'Kekurangan Rp') + formatRupiah(evaluation.diff),
+        note: t(evaluation.status === 'excess' ? 'bonus.noteExcess' : 'bonus.noteShortage') + formatRupiah(evaluation.diff),
         waktu: bonus.dateText || '-',
       }],
     });
@@ -613,7 +943,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
     const sorted = group.slice().sort((a, b) => a.timestamp - b.timestamp);
     const rows = sorted.map((r, i) => ({
       kind: 'double', username: r.username, expected: null,
-      given: r.amount, note: i === 0 ? sorted.length + 'x diberikan' : '-',
+      given: r.amount, note: i === 0 ? t('bonus.noteDouble', { count: sorted.length }) : '-',
       waktu: r.dateText || '-', groupStart: i === 0,
     }));
     items.push({ sortTs: sorted[sorted.length - 1].timestamp, rows });
@@ -635,7 +965,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
 // Klik nilai berformat (id atau nominal) untuk copy versi polosnya ke clipboard.
 function makeCopyable(el, plainText) {
   el.classList.add('copyable');
-  el.title = 'Klik untuk copy';
+  el.title = t('common.clickToCopy');
   el.addEventListener('click', () => {
     navigator.clipboard.writeText(plainText).then(() => {
       el.classList.add('copied');
@@ -652,7 +982,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
 
   const hasAnyData = parseRecords(txRaw).length > 0 || parseRecords(givenRaw).length > 0;
   if (!hasAnyData) {
-    warnBox.innerHTML = '<div class="warn-box">Data belum diisi atau formatnya tidak terbaca. Paste History QR Pay dan/atau History bonus dulu.</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('bonus.noDataWarn')}</div>`;
     document.getElementById('bonusResultCard').style.display = 'none';
     document.getElementById('bonusEmptyCard').style.display = 'block';
     return;
@@ -663,7 +993,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   const flags = loadFlags();
 
   const unmatchedNote = report.unmatchedCount > 0
-    ? `<div class="warn-box">${report.unmatchedCount} bonus tidak punya deposit confirmed yang cocok di History QR Pay, jadi tidak bisa dicek kesesuaiannya.</div>`
+    ? `<div class="warn-box">${t('bonus.unmatchedNote', { count: report.unmatchedCount })}</div>`
     : '';
 
   const body = document.getElementById('bonusResultBody');
@@ -672,8 +1002,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   if (report.rows.length === 0) {
     document.getElementById('bonusResultCard').style.display = 'none';
     document.getElementById('bonusEmptyCard').style.display = 'block';
-    document.getElementById('bonusEmptyCard').querySelector('.empty-state').textContent =
-      'Aman: tidak ada yang pending, tidak sesuai, atau dobel.';
+    document.getElementById('bonusEmptyCard').querySelector('.empty-state').textContent = t('bonus.safeEmpty');
     warnBox.innerHTML = unmatchedNote;
     return;
   }
@@ -682,7 +1011,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   document.getElementById('bonusResultCard').style.display = 'block';
   warnBox.innerHTML = unmatchedNote;
   document.getElementById('bonusCountBadge').textContent =
-    `${report.counts.pending} pending · ${report.counts.mismatch} tidak sesuai · ${report.counts.double} dobel`;
+    t('bonus.countBadge', { pending: report.counts.pending, mismatch: report.counts.mismatch, double: report.counts.double });
 
   report.rows.forEach(r => {
     const flag = findFlag(flags, r.username);
@@ -691,7 +1020,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
     if (flag) tr.classList.add('flagged-row');
     if (r.groupStart) tr.classList.add('group-start');
     tr.innerHTML = `
-      <td class="idcell">${r.username}${flag ? `<br><span class="badge badge-${flag.category}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>${flag.note ? ` <span class="flag-note">${flag.note}</span>` : ''}` : ''}</td>
+      <td class="idcell">${r.username}${flag ? `<br><span class="badge badge-${flag.category}">${categoryLabel(flag.category)}</span>${flag.note ? ` <span class="flag-note">${flag.note}</span>` : ''}` : ''}</td>
       <td class="amount">${r.expected != null ? formatCopyableAmount(r.expected) : '-'}</td>
       <td class="amount">${r.given != null ? formatCopyableAmount(r.given) : '-'}</td>
       <td>${r.note}</td>
@@ -715,7 +1044,7 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
   const memberIds = parseIdList(idListRaw);
 
   if (memberIds.length === 0) {
-    warnBox.innerHTML = '<div class="warn-box">Daftar id member baru belum diisi.</div>';
+    warnBox.innerHTML = `<div class="warn-box">${t('newmember.emptyIds')}</div>`;
     document.getElementById('newMemberResultCard').style.display = 'none';
     return;
   }
@@ -733,9 +1062,9 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
 
   if (flaggedMatches.length > 0) {
     const items = flaggedMatches
-      .map(f => `${f.id} (${FLAG_CATEGORY_LABELS[f.category] || f.category}${f.note ? ': ' + f.note : ''})`)
+      .map(f => `${f.id} (${categoryLabel(f.category)}${f.note ? ': ' + f.note : ''})`)
       .join(', ');
-    warnBox.innerHTML = `<div class="warn-box">Ditemukan id bermasalah di daftar ini: ${items}</div>`;
+    warnBox.innerHTML = `<div class="warn-box">${t('newmember.flaggedWarn', { items })}</div>`;
   }
 
   // Urutan baris hasil ikut urutan id apa adanya waktu dipaste (tidak disusun ulang).
@@ -755,7 +1084,7 @@ document.getElementById('newMemberBtn').addEventListener('click', () => {
   });
 
   document.getElementById('newMemberResultCard').style.display = 'block';
-  document.getElementById('newMemberCountBadge').textContent = depositedCount + ' dari ' + memberIds.length + ' id sudah deposit';
+  document.getElementById('newMemberCountBadge').textContent = t('newmember.countBadge', { deposited: depositedCount, total: memberIds.length });
   document.getElementById('newMemberResultText').value = lines.join('\n');
 });
 
@@ -877,8 +1206,8 @@ document.getElementById('winloseProcessBtn').addEventListener('click', () => {
     document.getElementById('winloseEmptyCard').style.display = 'block';
     document.getElementById('winloseEmptyCard').querySelector('.empty-state').textContent =
       parseWinLoseRecords(raw).length === 0
-        ? 'Data belum diisi atau formatnya tidak terbaca.'
-        : 'Tidak ada id yang lolos ambang batas ini.';
+        ? t('winlose.emptyNoData')
+        : t('winlose.emptyNoMatch');
     return;
   }
 
@@ -886,7 +1215,7 @@ document.getElementById('winloseProcessBtn').addEventListener('click', () => {
   document.getElementById('winloseResultCard').style.display = 'block';
   const loseCount = records.filter(r => r.value < 0).length;
   const winCount = records.filter(r => r.value > 0).length;
-  document.getElementById('winloseCountBadge').textContent = `${loseCount} kalah · ${winCount} menang`;
+  document.getElementById('winloseCountBadge').textContent = t('winlose.countBadge', { lose: loseCount, win: winCount });
 
   records.forEach(r => {
     const tr = document.createElement('tr');
@@ -907,7 +1236,12 @@ document.getElementById('winloseCopyBtn').addEventListener('click', () => {
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('winloseCopyBtn');
     const original = btn.textContent;
-    btn.textContent = 'Tersalin!';
+    btn.textContent = t('winlose.copyBtnDone');
     setTimeout(() => { btn.textContent = original; }, 1000);
   });
 });
+
+// Terapkan bahasa tersimpan (atau default Indonesia) — ditaruh paling akhir supaya
+// semua fungsi render (renderFlagTable, renderDashboard, dst) dan variabel yang
+// dipakainya sudah pasti terdefinisi lebih dulu.
+setLanguage(currentLang);

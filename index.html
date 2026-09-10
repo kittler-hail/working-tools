@@ -9,309 +9,334 @@
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <h1>Working Tools</h1>
-    </div>
-    <nav class="sidebar-nav">
-      <button class="nav-item nav-top active" data-page="dashboard">Dashboard</button>
 
-      <div class="nav-group open">
-        <button class="nav-group-header" type="button">
-          <span>1. Bonus</span>
-          <span class="chevron">&rsaquo;</span>
-        </button>
-        <div class="nav-group-items">
-          <div class="inner">
-            <button class="nav-item nav-sub" data-page="bonus">1.1 Cek Bonus</button>
-            <button class="nav-item nav-sub" data-page="flagged">1.2 ID Bermasalah</button>
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-brand">Working Tools</div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-icon" id="profileIcon" type="button" title="Profil">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+        </svg>
+      </button>
+      <button class="topbar-icon lang-toggle" id="langToggle" type="button" title="Bahasa / Language">
+        <span id="langFlag" class="flag-icon"></span>
+      </button>
+      <div id="adminCorner">
+        <div id="adminLoggedOut">
+          <button class="admin-toggle" id="adminLoginToggle" type="button" data-i18n="admin.loginBtn">Login Admin</button>
+        </div>
+        <div id="adminLoggedIn" style="display:none;">
+          <span class="admin-email" id="adminEmailLabel"></span>
+          <button class="ghost" id="adminLogoutBtn" type="button" data-i18n="admin.logout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <button class="nav-item nav-top active" data-page="dashboard" data-i18n="nav.dashboard">Dashboard</button>
+
+        <div class="nav-group open">
+          <button class="nav-group-header" type="button">
+            <span data-i18n="nav.group1">1. Bonus</span>
+            <span class="chevron">&rsaquo;</span>
+          </button>
+          <div class="nav-group-items">
+            <div class="inner">
+              <button class="nav-item nav-sub" data-page="bonus" data-i18n="nav.bonus">1.1 Cek Bonus</button>
+              <button class="nav-item nav-sub" data-page="flagged" data-i18n="nav.flagged">1.2 ID Bermasalah</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button class="nav-group-header" type="button">
+            <span data-i18n="nav.group2">2. Member</span>
+            <span class="chevron">&rsaquo;</span>
+          </button>
+          <div class="nav-group-items">
+            <div class="inner">
+              <button class="nav-item nav-sub" data-page="newmember" data-i18n="nav.newmember">2.1 New Member First Deposit</button>
+              <button class="nav-item nav-sub" data-page="winlose" data-i18n="nav.winlose">2.2 Win/Lose All Game</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-ticker" id="sidebarTicker">
+        <div class="ticker-header" data-i18n="ticker.title">Member:</div>
+        <div class="ticker-body">
+          <div class="ticker-track" id="tickerTrack"></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <main class="content">
+
+      <div class="data-sumber">
+        <div class="row">
+          <div class="card">
+            <h2 data-i18n="dataSumber.qr">History QR Pay</h2>
+            <textarea id="txData"></textarea>
+          </div>
+          <div class="card">
+            <h2 data-i18n="dataSumber.history">History</h2>
+            <textarea id="givenData"></textarea>
           </div>
         </div>
       </div>
 
-      <div class="nav-group">
-        <button class="nav-group-header" type="button">
-          <span>2. Member</span>
-          <span class="chevron">&rsaquo;</span>
-        </button>
-        <div class="nav-group-items">
-          <div class="inner">
-            <button class="nav-item nav-sub" data-page="newmember">2.1 New Member First Deposit</button>
-            <button class="nav-item nav-sub" data-page="winlose">2.2 Win/Lose All Game</button>
+      <section class="page" id="page-dashboard" data-page="dashboard">
+        <h2 class="page-title" data-i18n="dashboard.title">Dashboard</h2>
+
+        <div class="row dash-stats">
+          <div class="card stat-card">
+            <span class="stat-value" id="dashFlagTotal">0</span>
+            <span class="stat-label" data-i18n="dashboard.statTotal">Total ID Bermasalah</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-value" id="dashFlagSafety">0</span>
+            <span class="stat-label" data-i18n="dashboard.statSafety">Kategori Safety</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-value" id="dashFlagNoBonus">0</span>
+            <span class="stat-label" data-i18n="dashboard.statNoBonus">Tidak Dapat Bonus</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-value small" id="dashFlagLatest">-</span>
+            <span class="stat-label" data-i18n="dashboard.statLatest">Terakhir Ditambahkan</span>
           </div>
         </div>
-      </div>
-    </nav>
 
-    <div class="sidebar-ticker" id="sidebarTicker">
-      <div class="ticker-track" id="tickerTrack"></div>
-    </div>
-  </aside>
+        <div class="card">
+          <h3 data-i18n="dashboard.menuTitle">Menu</h3>
+          <div class="dash-links">
+            <button class="dash-link" data-goto="bonus">
+              <span class="dash-link-title" data-i18n="dashboard.linkBonusTitle">Cek Bonus</span>
+              <span class="dash-link-desc" data-i18n="dashboard.linkBonusDesc">Deteksi bonus pending, tidak sesuai, dan dobel.</span>
+            </button>
+            <button class="dash-link" data-goto="flagged">
+              <span class="dash-link-title" data-i18n="dashboard.linkFlaggedTitle">ID Bermasalah</span>
+              <span class="dash-link-desc" data-i18n="dashboard.linkFlaggedDesc">Kelola daftar id yang perlu diwaspadai.</span>
+            </button>
+            <button class="dash-link" data-goto="newmember">
+              <span class="dash-link-title" data-i18n="dashboard.linkNewMemberTitle">New Member First Deposit</span>
+              <span class="dash-link-desc" data-i18n="dashboard.linkNewMemberDesc">Cari deposit pertama tiap id member baru.</span>
+            </button>
+            <button class="dash-link" data-goto="winlose">
+              <span class="dash-link-title" data-i18n="dashboard.linkWinloseTitle">Win/Lose Member All Game</span>
+              <span class="dash-link-desc" data-i18n="dashboard.linkWinloseDesc">Urutkan id berdasarkan menang/kalah.</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
-  <div class="admin-corner" id="adminCorner">
-    <div id="adminLoggedOut">
-      <button class="admin-toggle" id="adminLoginToggle" type="button">Login Admin</button>
-    </div>
-    <div id="adminLoggedIn" style="display:none;">
-      <span class="admin-email" id="adminEmailLabel"></span>
-      <button class="ghost" id="adminLogoutBtn" type="button">Logout</button>
-    </div>
+      <section class="page" id="page-bonus" data-page="bonus" style="display:none;">
+        <h2 class="page-title" data-i18n="bonus.title">Bonus</h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="bonus.cekBonusTitle">Cek Bonus</h3>
+            <div class="controls">
+              <select id="pctSelect">
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+              </select>
+              <button class="primary" id="bonusProcessBtn" data-i18n="bonus.processBtn">Proses Bonus</button>
+            </div>
+          </div>
+
+          <div id="bonusWarnBox"></div>
+
+          <div id="bonusResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" data-i18n="bonus.resultTitle">Hasil cek bonus</span>
+              <span class="badge badge-warn" id="bonusCountBadge">0 isu</span>
+            </div>
+            <div class="table-scroll">
+              <table id="bonusResultTable">
+                <thead>
+                  <tr>
+                    <th data-i18n="bonus.thUsername">Username</th>
+                    <th data-i18n="bonus.thExpected">Seharusnya</th>
+                    <th data-i18n="bonus.thGiven">Diberikan</th>
+                    <th data-i18n="bonus.thNote">Keterangan</th>
+                    <th data-i18n="bonus.thTime">Waktu</th>
+                  </tr>
+                </thead>
+                <tbody id="bonusResultBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="bonusEmptyCard">
+            <div class="empty-state" data-i18n="bonus.emptyState">Isi Data Sumber, lalu klik "Proses Bonus".</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-newmember" data-page="newmember" style="display:none;">
+        <h2 class="page-title" data-i18n="newmember.title">New Member First Deposit</h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="newmember.listTitle">Daftar ID Member Baru</h3>
+          </div>
+
+          <textarea id="newMemberIds"></textarea>
+          <button class="ghost" id="newMemberBtn" style="margin-top:10px;" data-i18n="newmember.checkBtn">Cek New Member First Deposit</button>
+
+          <div id="newMemberWarnBox"></div>
+
+          <div id="newMemberResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" data-i18n="newmember.resultTitle">First deposit ditemukan</span>
+              <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
+            </div>
+            <textarea id="newMemberResultText" readonly style="min-height:100px;"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-flagged" data-page="flagged" style="display:none;">
+        <h2 class="page-title" data-i18n="flagged.title">ID Bermasalah</h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="flagged.listTitle">Daftar ID Bermasalah</h3>
+          </div>
+          <div class="flag-form">
+            <input type="text" id="flagIdInput">
+            <select id="flagCategorySelect">
+              <option value="safety" data-i18n="flagged.catSafety">Safety</option>
+              <option value="no-bonus" data-i18n="flagged.catNoBonus">Tidak Dapat Bonus</option>
+              <option value="other" data-i18n="flagged.catOther">Lainnya</option>
+            </select>
+            <input type="text" id="flagNoteInput">
+            <button class="primary" id="addFlagBtn" data-i18n="flagged.addBtn">Tambah</button>
+          </div>
+          <div id="flagWarnBox"></div>
+          <button class="ghost" id="toggleFlagListBtn" data-i18n="flagged.toggleShow">Lihat Daftar ID Bermasalah</button>
+          <div id="flagListContainer" style="display:none;margin-top:14px;">
+            <table id="flagTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th data-i18n="flagged.thId">ID</th>
+                  <th data-i18n="flagged.thCategory">Kategori</th>
+                  <th data-i18n="flagged.thNote">Keterangan</th>
+                  <th data-i18n="flagged.thAdded">Ditambahkan</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="flagTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="flagEmptyState" data-i18n="flagged.emptyState">Belum ada id bermasalah yang ditambahkan.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="flagged.backupTitle">Backup &amp; Restore</h3>
+          </div>
+          <div class="backup-actions">
+            <button class="ghost" id="exportFlagsBtn" data-i18n="flagged.exportBtn">Export Backup (.json)</button>
+            <button class="ghost" id="importFlagsBtn" data-i18n="flagged.importBtn">Import Backup</button>
+            <input type="file" id="importFlagsFile" accept=".json,application/json" hidden>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-winlose" data-page="winlose" style="display:none;">
+        <h2 class="page-title" data-i18n="winlose.title">Win/Lose Member All Game</h2>
+
+        <div class="card">
+          <h2 data-i18n="winlose.dataTitle">Data Win/Lose</h2>
+          <textarea id="winloseData"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="winlose.sortTitle">Urutkan</h3>
+            <div class="controls">
+              <select id="winloseGameSelect">
+                <option value="SPORT 1">SPORT 1</option>
+                <option value="SPORT 2">SPORT 2</option>
+                <option value="SPORT OMEGA">SPORT OMEGA</option>
+                <option value="SSC">SSC</option>
+                <option value="PG SOFT">PG SOFT</option>
+                <option value="PPLAY">PPLAY</option>
+                <option value="CT CASINO">CT CASINO</option>
+              </select>
+              <select id="winloseThresholdSelect">
+                <option value="all" data-i18n="winlose.thresholdAll">Semua ID</option>
+                <option value="1000" data-i18n="winlose.threshold1">Min 1jt</option>
+                <option value="2000" data-i18n="winlose.threshold2">Min 2jt</option>
+                <option value="3000" data-i18n="winlose.threshold3">Min 3jt</option>
+                <option value="4000" data-i18n="winlose.threshold4">Min 4jt</option>
+                <option value="5000" data-i18n="winlose.threshold5">Min 5jt</option>
+              </select>
+              <button class="primary" id="winloseProcessBtn" data-i18n="winlose.processBtn">Proses</button>
+            </div>
+          </div>
+
+          <div id="winloseWarnBox"></div>
+
+          <div id="winloseResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" data-i18n="winlose.resultTitle">Hasil urut win/lose</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="badge badge-warn" id="winloseCountBadge">0 kalah · 0 menang</span>
+                <button class="ghost" id="winloseCopyBtn" data-i18n="winlose.copyBtn">Copy Hasil</button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table id="winloseResultTable">
+                <thead>
+                  <tr>
+                    <th data-i18n="winlose.thId">ID Member</th>
+                    <th data-i18n="winlose.thGame">Game</th>
+                    <th data-i18n="winlose.thWinLose">Win/Lose</th>
+                  </tr>
+                </thead>
+                <tbody id="winloseResultBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="winloseEmptyCard">
+            <div class="empty-state" data-i18n="winlose.emptyState">Isi Data Win/Lose, lalu klik "Proses".</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <div class="modal-overlay" id="adminLoginModal" style="display:none;">
     <div class="modal-box">
       <div class="modal-header">
-        <h3>Login Admin</h3>
+        <h3 data-i18n="admin.modalTitle">Login Admin</h3>
         <button class="modal-close" id="adminLoginClose" type="button">&times;</button>
       </div>
       <div class="admin-login-form">
-        <input type="email" id="adminEmailInput" placeholder="Email admin">
-        <input type="password" id="adminPasswordInput" placeholder="Password">
-        <button class="primary" id="adminLoginBtn" type="button">Login</button>
+        <input type="email" id="adminEmailInput" data-i18n-placeholder="admin.emailPlaceholder" placeholder="Email admin">
+        <input type="password" id="adminPasswordInput" data-i18n-placeholder="admin.passwordPlaceholder" placeholder="Password">
+        <button class="primary" id="adminLoginBtn" type="button" data-i18n="admin.loginSubmit">Login</button>
         <div class="admin-login-error" id="adminLoginError"></div>
       </div>
     </div>
   </div>
 
-  <main class="content">
-
-    <div class="data-sumber">
-      <div class="row">
-        <div class="card">
-          <h2>History QR Pay</h2>
-          <textarea id="txData"></textarea>
-        </div>
-        <div class="card">
-          <h2>History</h2>
-          <textarea id="givenData"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <section class="page" id="page-dashboard" data-page="dashboard">
-      <h2 class="page-title">Dashboard</h2>
-
-      <div class="row dash-stats">
-        <div class="card stat-card">
-          <span class="stat-value" id="dashFlagTotal">0</span>
-          <span class="stat-label">Total ID Bermasalah</span>
-        </div>
-        <div class="card stat-card">
-          <span class="stat-value" id="dashFlagSafety">0</span>
-          <span class="stat-label">Kategori Safety</span>
-        </div>
-        <div class="card stat-card">
-          <span class="stat-value" id="dashFlagNoBonus">0</span>
-          <span class="stat-label">Tidak Dapat Bonus</span>
-        </div>
-        <div class="card stat-card">
-          <span class="stat-value small" id="dashFlagLatest">-</span>
-          <span class="stat-label">Terakhir Ditambahkan</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Menu</h3>
-        <div class="dash-links">
-          <button class="dash-link" data-goto="bonus">
-            <span class="dash-link-title">Cek Bonus</span>
-            <span class="dash-link-desc">Deteksi bonus pending, tidak sesuai, dan dobel.</span>
-          </button>
-          <button class="dash-link" data-goto="flagged">
-            <span class="dash-link-title">ID Bermasalah</span>
-            <span class="dash-link-desc">Kelola daftar id yang perlu diwaspadai.</span>
-          </button>
-          <button class="dash-link" data-goto="newmember">
-            <span class="dash-link-title">New Member First Deposit</span>
-            <span class="dash-link-desc">Cari deposit pertama tiap id member baru.</span>
-          </button>
-          <button class="dash-link" data-goto="winlose">
-            <span class="dash-link-title">Win/Lose Member All Game</span>
-            <span class="dash-link-desc">Urutkan id berdasarkan menang/kalah.</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="page" id="page-bonus" data-page="bonus" style="display:none;">
-      <h2 class="page-title">Bonus</h2>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Cek Bonus</h3>
-          <div class="controls">
-            <select id="pctSelect">
-              <option value="5">5%</option>
-              <option value="10">10%</option>
-            </select>
-            <button class="primary" id="bonusProcessBtn">Proses Bonus</button>
-          </div>
-        </div>
-
-        <div id="bonusWarnBox"></div>
-
-        <div id="bonusResultCard" style="display:none;">
-          <div class="summary-bar">
-            <span class="result-title">Hasil cek bonus</span>
-            <span class="badge badge-warn" id="bonusCountBadge">0 isu</span>
-          </div>
-          <div class="table-scroll">
-            <table id="bonusResultTable">
-              <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Seharusnya</th>
-                  <th>Diberikan</th>
-                  <th>Keterangan</th>
-                  <th>Waktu</th>
-                </tr>
-              </thead>
-              <tbody id="bonusResultBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="bonusEmptyCard">
-          <div class="empty-state">Isi Data Sumber, lalu klik "Proses Bonus".</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="page" id="page-newmember" data-page="newmember" style="display:none;">
-      <h2 class="page-title">New Member First Deposit</h2>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Daftar ID Member Baru</h3>
-        </div>
-
-        <textarea id="newMemberIds"></textarea>
-        <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
-
-        <div id="newMemberWarnBox"></div>
-
-        <div id="newMemberResultCard" style="display:none;">
-          <div class="summary-bar">
-            <span class="result-title">First deposit ditemukan</span>
-            <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
-          </div>
-          <textarea id="newMemberResultText" readonly style="min-height:100px;"></textarea>
-        </div>
-      </div>
-    </section>
-
-    <section class="page" id="page-flagged" data-page="flagged" style="display:none;">
-      <h2 class="page-title">ID Bermasalah</h2>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Daftar ID Bermasalah</h3>
-        </div>
-        <div class="flag-form">
-          <input type="text" id="flagIdInput">
-          <select id="flagCategorySelect">
-            <option value="safety">Safety</option>
-            <option value="no-bonus">Tidak Dapat Bonus</option>
-            <option value="other">Lainnya</option>
-          </select>
-          <input type="text" id="flagNoteInput">
-          <button class="primary" id="addFlagBtn">Tambah</button>
-        </div>
-        <div id="flagWarnBox"></div>
-        <button class="ghost" id="toggleFlagListBtn">Lihat Daftar ID Bermasalah</button>
-        <div id="flagListContainer" style="display:none;margin-top:14px;">
-          <table id="flagTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Kategori</th>
-                <th>Keterangan</th>
-                <th>Ditambahkan</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="flagTableBody"></tbody>
-          </table>
-          <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Backup &amp; Restore</h3>
-        </div>
-        <div class="backup-actions">
-          <button class="ghost" id="exportFlagsBtn">Export Backup (.json)</button>
-          <button class="ghost" id="importFlagsBtn">Import Backup</button>
-          <input type="file" id="importFlagsFile" accept=".json,application/json" hidden>
-        </div>
-      </div>
-    </section>
-
-    <section class="page" id="page-winlose" data-page="winlose" style="display:none;">
-      <h2 class="page-title">Win/Lose Member All Game</h2>
-
-      <div class="card">
-        <h2>Data Win/Lose</h2>
-        <textarea id="winloseData"></textarea>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Urutkan</h3>
-          <div class="controls">
-            <select id="winloseGameSelect">
-              <option value="SPORT 1">SPORT 1</option>
-              <option value="SPORT 2">SPORT 2</option>
-              <option value="SPORT OMEGA">SPORT OMEGA</option>
-              <option value="SSC">SSC</option>
-              <option value="PG SOFT">PG SOFT</option>
-              <option value="PPLAY">PPLAY</option>
-              <option value="CT CASINO">CT CASINO</option>
-            </select>
-            <select id="winloseThresholdSelect">
-              <option value="all">Semua ID</option>
-              <option value="1000">Min 1jt</option>
-              <option value="2000">Min 2jt</option>
-              <option value="3000">Min 3jt</option>
-              <option value="4000">Min 4jt</option>
-              <option value="5000">Min 5jt</option>
-            </select>
-            <button class="primary" id="winloseProcessBtn">Proses</button>
-          </div>
-        </div>
-
-        <div id="winloseWarnBox"></div>
-
-        <div id="winloseResultCard" style="display:none;">
-          <div class="summary-bar">
-            <span class="result-title">Hasil urut win/lose</span>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span class="badge badge-warn" id="winloseCountBadge">0 kalah · 0 menang</span>
-              <button class="ghost" id="winloseCopyBtn">Copy Hasil</button>
-            </div>
-          </div>
-          <div class="table-scroll">
-            <table id="winloseResultTable">
-              <thead>
-                <tr>
-                  <th>ID Member</th>
-                  <th>Game</th>
-                  <th>Win/Lose</th>
-                </tr>
-              </thead>
-              <tbody id="winloseResultBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="winloseEmptyCard">
-          <div class="empty-state">Isi Data Win/Lose, lalu klik "Proses".</div>
-        </div>
-      </div>
-    </section>
-
-  </main>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
