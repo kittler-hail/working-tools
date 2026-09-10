@@ -325,6 +325,78 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
 
 renderFlagTable();
 
+// --- Backup & restore daftar ID Bermasalah ---
+// Data ini cuma ada di localStorage browser, jadi bisa hilang kalau ganti
+// perangkat/browser atau cache dibersihkan. Export/import lewat file JSON
+// supaya daftarnya bisa dipulihkan kapan saja, tidak bergantung ke satu browser saja.
+function exportFlags() {
+  const flags = loadFlags();
+  const blob = new Blob([JSON.stringify(flags, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `id-bermasalah-backup-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+const FLAG_CATEGORY_KEYS = Object.keys(FLAG_CATEGORY_LABELS);
+
+// Import digabung (upsert per id), bukan menimpa seluruh daftar — supaya import
+// backup lama tidak menghapus id yang sudah ditambahkan lagi setelah backup itu dibuat.
+function importFlagsFromJson(text, warnBox) {
+  let incoming;
+  try {
+    incoming = JSON.parse(text);
+  } catch {
+    warnBox.innerHTML = '<div class="warn-box">File backup tidak valid (bukan JSON).</div>';
+    return;
+  }
+  if (!Array.isArray(incoming)) {
+    warnBox.innerHTML = '<div class="warn-box">File backup tidak valid (isinya harus berupa daftar).</div>';
+    return;
+  }
+
+  const byId = new Map(loadFlags().map(f => [f.id.toLowerCase(), f]));
+  let added = 0;
+  let updated = 0;
+
+  incoming.forEach(item => {
+    if (!item || typeof item.id !== 'string' || !item.id.trim()) return;
+    const key = item.id.toLowerCase();
+    const entry = {
+      id: item.id.trim(),
+      category: FLAG_CATEGORY_KEYS.includes(item.category) ? item.category : 'other',
+      note: typeof item.note === 'string' ? item.note : '',
+      addedAt: typeof item.addedAt === 'number' ? item.addedAt : Date.now(),
+    };
+    if (byId.has(key)) updated++; else added++;
+    byId.set(key, entry);
+  });
+
+  saveFlags(Array.from(byId.values()));
+  renderFlagTable();
+  warnBox.innerHTML = `<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">Import selesai: ${added} id baru, ${updated} id diperbarui.</div>`;
+}
+
+document.getElementById('exportFlagsBtn').addEventListener('click', exportFlags);
+
+document.getElementById('importFlagsBtn').addEventListener('click', () => {
+  document.getElementById('importFlagsFile').click();
+});
+
+document.getElementById('importFlagsFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => importFlagsFromJson(String(reader.result), document.getElementById('flagWarnBox'));
+  reader.readAsText(file);
+});
+
 // Label & badge class per jenis isu pada tabel Cek Bonus gabungan.
 const BONUS_ISSUE_LABELS = { pending: 'Pending', excess: 'Tidak Sesuai', shortage: 'Tidak Sesuai', double: 'Dobel' };
 const BONUS_ISSUE_BADGE_CLASS = { pending: 'badge-pending', excess: 'badge-excess', shortage: 'badge-shortage', double: 'badge-warn' };
@@ -451,7 +523,7 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
       ? ''
       : `<span class="badge ${BONUS_ISSUE_BADGE_CLASS[r.jenis]}">${BONUS_ISSUE_LABELS[r.jenis]}</span>`;
     tr.innerHTML = `
-      <td>${r.username}${flag ? ` <span class="badge badge-${flag.category}" title="${flag.note || ''}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>` : ''}</td>
+      <td>${r.username}${flag ? `<br><span class="badge badge-${flag.category}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>${flag.note ? ` <span class="flag-note">${flag.note}</span>` : ''}` : ''}</td>
       <td>${jenisLabel}</td>
       <td class="amount">${r.depositAmount != null ? formatRupiah(r.depositAmount) : '-'}</td>
       <td class="amount${r.expected != null ? ' cashback' : ''}">${r.expected != null ? formatCopyableAmount(r.expected) : '-'}</td>

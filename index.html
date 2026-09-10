@@ -152,6 +152,18 @@
           <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Backup &amp; Restore</h3>
+        </div>
+        <p class="card-desc">Daftar ini tersimpan di browser, jadi bisa hilang kalau ganti perangkat atau cache browser dibersihkan. Export ke file sebelum itu terjadi, lalu import lagi kapanpun perlu &mdash; id yang sama akan diperbarui, bukan diduplikasi.</p>
+        <div class="backup-actions">
+          <button class="ghost" id="exportFlagsBtn">Export Backup (.json)</button>
+          <button class="ghost" id="importFlagsBtn">Import Backup</button>
+          <input type="file" id="importFlagsFile" accept=".json,application/json" hidden>
+        </div>
+      </div>
     </section>
 
     <section class="page" id="page-tutorial" data-page="tutorial" style="display:none;">
@@ -165,6 +177,7 @@
         <p class="card-desc">Paste daftar id member baru, klik tombolnya. Deposit pertama tiap id dicari dari Data Sumber; belum deposit = Rp0.</p>
         <h3>4. ID Bermasalah</h3>
         <p class="card-desc">Tandai id yang perlu diwaspadai beserta kategorinya. Otomatis muncul di hasil Cek Bonus dan New Member First Deposit; daftarnya tersembunyi sampai diklik, dan hapus id butuh 2x konfirmasi.</p>
+        <p class="card-desc">Daftar ini tersimpan di browser, jadi rawan hilang kalau ganti perangkat/browser. Pakai "Export Backup" untuk simpan ke file, dan "Import Backup" untuk memulihkannya kapan saja.</p>
       </div>
     </section>
 
