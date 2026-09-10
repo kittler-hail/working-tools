@@ -27,7 +27,7 @@
           <div class="nav-group-items">
             <div class="inner">
               <button class="nav-item nav-sub" data-page="bonus" data-i18n="nav.bonus">1.1 Cek Bonus</button>
-              <button class="nav-item nav-sub" data-page="flagged" data-i18n="nav.flagged">1.2 ID Bermasalah</button>
+              <button class="nav-item nav-sub" data-page="flagged" data-i18n="nav.flagged">1.2 Member Safety</button>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
           </button>
           <div id="adminCorner">
             <div id="adminLoggedOut">
-              <button class="admin-toggle" id="adminLoginToggle" type="button" data-i18n="admin.loginBtn">Login Admin</button>
+              <button class="admin-toggle" id="adminLoginToggle" type="button" data-i18n="admin.loginBtn">Login</button>
             </div>
             <div id="adminLoggedIn" style="display:none;">
               <span class="admin-email" id="adminEmailLabel"></span>
@@ -109,7 +109,7 @@
         <div class="row dash-stats" id="dashAdminStats">
           <div class="card stat-card">
             <span class="stat-value" id="dashFlagTotal">0</span>
-            <span class="stat-label" data-i18n="dashboard.statTotal">Total ID Bermasalah</span>
+            <span class="stat-label" data-i18n="dashboard.statTotal">Total Member Safety</span>
           </div>
           <div class="card stat-card">
             <span class="stat-value" id="dashFlagSafety">0</span>
@@ -125,7 +125,7 @@
           </div>
         </div>
         <div class="card" id="dashStatsAdminNote" style="display:none;">
-          <p class="admin-only-note" style="margin:0;" data-i18n="dashboard.statsAdminOnly">Login admin untuk melihat statistik ID Bermasalah.</p>
+          <p class="admin-only-note" style="margin:0;" data-i18n="dashboard.statsAdminOnly">Login admin untuk melihat statistik Member Safety.</p>
         </div>
 
         <div class="card">
@@ -136,7 +136,7 @@
               <span class="dash-link-desc" data-i18n="dashboard.linkBonusDesc">Deteksi bonus pending, tidak sesuai, dan dobel.</span>
             </button>
             <button class="dash-link" data-goto="flagged">
-              <span class="dash-link-title" data-i18n="dashboard.linkFlaggedTitle">ID Bermasalah</span>
+              <span class="dash-link-title" data-i18n="dashboard.linkFlaggedTitle">Member Safety</span>
               <span class="dash-link-desc" data-i18n="dashboard.linkFlaggedDesc">Kelola daftar id yang perlu diwaspadai.</span>
             </button>
             <button class="dash-link" data-goto="newmember">
@@ -219,11 +219,11 @@
       </section>
 
       <section class="page" id="page-flagged" data-page="flagged" style="display:none;">
-        <h2 class="page-title" data-i18n="flagged.title">ID Bermasalah</h2>
+        <h2 class="page-title" data-i18n="flagged.title">Member Safety</h2>
 
         <div class="card">
           <div class="card-header">
-            <h3 data-i18n="flagged.listTitle">Daftar ID Bermasalah</h3>
+            <h3 data-i18n="flagged.listTitle">Daftar Member Safety</h3>
           </div>
           <div class="flag-form">
             <input type="text" id="flagIdInput">
@@ -236,8 +236,8 @@
             <button class="primary" id="addFlagBtn" data-i18n="flagged.addBtn">Tambah</button>
           </div>
           <div id="flagWarnBox"></div>
-          <button class="ghost" id="toggleFlagListBtn" data-i18n="flagged.toggleShow">Lihat Daftar ID Bermasalah</button>
-          <div class="admin-only-note" id="flagListAdminNote" style="display:none;" data-i18n="flagged.viewAdminOnly">Login admin untuk melihat daftar ID Bermasalah.</div>
+          <button class="ghost" id="toggleFlagListBtn" data-i18n="flagged.toggleShow">Lihat Daftar Member Safety</button>
+          <div class="admin-only-note" id="flagListAdminNote" style="display:none;" data-i18n="flagged.viewAdminOnly">Login admin untuk melihat daftar Member Safety.</div>
           <div id="flagListContainer" style="display:none;margin-top:14px;">
             <table id="flagTable" style="display:none;">
               <thead>
@@ -251,7 +251,7 @@
               </thead>
               <tbody id="flagTableBody"></tbody>
             </table>
-            <div class="empty-state" id="flagEmptyState" data-i18n="flagged.emptyState">Belum ada id bermasalah yang ditambahkan.</div>
+            <div class="empty-state" id="flagEmptyState" data-i18n="flagged.emptyState">Belum ada Member Safety yang ditambahkan.</div>
           </div>
         </div>
 

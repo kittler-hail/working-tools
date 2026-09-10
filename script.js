@@ -8,7 +8,7 @@ const I18N = {
     'nav.dashboard': 'Dashboard',
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Cek Bonus',
-    'nav.flagged': '1.2 ID Bermasalah',
+    'nav.flagged': '1.2 Member Safety',
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
@@ -20,27 +20,27 @@ const I18N = {
     'admin.passwordPlaceholder': 'Password',
     'admin.loginSubmit': 'Login',
     'admin.loginError': 'Email atau password salah.',
-    'admin.importAdminOnly': 'Hanya admin yang bisa import backup. Login admin dulu di bagian bawah sidebar.',
-    'admin.editAdminOnly': 'Id "{id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu di bagian bawah sidebar.',
+    'admin.importAdminOnly': 'Hanya admin yang bisa import backup. Login admin dulu.',
+    'admin.editAdminOnly': 'Id "{id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu.',
     'admin.deleteFailed': 'Gagal menghapus: {error}',
 
     'ticker.title': 'Member:',
-    'ticker.empty': 'Belum ada id bermasalah',
+    'ticker.empty': 'Belum ada Member Safety',
     'common.clickToCopy': 'Klik untuk copy',
 
     'dataSumber.qr': 'History QR Pay',
     'dataSumber.history': 'History',
 
     'dashboard.title': 'Dashboard',
-    'dashboard.statTotal': 'Total ID Bermasalah',
+    'dashboard.statTotal': 'Total Member Safety',
     'dashboard.statSafety': 'Kategori Safety',
     'dashboard.statNoBonus': 'Tidak Dapat Bonus',
     'dashboard.statLatest': 'Terakhir Ditambahkan',
-    'dashboard.statsAdminOnly': 'Login admin untuk melihat statistik ID Bermasalah.',
+    'dashboard.statsAdminOnly': 'Login admin untuk melihat statistik Member Safety.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Cek Bonus',
     'dashboard.linkBonusDesc': 'Deteksi bonus pending, tidak sesuai, dan dobel.',
-    'dashboard.linkFlaggedTitle': 'ID Bermasalah',
+    'dashboard.linkFlaggedTitle': 'Member Safety',
     'dashboard.linkFlaggedDesc': 'Kelola daftar id yang perlu diwaspadai.',
     'dashboard.linkNewMemberTitle': 'New Member First Deposit',
     'dashboard.linkNewMemberDesc': 'Cari deposit pertama tiap id member baru.',
@@ -71,30 +71,30 @@ const I18N = {
     'newmember.checkBtn': 'Cek New Member First Deposit',
     'newmember.resultTitle': 'First deposit ditemukan',
     'newmember.emptyIds': 'Daftar id member baru belum diisi.',
-    'newmember.flaggedWarn': 'Ditemukan id bermasalah di daftar ini: {items}',
+    'newmember.flaggedWarn': 'Ditemukan Member Safety di daftar ini: {items}',
     'newmember.countBadge': '{deposited} dari {total} id sudah deposit',
 
-    'flagged.title': 'ID Bermasalah',
-    'flagged.listTitle': 'Daftar ID Bermasalah',
+    'flagged.title': 'Member Safety',
+    'flagged.listTitle': 'Daftar Member Safety',
     'flagged.catSafety': 'Safety',
     'flagged.catNoBonus': 'Tidak Dapat Bonus',
     'flagged.catOther': 'Lainnya',
     'flagged.addBtn': 'Tambah',
-    'flagged.toggleShow': 'Lihat Daftar ID Bermasalah',
-    'flagged.toggleHide': 'Sembunyikan Daftar ID Bermasalah',
-    'flagged.viewAdminOnly': 'Login admin untuk melihat daftar ID Bermasalah.',
+    'flagged.toggleShow': 'Lihat Daftar Member Safety',
+    'flagged.toggleHide': 'Sembunyikan Daftar Member Safety',
+    'flagged.viewAdminOnly': 'Login admin untuk melihat daftar Member Safety.',
     'flagged.backupAdminOnly': 'Login admin untuk mengakses backup & restore.',
     'flagged.thId': 'ID',
     'flagged.thCategory': 'Kategori',
     'flagged.thNote': 'Keterangan',
     'flagged.thAdded': 'Ditambahkan',
-    'flagged.emptyState': 'Belum ada id bermasalah yang ditambahkan.',
+    'flagged.emptyState': 'Belum ada Member Safety yang ditambahkan.',
     'flagged.backupTitle': 'Backup & Restore',
     'flagged.exportBtn': 'Export Backup (.json)',
     'flagged.importBtn': 'Import Backup',
     'flagged.deleteBtn': 'Hapus',
     'flagged.fillIdFirst': 'Isi id/username dulu.',
-    'flagged.confirmDelete1': 'Yakin ingin menghapus id "{id}" dari daftar id bermasalah?',
+    'flagged.confirmDelete1': 'Yakin ingin menghapus id "{id}" dari daftar Member Safety?',
     'flagged.confirmDelete2': 'Konfirmasi sekali lagi: hapus "{id}" secara permanen dari daftar?',
     'flagged.invalidJson': 'File backup tidak valid (bukan JSON).',
     'flagged.invalidList': 'File backup tidak valid (isinya harus berupa daftar).',
@@ -138,7 +138,7 @@ const I18N = {
     'nav.dashboard': 'Dashboard',
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Check Bonus',
-    'nav.flagged': '1.2 Flagged IDs',
+    'nav.flagged': '1.2 Member Safety',
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
@@ -155,22 +155,22 @@ const I18N = {
     'admin.deleteFailed': 'Failed to delete: {error}',
 
     'ticker.title': 'Members:',
-    'ticker.empty': 'No flagged ids yet',
+    'ticker.empty': 'No Member Safety yet',
     'common.clickToCopy': 'Click to copy',
 
     'dataSumber.qr': 'History QR Pay',
     'dataSumber.history': 'History',
 
     'dashboard.title': 'Dashboard',
-    'dashboard.statTotal': 'Total Flagged IDs',
+    'dashboard.statTotal': 'Total Member Safety',
     'dashboard.statSafety': 'Safety Category',
     'dashboard.statNoBonus': 'No Bonus',
     'dashboard.statLatest': 'Last Added',
-    'dashboard.statsAdminOnly': 'Log in as admin to view the flagged id statistics.',
+    'dashboard.statsAdminOnly': 'Log in as admin to view the Member Safety statistics.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Check Bonus',
     'dashboard.linkBonusDesc': 'Detect pending, mismatched, and duplicate bonuses.',
-    'dashboard.linkFlaggedTitle': 'Flagged IDs',
+    'dashboard.linkFlaggedTitle': 'Member Safety',
     'dashboard.linkFlaggedDesc': 'Manage the list of ids to watch out for.',
     'dashboard.linkNewMemberTitle': 'New Member First Deposit',
     'dashboard.linkNewMemberDesc': "Find each new member id's first deposit.",
@@ -201,30 +201,30 @@ const I18N = {
     'newmember.checkBtn': 'Check New Member First Deposit',
     'newmember.resultTitle': 'First deposits found',
     'newmember.emptyIds': 'The new member id list is empty.',
-    'newmember.flaggedWarn': 'Found flagged ids in this list: {items}',
+    'newmember.flaggedWarn': 'Found Member Safety entries in this list: {items}',
     'newmember.countBadge': '{deposited} of {total} ids have deposited',
 
-    'flagged.title': 'Flagged IDs',
-    'flagged.listTitle': 'Flagged ID List',
+    'flagged.title': 'Member Safety',
+    'flagged.listTitle': 'Member Safety List',
     'flagged.catSafety': 'Safety',
     'flagged.catNoBonus': 'No Bonus',
     'flagged.catOther': 'Other',
     'flagged.addBtn': 'Add',
-    'flagged.toggleShow': 'Show Flagged ID List',
-    'flagged.toggleHide': 'Hide Flagged ID List',
-    'flagged.viewAdminOnly': 'Log in as admin to view the flagged id list.',
+    'flagged.toggleShow': 'Show Member Safety List',
+    'flagged.toggleHide': 'Hide Member Safety List',
+    'flagged.viewAdminOnly': 'Log in as admin to view the Member Safety list.',
     'flagged.backupAdminOnly': 'Log in as admin to access backup & restore.',
     'flagged.thId': 'ID',
     'flagged.thCategory': 'Category',
     'flagged.thNote': 'Note',
     'flagged.thAdded': 'Added',
-    'flagged.emptyState': 'No flagged ids added yet.',
+    'flagged.emptyState': 'No Member Safety added yet.',
     'flagged.backupTitle': 'Backup & Restore',
     'flagged.exportBtn': 'Export Backup (.json)',
     'flagged.importBtn': 'Import Backup',
     'flagged.deleteBtn': 'Delete',
     'flagged.fillIdFirst': 'Fill in the id/username first.',
-    'flagged.confirmDelete1': 'Delete id "{id}" from the flagged id list?',
+    'flagged.confirmDelete1': 'Delete id "{id}" from the Member Safety list?',
     'flagged.confirmDelete2': 'Confirm once more: permanently delete "{id}" from the list?',
     'flagged.invalidJson': 'Invalid backup file (not JSON).',
     'flagged.invalidList': 'Invalid backup file (content must be a list).',
@@ -607,7 +607,7 @@ function formatCopyableAmount(num) {
     .join('');
 }
 
-// --- Daftar ID Bermasalah (tersimpan terpusat di Firestore, sinkron di semua browser) ---
+// --- Daftar Member Safety (tersimpan terpusat di Firestore, sinkron di semua browser) ---
 // Siapa pun boleh menambahkan id baru (allow create kalau dokumennya belum ada); hapus
 // atau ubah id yang sudah ada dibatasi khusus akun admin. Ini ditegakkan di DUA lapis:
 // disembunyikan di UI (di bawah) DAN dipaksa lewat Firestore Security Rules, supaya
@@ -657,7 +657,7 @@ db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
   renderDashboard();
   renderSidebarTicker();
 }, err => {
-  console.error('Gagal memuat daftar ID Bermasalah dari Firestore:', err);
+  console.error('Gagal memuat daftar Member Safety dari Firestore:', err);
 });
 
 // Ticker id bermasalah terbaru di bawah sidebar: daftarnya digandakan dua kali lalu
@@ -743,14 +743,14 @@ function updateAdminUI() {
   if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email.split('@')[0];
   document.getElementById('importFlagsBtn').disabled = !admin;
 
-  // Lihat daftar ID Bermasalah & Backup/Restore: khusus admin. Menambah id baru
+  // Lihat daftar Member Safety & Backup/Restore: khusus admin. Menambah id baru
   // (form "Tambah" di atas) tetap terbuka untuk semua, tidak ikut dibatasi di sini.
   document.getElementById('toggleFlagListBtn').style.display = admin ? 'inline-block' : 'none';
   document.getElementById('flagListAdminNote').style.display = admin ? 'none' : 'block';
   document.getElementById('flagBackupActions').style.display = admin ? 'flex' : 'none';
   document.getElementById('flagBackupAdminNote').style.display = admin ? 'none' : 'block';
 
-  // Statistik ID Bermasalah di Dashboard juga khusus admin.
+  // Statistik Member Safety di Dashboard juga khusus admin.
   document.getElementById('dashAdminStats').style.display = admin ? 'flex' : 'none';
   document.getElementById('dashStatsAdminNote').style.display = admin ? 'none' : 'block';
 
@@ -815,7 +815,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -873,7 +873,7 @@ navItems.forEach(btn => {
   });
 });
 
-// --- Dashboard: ringkasan daftar ID Bermasalah (satu-satunya data yang persisten). ---
+// --- Dashboard: ringkasan daftar Member Safety (satu-satunya data yang persisten). ---
 function renderDashboard() {
   const flags = loadFlags();
   document.getElementById('dashFlagTotal').textContent = flags.length;
@@ -926,7 +926,7 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
     });
 });
 
-// --- Backup & restore daftar ID Bermasalah ---
+// --- Backup & restore daftar Member Safety ---
 // Export tetap terbuka untuk siapa saja (cuma baca/unduh). Import bisa menimpa entri
 // yang sudah ada dalam jumlah banyak sekaligus, jadi dibatasi khusus admin — sama
 // seperti hapus/ubah satuan.
