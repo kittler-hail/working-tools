@@ -683,7 +683,8 @@ function updateAdminUI() {
   const admin = isAdminUser();
   document.getElementById('adminLoggedOut').style.display = admin ? 'none' : 'block';
   document.getElementById('adminLoggedIn').style.display = admin ? 'flex' : 'none';
-  if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email;
+  // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap.
+  if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email.split('@')[0];
   document.getElementById('importFlagsBtn').disabled = !admin;
 }
 
