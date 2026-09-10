@@ -169,6 +169,15 @@ body {
   top: 0;
   z-index: 20;
 }
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-clock {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 .sidebar-arrow-toggle {
   width: 34px;
   height: 34px;

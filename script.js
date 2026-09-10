@@ -1353,6 +1353,26 @@ document.getElementById('winloseFileRemove').addEventListener('click', (e) => {
   document.getElementById('winloseData').value = '';
 });
 
+// --- Jam digital WIB di topbar ---
+// Selalu dikunci ke zona waktu Asia/Jakarta (WIB) lewat Intl.DateTimeFormat, jadi
+// jamnya tetap benar berapa pun zona waktu perangkat yang membuka situs ini.
+// Locale "en-GB" dipakai murni supaya pemisahnya titik dua (format jam digital pada
+// umumnya) — zona waktunya tetap dikunci ke Asia/Jakarta terlepas dari locale ini.
+const wibClockFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Jakarta',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+});
+
+function updateTopbarClock() {
+  document.getElementById('topbarClock').textContent = `${wibClockFormatter.format(new Date())} WIB`;
+}
+
+updateTopbarClock();
+setInterval(updateTopbarClock, 1000);
+
 // Terapkan bahasa tersimpan (atau default Indonesia) — ditaruh paling akhir supaya
 // semua fungsi render (renderFlagTable, renderDashboard, dst) dan variabel yang
 // dipakainya sudah pasti terdefinisi lebih dulu.
