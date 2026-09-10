@@ -335,9 +335,15 @@ const AMOUNT_RE = /(?<![\d.,])\d{1,3}(?:[.,]\d{3})+(?!\d)/;
 // Mendukung "DD/MM/YYYY hh:mm:ss AM/PM" maupun "DD/MM/YYYY HH:mm" (24 jam, tanpa detik).
 const DATETIME_RE = /(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i;
 const STATUS_RE = /\b(Confirmed|Pending|Failed|Rejected|Success|Cancelled)\b/i;
-// Baris keterangan di history bisa "... BONUS DEPOSIT ..." atau "... AGENT DEPOSIT ...".
-// Hanya yang berkeretangan BONUS DEPOSIT yang dihitung sebagai bonus.
-const DEPOSIT_TYPE_RE = /\b(BONUS|AGENT)\s+DEPOSIT\b/i;
+// Baris keterangan di history bisa macam-macam remark. Yang dihitung sebagai bonus
+// beneran cuma: "BONUS DEPOSIT"/"BONUS DP" (bonus awal), atau "KEKURANGAN BONUS..."
+// (bonus SUSULAN karena pemberian sebelumnya kurang — sah, bukan dobel/error).
+// Remark lain yang mirip tapi BUKAN bonus (mis. "TM BONUS", "TM", "BATAL WD",
+// "SALDO DIKEMBALIKAN") otomatis tidak ikut cocok karena pola di bawah memang
+// spesifik mensyaratkan "BONUS" diikuti "DEPOSIT"/"DP", atau didahului "KEKURANGAN".
+const BONUS_DEPOSIT_RE = /\bBONUS\s+(?:DEPOSIT|DP)\b|\bKEKURANGAN\s+BONUS(?:\s+(?:DEPOSIT|DP))?\b/i;
+const AGENT_DEPOSIT_RE = /\bAGENT\s+DEPOSIT\b/i;
+const BONUS_TOPUP_RE = /\bKEKURANGAN\s+BONUS\b/i;
 
 function splitIntoRecordBlocks(raw) {
   const lines = raw.split(/\r?\n/);
@@ -390,10 +396,12 @@ function parseRecords(raw) {
       const statusMatch = block.match(STATUS_RE);
       const status = statusMatch ? statusMatch[1] : '';
 
-      const depositTypeMatch = block.match(DEPOSIT_TYPE_RE);
-      const depositType = depositTypeMatch ? depositTypeMatch[1].toLowerCase() : '';
+      let depositType = '';
+      if (BONUS_DEPOSIT_RE.test(block)) depositType = 'bonus';
+      else if (AGENT_DEPOSIT_RE.test(block)) depositType = 'agent';
+      const isBonusTopup = depositType === 'bonus' && BONUS_TOPUP_RE.test(block);
 
-      return { username, amount, timestamp, dateText, status, depositType, code };
+      return { username, amount, timestamp, dateText, status, depositType, code, isBonusTopup };
     })
     .filter(r => r.username);
 }
@@ -485,6 +493,48 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
   });
 
   return { pairs, pendingDeposits, unmatchedCount };
+}
+
+// Satu "bonus" yang sah bisa terdiri dari lebih dari satu baris History: bonus awal,
+// lalu nol atau lebih baris susulan kekurangan ("KEKURANGAN BONUS...") yang menutupi
+// selisihnya. Baris-baris ini digabung jadi satu "event" (nominalnya dijumlah) SEBELUM
+// dicocokkan ke deposit atau dicek dobel — supaya bonus awal yang sengaja kurang lalu
+// ditutup dengan susulan tidak salah terbaca "kekurangan" (dievaluasi sendiri-sendiri)
+// maupun "dobel" (dianggap 2 bonus terpisah, padahal cuma 1 bonus yang dicicil).
+function groupBonusEvents(bonusRecords) {
+  const byUser = new Map();
+  bonusRecords.forEach(r => {
+    const key = r.username.toLowerCase();
+    if (!byUser.has(key)) byUser.set(key, []);
+    byUser.get(key).push(r);
+  });
+
+  const events = [];
+  byUser.forEach(records => {
+    const sorted = records.slice().sort((a, b) => a.timestamp - b.timestamp);
+    const userEvents = [];
+    sorted.forEach(r => {
+      const lastEvent = userEvents[userEvents.length - 1];
+      if (r.isBonusTopup && lastEvent) {
+        lastEvent.records.push(r);
+      } else {
+        userEvents.push({ records: [r] });
+      }
+    });
+    userEvents.forEach(ev => {
+      const first = ev.records[0];
+      const last = ev.records[ev.records.length - 1];
+      events.push({
+        username: first.username,
+        code: first.code,
+        amount: ev.records.reduce((sum, r) => sum + r.amount, 0),
+        timestamp: first.timestamp, // dasar cocokkan ke deposit = waktu bonus AWAL
+        dateText: last.dateText || first.dateText, // ditampilkan waktu selesai dicicil
+        recordCount: ev.records.length,
+      });
+    });
+  });
+  return events;
 }
 
 function findDuplicateGroups(records) {
@@ -942,8 +992,11 @@ document.getElementById('importFlagsFile').addEventListener('change', (e) => {
 function buildBonusReport(txRaw, givenRaw, pct) {
   const deposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
   const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit);
+  // Bonus awal + susulan kekurangannya digabung jadi satu "event" per kejadian
+  // sebelum dicocokkan/dicek dobel — lihat komentar di groupBonusEvents().
+  const bonusEvents = groupBonusEvents(bonusRecords);
 
-  const { pairs, pendingDeposits, unmatchedCount } = matchDepositsAndBonuses(deposits, bonusRecords);
+  const { pairs, pendingDeposits, unmatchedCount } = matchDepositsAndBonuses(deposits, bonusEvents);
 
   const items = [];
 
@@ -973,8 +1026,9 @@ function buildBonusReport(txRaw, givenRaw, pct) {
     });
   });
 
-  // Dobel: username yang muncul lebih dari sekali di history bonus.
-  findDuplicateGroups(bonusRecords).forEach(group => {
+  // Dobel: username yang punya lebih dari satu EVENT bonus terpisah (bukan cuma
+  // bonus awal + susulan kekurangannya, yang sudah digabung jadi satu event di atas).
+  findDuplicateGroups(bonusEvents).forEach(group => {
     const sorted = group.slice().sort((a, b) => a.timestamp - b.timestamp);
     const rows = sorted.map((r, i) => ({
       kind: 'double', username: r.username, expected: null,
