@@ -28,6 +28,7 @@
             <div class="inner">
               <button class="nav-item nav-sub" data-page="bonus" data-i18n="nav.bonus">1.1 Cek Bonus</button>
               <button class="nav-item nav-sub" data-page="flagged" data-i18n="nav.flagged">1.2 Member Safety</button>
+              <button class="nav-item nav-sub" data-page="inputbonus" data-i18n="nav.inputbonus">1.3 Input Bonus</button>
             </div>
           </div>
         </div>
@@ -191,6 +192,55 @@
 
           <div id="bonusEmptyCard">
             <div class="empty-state" data-i18n="bonus.emptyState">Isi Data Sumber, lalu klik "Proses Bonus".</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-inputbonus" data-page="inputbonus" style="display:none;">
+        <h2 class="page-title" data-i18n="inputBonus.title">Input Bonus</h2>
+
+        <div class="card">
+          <h2 data-i18n="inputBonus.dataTitle">Data Input Bonus</h2>
+          <textarea id="inputBonusData"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="inputBonus.sortTitle">Urutkan</h3>
+            <div class="controls">
+              <select id="inputBonusSortSelect">
+                <option value="desc" data-i18n="inputBonus.sortDesc">Nominal Terbesar</option>
+                <option value="asc" data-i18n="inputBonus.sortAsc">Nominal Terkecil</option>
+              </select>
+              <button class="primary" id="inputBonusProcessBtn" data-i18n="inputBonus.processBtn">Proses</button>
+            </div>
+          </div>
+
+          <div id="inputBonusWarnBox"></div>
+
+          <div id="inputBonusResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" data-i18n="inputBonus.resultTitle">Hasil Input Bonus</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="badge badge-warn" id="inputBonusCountBadge">0 dobel</span>
+                <button class="ghost" id="inputBonusCopyBtn" data-i18n="inputBonus.copyBtn">Copy Hasil</button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table id="inputBonusResultTable">
+                <thead>
+                  <tr>
+                    <th data-i18n="inputBonus.thId">ID</th>
+                    <th data-i18n="inputBonus.thAmount">Nominal Bonus</th>
+                  </tr>
+                </thead>
+                <tbody id="inputBonusResultBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="inputBonusEmptyCard">
+            <div class="empty-state" data-i18n="inputBonus.emptyState">Isi Data Input Bonus, lalu klik "Proses".</div>
           </div>
         </div>
       </section>

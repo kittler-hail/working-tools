@@ -9,6 +9,7 @@ const I18N = {
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Cek Bonus',
     'nav.flagged': '1.2 Member Safety',
+    'nav.inputbonus': '1.3 Input Bonus',
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
@@ -65,6 +66,22 @@ const I18N = {
     'bonus.noteExcess': 'Kelebihan Rp',
     'bonus.noteShortage': 'Kekurangan Rp',
     'bonus.noteDouble': '{count}x diberikan',
+
+    'inputBonus.title': 'Input Bonus',
+    'inputBonus.dataTitle': 'Data Input Bonus',
+    'inputBonus.sortTitle': 'Urutkan',
+    'inputBonus.sortDesc': 'Nominal Terbesar',
+    'inputBonus.sortAsc': 'Nominal Terkecil',
+    'inputBonus.processBtn': 'Proses',
+    'inputBonus.resultTitle': 'Hasil Input Bonus',
+    'inputBonus.copyBtn': 'Copy Hasil',
+    'inputBonus.copyBtnDone': 'Tersalin!',
+    'inputBonus.thId': 'ID',
+    'inputBonus.thAmount': 'Nominal Bonus',
+    'inputBonus.emptyState': 'Isi Data Input Bonus, lalu klik "Proses".',
+    'inputBonus.noData': 'Data belum diisi atau formatnya tidak terbaca.',
+    'inputBonus.noDouble': 'Tidak ada dobel',
+    'inputBonus.doubleBadge': '{count} id dobel',
 
     'newmember.title': 'New Member First Deposit',
     'newmember.listTitle': 'Daftar ID Member Baru',
@@ -139,6 +156,7 @@ const I18N = {
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Check Bonus',
     'nav.flagged': '1.2 Member Safety',
+    'nav.inputbonus': '1.3 Input Bonus',
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
@@ -195,6 +213,22 @@ const I18N = {
     'bonus.noteExcess': 'Excess Rp',
     'bonus.noteShortage': 'Shortfall Rp',
     'bonus.noteDouble': 'given {count}x',
+
+    'inputBonus.title': 'Input Bonus',
+    'inputBonus.dataTitle': 'Input Bonus Data',
+    'inputBonus.sortTitle': 'Sort',
+    'inputBonus.sortDesc': 'Highest Amount',
+    'inputBonus.sortAsc': 'Lowest Amount',
+    'inputBonus.processBtn': 'Process',
+    'inputBonus.resultTitle': 'Input Bonus Result',
+    'inputBonus.copyBtn': 'Copy Result',
+    'inputBonus.copyBtnDone': 'Copied!',
+    'inputBonus.thId': 'ID',
+    'inputBonus.thAmount': 'Bonus Amount',
+    'inputBonus.emptyState': 'Fill in the Input Bonus Data, then click "Process".',
+    'inputBonus.noData': "No data entered yet, or the format isn't recognized.",
+    'inputBonus.noDouble': 'No duplicates',
+    'inputBonus.doubleBadge': '{count} duplicate id(s)',
 
     'newmember.title': 'New Member First Deposit',
     'newmember.listTitle': 'New Member ID List',
@@ -815,7 +849,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged', 'inputbonus']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -1143,6 +1177,73 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
     makeCopyable(tr.querySelector('.idcell'), r.username);
     if (r.expected != null) makeCopyable(tr.children[1], String(r.expected));
     if (r.given != null) makeCopyable(tr.children[2], String(r.given));
+  });
+});
+
+// --- Input Bonus ---
+// Fitur simpel: paste laporan bonus yang sudah diberikan (format multi-baris yang
+// sama seperti History), lalu tampilkan cuma id + nominalnya, diurutkan dari
+// nominal terbesar/terkecil, dan tandai id yang muncul dobel (2x atau lebih).
+// Tidak ada pengecekan kesesuaian/persentase di sini — murni menampilkan apa yang
+// tertulis di data, plus deteksi dobel. Parser yang dipakai sama persis dengan yang
+// sudah ada (parseRecords + isBonusDeposit), karena formatnya cocok.
+let lastInputBonusRows = [];
+
+function buildInputBonusReport(raw, sortOrder) {
+  const records = parseRecords(raw).filter(isBonusDeposit);
+  const doubleUsernames = new Set(
+    findDuplicateGroups(records).map(group => group[0].username.toLowerCase())
+  );
+  const rows = records
+    .slice()
+    .sort((a, b) => (sortOrder === 'asc' ? a.amount - b.amount : b.amount - a.amount));
+  return { rows, doubleCount: doubleUsernames.size, doubleUsernames };
+}
+
+document.getElementById('inputBonusProcessBtn').addEventListener('click', () => {
+  const raw = document.getElementById('inputBonusData').value;
+  const sortOrder = document.getElementById('inputBonusSortSelect').value;
+  const warnBox = document.getElementById('inputBonusWarnBox');
+  warnBox.innerHTML = '';
+
+  const { rows, doubleCount, doubleUsernames } = buildInputBonusReport(raw, sortOrder);
+  lastInputBonusRows = rows;
+  const body = document.getElementById('inputBonusResultBody');
+  body.innerHTML = '';
+
+  if (rows.length === 0) {
+    document.getElementById('inputBonusResultCard').style.display = 'none';
+    document.getElementById('inputBonusEmptyCard').style.display = 'block';
+    document.getElementById('inputBonusEmptyCard').querySelector('.empty-state').textContent = t('inputBonus.noData');
+    return;
+  }
+
+  document.getElementById('inputBonusEmptyCard').style.display = 'none';
+  document.getElementById('inputBonusResultCard').style.display = 'block';
+  document.getElementById('inputBonusCountBadge').textContent =
+    doubleCount > 0 ? t('inputBonus.doubleBadge', { count: doubleCount }) : t('inputBonus.noDouble');
+
+  rows.forEach(r => {
+    const isDouble = doubleUsernames.has(r.username.toLowerCase());
+    const tr = document.createElement('tr');
+    if (isDouble) tr.classList.add('kind-double');
+    tr.innerHTML = `
+      <td class="idcell">${r.username}${isDouble ? ' <span class="badge badge-warn">2x+</span>' : ''}</td>
+      <td class="amount">${formatCopyableAmount(r.amount)}</td>
+    `;
+    body.appendChild(tr);
+    makeCopyable(tr.querySelector('.idcell'), r.username);
+    makeCopyable(tr.children[1], String(r.amount));
+  });
+});
+
+document.getElementById('inputBonusCopyBtn').addEventListener('click', () => {
+  const text = lastInputBonusRows.map(r => `${r.username}\t${r.amount}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('inputBonusCopyBtn');
+    const original = btn.textContent;
+    btn.textContent = t('inputBonus.copyBtnDone');
+    setTimeout(() => { btn.textContent = original; }, 1000);
   });
 });
 
