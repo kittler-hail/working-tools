@@ -13,7 +13,7 @@ const I18N = {
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
 
-    'admin.loginBtn': 'Login Admin',
+    'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
     'admin.modalTitle': 'Login Admin',
     'admin.emailPlaceholder': 'Email admin',
@@ -140,7 +140,7 @@ const I18N = {
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
 
-    'admin.loginBtn': 'Admin Login',
+    'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
     'admin.modalTitle': 'Admin Login',
     'admin.emailPlaceholder': 'Admin email',
