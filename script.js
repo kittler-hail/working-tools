@@ -739,18 +739,18 @@ document.querySelectorAll('.dash-link').forEach(btn => {
   btn.addEventListener('click', () => activatePage(btn.dataset.goto));
 });
 
-// --- Hamburger: buka/tutup sidebar (geser lebar 0 <-> 240px, lihat CSS) ---
-const appBody = document.querySelector('.app-body');
+// --- Toggle panah: buka/tutup sidebar (geser lebar 0 <-> 240px, lihat CSS) ---
+const appShell = document.querySelector('.app-shell');
 const SIDEBAR_AUTO_COLLAPSE_WIDTH = 760;
 
 function setSidebarCollapsed(collapsed) {
-  appBody.classList.toggle('sidebar-collapsed', collapsed);
+  appShell.classList.toggle('sidebar-collapsed', collapsed);
 }
 
 setSidebarCollapsed(window.innerWidth < SIDEBAR_AUTO_COLLAPSE_WIDTH);
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
-  appBody.classList.toggle('sidebar-collapsed');
+  appShell.classList.toggle('sidebar-collapsed');
 });
 
 // Klik area gelap di belakang sidebar (muncul di layar sempit saat sidebar terbuka)
