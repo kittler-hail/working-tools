@@ -93,13 +93,16 @@ body {
 }
 .nav-group.open .nav-group-header .chevron { transform: rotate(90deg); }
 .nav-group-items {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.25s ease;
-}
-.nav-group.open .nav-group-items { grid-template-rows: 1fr; }
-.nav-group-items .inner {
+  /* max-height (bukan animasi grid-template-rows ber-fr) supaya buka/tutup ini
+     jalan konsisten di semua browser — beberapa browser (mis. Safari versi lama,
+     WebView di aplikasi) belum bisa animasikan unit "fr" di grid-template-rows,
+     dan itu bikin sidebar-nya salah render / berantakan. */
+  max-height: 0;
   overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+.nav-group.open .nav-group-items { max-height: 240px; }
+.nav-group-items .inner {
   display: flex;
   flex-direction: column;
   gap: 2px;
