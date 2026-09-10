@@ -8,172 +8,166 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-  <h1>Working Tools</h1>
-  <p class="subtitle">Tools internal untuk cek bonus deposit, bonus dobel, dan first deposit member baru.</p>
-  <button class="ghost" id="toggleTutorialBtn" style="margin-bottom:24px;">Lihat Tutorial Penggunaan</button>
-
-  <section class="section" id="tutorialSection" style="display:none;">
-    <h2 class="section-title">Tutorial Penggunaan</h2>
-    <div class="card">
-      <h3>1. Isi Data Sumber</h3>
-      <p class="card-desc">Paste history transaksi dari sistem ke dua kolom di section "Data Sumber": <strong>History QR Pay</strong> (history deposit member) dan <strong>History</strong> (history bonus yang sudah diberikan). Kedua data ini dipakai bareng-bareng oleh tools nomor 1-3 di bawah, jadi cukup diisi sekali.</p>
-      <h3>2. Cek Bonus Pending</h3>
-      <p class="card-desc">Pilih persentase bonus (5% atau 10%), lalu klik "Proses data". Tool akan membandingkan siapa saja yang sudah deposit confirmed tapi belum ada di history bonus, lalu menampilkan nominal bonus yang harus diberikan (otomatis dibatasi sesuai batas maksimal per kode).</p>
-      <h3>3. Cek Double Bonus</h3>
-      <p class="card-desc">Klik "Cek Double Bonus" untuk mencari username yang menerima bonus deposit lebih dari sekali di kolom History, lengkap dengan waktu tiap pemberiannya. Berguna untuk audit sebelum lanjut ke proses berikutnya.</p>
-      <h3>4. New Member First Deposit</h3>
-      <p class="card-desc">Paste daftar id member baru ke kolom yang tersedia lalu klik tombolnya. Tool akan mencari deposit pertama tiap id (dari History QR Pay maupun History bonus); kalau belum pernah deposit, nominalnya ditampilkan Rp0 supaya gampang dipantau.</p>
-      <h3>5. Tandai ID Bermasalah</h3>
-      <p class="card-desc">Di section paling bawah, tambahkan id yang perlu diwaspadai (kategori Safety, Tidak Dapat Bonus, atau Lainnya) beserta keterangannya. Selanjutnya, id tersebut otomatis ditandai kalau muncul di hasil Cek Bonus Pending atau New Member First Deposit — daftarnya sendiri tersembunyi sampai tombol "Lihat Daftar ID Bermasalah" diklik, dan menghapus id butuh 2x konfirmasi.</p>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Working Tools</h1>
+      <p class="sidebar-subtitle">Cek bonus deposit &amp; member baru</p>
     </div>
-  </section>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="bonus">Bonus</button>
+      <button class="nav-item" data-page="newmember">New Member First Deposit</button>
+      <button class="nav-item" data-page="flagged">ID Bermasalah</button>
+      <button class="nav-item" data-page="tutorial">Tutorial Penggunaan</button>
+    </nav>
+  </aside>
 
-  <section class="section">
-    <h2 class="section-title">Data Sumber</h2>
-    <div class="row">
-      <div class="card">
-        <h2>History QR Pay</h2>
-        <p class="card-desc">History deposit dari QR Pay. Hanya baris berstatus <strong>Confirmed</strong> yang dihitung.</p>
-        <textarea id="txData" placeholder="1&#9;**@ima888&#9;BCA&#10;M h*****&#10;213****227&#9;P*******&#10;********-****-****-****-************&#9;100.000&#9;178************499&#10;&#10;06/09/2026 11:57:38 PM&#9;QR Pay&#9;Confirmed"></textarea>
+  <main class="content">
+
+    <section class="page" id="page-bonus" data-page="bonus">
+      <h2 class="page-title">Bonus</h2>
+      <p class="page-desc">Satu tempat untuk semua urusan bonus deposit: bonus pending, kesesuaian nominal, dan bonus dobel &mdash; dicek sekaligus dari data yang sama.</p>
+
+      <div class="row">
+        <div class="card">
+          <h2>History QR Pay</h2>
+          <p class="card-desc">History deposit dari QR Pay. Hanya baris berstatus <strong>Confirmed</strong> yang dihitung.</p>
+          <textarea id="txData" placeholder="1&#9;**@ima888&#9;BCA&#10;M h*****&#10;213****227&#9;P*******&#10;********-****-****-****-************&#9;100.000&#9;178************499&#10;&#10;06/09/2026 11:57:38 PM&#9;QR Pay&#9;Confirmed"></textarea>
+        </div>
+        <div class="card">
+          <h2>History</h2>
+          <p class="card-desc">History bonus yang sudah diberikan (baris berketerangan <strong>BONUS DEPOSIT</strong>).</p>
+          <textarea id="givenData" placeholder="1&#9;**@mantap93&#9;BRI&#10;d***** h*******&#10;062*********506&#9;SCB&#10;SCB A BONUS DEPOSIT HARIAN&#10;01&#9;25.000&#9;07/09/2026 00:01&#9;**@admin"></textarea>
+        </div>
       </div>
+
       <div class="card">
-        <h2>History</h2>
-        <p class="card-desc">History bonus yang sudah diberikan (baris berketerangan <strong>BONUS DEPOSIT</strong>).</p>
-        <textarea id="givenData" placeholder="1&#9;**@mantap93&#9;BRI&#10;d***** h*******&#10;062*********506&#9;SCB&#10;SCB A BONUS DEPOSIT HARIAN&#10;01&#9;25.000&#9;07/09/2026 00:01&#9;**@admin"></textarea>
+        <div class="card-header">
+          <h3>Cek Bonus</h3>
+          <div class="controls">
+            <label for="pctSelect">Persentase:</label>
+            <select id="pctSelect">
+              <option value="5">5%</option>
+              <option value="10">10%</option>
+            </select>
+            <button class="primary" id="bonusProcessBtn">Proses Bonus</button>
+          </div>
+        </div>
+        <p class="card-desc">Menjalankan tiga pengecekan sekaligus dari data di atas: member yang belum dapat bonus (<strong>Pending</strong>), bonus yang nominalnya tidak sesuai deposit &times; persentase (<strong>Tidak Sesuai</strong> &mdash; kekurangan akibat pembulatan ke ribuan terdekat dianggap aman dan tidak ditampilkan), dan username yang menerima bonus lebih dari sekali (<strong>Dobel</strong>).</p>
+
+        <div id="bonusWarnBox"></div>
+
+        <div id="bonusResultCard" style="display:none;">
+          <div class="summary-bar">
+            <span class="result-title">Hasil cek bonus</span>
+            <span class="badge badge-warn" id="bonusCountBadge">0 isu</span>
+          </div>
+          <div class="table-scroll">
+            <table id="bonusResultTable">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Jenis</th>
+                  <th>Nominal Deposit</th>
+                  <th>Bonus Seharusnya</th>
+                  <th>Bonus Diberikan</th>
+                  <th>Keterangan</th>
+                  <th>Waktu</th>
+                  <th>Admin</th>
+                </tr>
+              </thead>
+              <tbody id="bonusResultBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="bonusEmptyCard">
+          <div class="empty-state">Paste data transaksi QR Pay dan history bonus, lalu klik "Proses Bonus".</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <h2 class="section-title">Tools</h2>
+    <section class="page" id="page-newmember" data-page="newmember" style="display:none;">
+      <h2 class="page-title">New Member First Deposit</h2>
+      <p class="page-desc">Cari deposit pertama tiap id member baru. Kalau belum pernah deposit, hasilnya Rp0 supaya gampang dipantau.</p>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>1. Cek Bonus Pending</h3>
-        <div class="controls">
-          <label for="pctSelect">Persentase:</label>
-          <select id="pctSelect">
-            <option value="5">5%</option>
-            <option value="10">10%</option>
+      <div class="card">
+        <div class="card-header">
+          <h3>Daftar ID Member Baru</h3>
+        </div>
+        <p class="card-desc">Paste daftar id member baru di bawah ini, lalu klik tombolnya. Data deposit diambil dari History QR Pay dan History bonus di menu Bonus, jadi pastikan kolom itu sudah diisi.</p>
+
+        <textarea id="newMemberIds" placeholder="1&#9;9/6/2026 20:43:00&#9;**@Refli&#9;Rp0&#9;Rp0&#10;2&#9;9/6/2026 20:31:00&#9;**@Masduqe&#9;Rp0&#9;Rp0&#10;3&#9;9/6/2026 20:26:00&#9;**@venansius&#9;Rp0&#9;Rp0"></textarea>
+        <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
+
+        <div id="newMemberWarnBox"></div>
+
+        <div id="newMemberResultCard" style="display:none;">
+          <div class="summary-bar">
+            <span class="result-title">First deposit ditemukan</span>
+            <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
+          </div>
+          <textarea id="newMemberResultText" readonly style="min-height:100px;"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-flagged" data-page="flagged" style="display:none;">
+      <h2 class="page-title">ID Bermasalah</h2>
+      <p class="page-desc">Simpan id yang perlu diwaspadai (Safety, Tidak Dapat Bonus, atau Lainnya) beserta keterangannya. ID ini otomatis ditandai kalau muncul di hasil menu Bonus atau New Member First Deposit.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Daftar ID Bermasalah</h3>
+        </div>
+        <div class="flag-form">
+          <input type="text" id="flagIdInput" placeholder="Username, misal: ima888">
+          <select id="flagCategorySelect">
+            <option value="safety">Safety</option>
+            <option value="no-bonus">Tidak Dapat Bonus</option>
+            <option value="other">Lainnya</option>
           </select>
-          <button class="primary" id="processBtn">Proses data</button>
+          <input type="text" id="flagNoteInput" placeholder="Keterangan (opsional)">
+          <button class="primary" id="addFlagBtn">Tambah</button>
+        </div>
+        <div id="flagWarnBox"></div>
+        <button class="ghost" id="toggleFlagListBtn">Lihat Daftar ID Bermasalah</button>
+        <div id="flagListContainer" style="display:none;margin-top:14px;">
+          <table id="flagTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Kategori</th>
+                <th>Keterangan</th>
+                <th>Ditambahkan</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="flagTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
         </div>
       </div>
-      <p class="card-desc">Cari member yang sudah deposit confirmed tapi belum tercatat dapat bonus di kolom History, lalu hitung otomatis nominal bonusnya.</p>
+    </section>
 
-      <div id="warnBox"></div>
-
-      <div id="resultCard" style="display:none;">
-        <div class="summary-bar">
-          <span class="result-title">Belum dapat bonus</span>
-          <span class="badge" id="countBadge">0 member</span>
-        </div>
-        <table id="resultTable">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Nominal</th>
-              <th>Bonus</th>
-              <th>Waktu terakhir</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="resultBody"></tbody>
-        </table>
-      </div>
-
-      <div id="emptyCard">
-        <div class="empty-state">Paste data transaksi QR Pay dan history bonus, lalu klik "Proses data".</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>2. Cek Double Bonus</h3>
-        <button class="ghost" id="doubleBtn">Cek Double Bonus</button>
-      </div>
-      <p class="card-desc">Temukan username yang menerima bonus deposit lebih dari sekali di kolom History, lengkap dengan waktu dan admin tiap pemberiannya.</p>
-
-      <div id="doubleWarnBox"></div>
-
-      <div id="doubleResultCard" style="display:none;">
-        <div class="summary-bar">
-          <span class="result-title">Bonus dobel ditemukan</span>
-          <span class="badge badge-warn" id="doubleCountBadge">0 username dobel</span>
-        </div>
-        <table id="doubleResultTable">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Jumlah</th>
-              <th>Nominal</th>
-              <th>Waktu</th>
-              <th>Admin</th>
-            </tr>
-          </thead>
-          <tbody id="doubleResultBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
+    <section class="page" id="page-tutorial" data-page="tutorial" style="display:none;">
+      <h2 class="page-title">Tutorial Penggunaan</h2>
+      <div class="card">
+        <h3>1. Isi Data Sumber</h3>
+        <p class="card-desc">Di menu <strong>Bonus</strong>, paste history transaksi dari sistem ke dua kolom: <strong>History QR Pay</strong> (history deposit member) dan <strong>History</strong> (history bonus yang sudah diberikan). Kedua data ini dipakai bareng-bareng oleh Cek Bonus dan New Member First Deposit.</p>
+        <h3>2. Cek Bonus</h3>
+        <p class="card-desc">Pilih persentase bonus (5% atau 10%), lalu klik "Proses Bonus". Satu tombol ini menjalankan tiga pengecekan sekaligus dan menampilkannya dalam satu tabel dengan kolom Jenis:</p>
+        <p class="card-desc">&bull; <strong>Pending</strong> &mdash; member sudah deposit confirmed tapi belum tercatat dapat bonus; nominal bonus yang harus diberikan otomatis dihitung (dibatasi sesuai batas maksimal per kode).</p>
+        <p class="card-desc">&bull; <strong>Tidak Sesuai</strong> &mdash; bonus yang sudah diberikan nominalnya beda dari seharusnya (deposit &times; persentase). Kekurangan kecil akibat pembulatan ke ribuan terdekat (mis. seharusnya Rp12.500 diberikan Rp12.000) dianggap aman dan tidak ditampilkan; yang muncul hanya kelebihan pemberian bonus atau kekurangan di luar batas pembulatan itu.</p>
+        <p class="card-desc">&bull; <strong>Dobel</strong> &mdash; username yang menerima bonus deposit lebih dari sekali di kolom History, lengkap waktu tiap pemberiannya.</p>
         <h3>3. New Member First Deposit</h3>
+        <p class="card-desc">Di menu terpisah, paste daftar id member baru lalu klik tombolnya. Tool akan mencari deposit pertama tiap id (dari History QR Pay maupun History bonus di menu Bonus); kalau belum pernah deposit, nominalnya ditampilkan Rp0 supaya gampang dipantau.</p>
+        <h3>4. Tandai ID Bermasalah</h3>
+        <p class="card-desc">Di menu ID Bermasalah, tambahkan id yang perlu diwaspadai (kategori Safety, Tidak Dapat Bonus, atau Lainnya) beserta keterangannya. Selanjutnya, id tersebut otomatis ditandai kalau muncul di hasil Cek Bonus atau New Member First Deposit &mdash; daftarnya sendiri tersembunyi sampai tombol "Lihat Daftar ID Bermasalah" diklik, dan menghapus id butuh 2x konfirmasi.</p>
       </div>
-      <p class="card-desc">Paste daftar id member baru di bawah ini untuk mencari deposit pertama mereka. Kalau belum pernah deposit, hasilnya Rp0.</p>
+    </section>
 
-      <textarea id="newMemberIds" placeholder="1&#9;9/6/2026 20:43:00&#9;**@Refli&#9;Rp0&#9;Rp0&#10;2&#9;9/6/2026 20:31:00&#9;**@Masduqe&#9;Rp0&#9;Rp0&#10;3&#9;9/6/2026 20:26:00&#9;**@venansius&#9;Rp0&#9;Rp0"></textarea>
-      <button class="ghost" id="newMemberBtn" style="margin-top:10px;">Cek New Member First Deposit</button>
-
-      <div id="newMemberWarnBox"></div>
-
-      <div id="newMemberResultCard" style="display:none;">
-        <div class="summary-bar">
-          <span class="result-title">First deposit ditemukan</span>
-          <span class="badge" id="newMemberCountBadge">0 dari 0 id</span>
-        </div>
-        <textarea id="newMemberResultText" readonly style="min-height:100px;"></textarea>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 class="section-title">ID Bermasalah</h2>
-    <div class="card">
-      <div class="card-header">
-        <h3>Daftar ID Bermasalah</h3>
-      </div>
-      <p class="card-desc">Simpan id yang perlu diwaspadai (Safety, Tidak Dapat Bonus, atau Lainnya) beserta keterangannya. ID ini otomatis ditandai kalau muncul di hasil Cek Bonus Pending atau New Member First Deposit.</p>
-      <div class="flag-form">
-        <input type="text" id="flagIdInput" placeholder="Username, misal: ima888">
-        <select id="flagCategorySelect">
-          <option value="safety">Safety</option>
-          <option value="no-bonus">Tidak Dapat Bonus</option>
-          <option value="other">Lainnya</option>
-        </select>
-        <input type="text" id="flagNoteInput" placeholder="Keterangan (opsional)">
-        <button class="primary" id="addFlagBtn">Tambah</button>
-      </div>
-      <div id="flagWarnBox"></div>
-      <button class="ghost" id="toggleFlagListBtn">Lihat Daftar ID Bermasalah</button>
-      <div id="flagListContainer" style="display:none;margin-top:14px;">
-        <table id="flagTable" style="display:none;">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Kategori</th>
-              <th>Keterangan</th>
-              <th>Ditambahkan</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="flagTableBody"></tbody>
-        </table>
-        <div class="empty-state" id="flagEmptyState">Belum ada id bermasalah yang ditambahkan.</div>
-      </div>
-    </div>
-  </section>
+  </main>
 </div>
 
 <script src="script.js"></script>

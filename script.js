@@ -96,6 +96,40 @@ function getBonusCap(pct, code) {
   return 100000;
 }
 
+function computeExpectedBonus(amount, pct, code) {
+  const rawBonus = Math.round(amount * pct / 100);
+  return Math.min(rawBonus, getBonusCap(pct, code));
+}
+
+// Bonus yang diberikan boleh dibulatkan ke bawah sampai ribuan terdekat dari nominal
+// seharusnya (mis. seharusnya 12.500, diberikan 12.000 masih aman). Di luar rentang
+// [pembulatan ke bawah, seharusnya] dianggap tidak sesuai: lebih besar = "excess"
+// (kelebihan pemberian bonus), lebih kecil dari batas pembulatan = "shortage".
+function evaluateBonusAmount(expected, given) {
+  const roundedFloor = Math.floor(expected / 1000) * 1000;
+  if (given > expected) return { status: 'excess', diff: given - expected };
+  if (given < roundedFloor) return { status: 'shortage', diff: expected - given };
+  return { status: 'ok', diff: 0 };
+}
+
+// Bonus di History tidak menyebutkan deposit mana yang jadi dasarnya, jadi dicari
+// deposit confirmed milik username yang sama dengan waktu paling dekat sebelum
+// (atau bertepatan dengan) waktu bonus diberikan. Kalau tidak ada deposit sebelum
+// waktu bonus (data janggal/tidak lengkap), fallback ke deposit dengan selisih
+// waktu paling kecil.
+function findMatchingDeposit(deposits, username, bonusTimestamp) {
+  const userDeposits = deposits.filter(d => d.username.toLowerCase() === username.toLowerCase());
+  if (userDeposits.length === 0) return null;
+
+  const before = userDeposits.filter(d => d.timestamp <= bonusTimestamp);
+  if (before.length > 0) {
+    return before.reduce((latest, d) => (d.timestamp > latest.timestamp ? d : latest));
+  }
+  return userDeposits.reduce((closest, d) =>
+    Math.abs(d.timestamp - bonusTimestamp) < Math.abs(closest.timestamp - bonusTimestamp) ? d : closest
+  );
+}
+
 function findDuplicateGroups(records) {
   const groups = new Map();
   records.forEach(r => {
@@ -241,12 +275,18 @@ function renderFlagTable() {
   });
 }
 
-document.getElementById('toggleTutorialBtn').addEventListener('click', () => {
-  const section = document.getElementById('tutorialSection');
-  const btn = document.getElementById('toggleTutorialBtn');
-  const isHidden = section.style.display === 'none';
-  section.style.display = isHidden ? 'block' : 'none';
-  btn.textContent = isHidden ? 'Sembunyikan Tutorial Penggunaan' : 'Lihat Tutorial Penggunaan';
+// --- Navigasi sidebar: satu halaman ("page") aktif ditampilkan, sisanya disembunyikan ---
+const navItems = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page');
+
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.page;
+    navItems.forEach(b => b.classList.toggle('active', b === btn));
+    pages.forEach(p => {
+      p.style.display = p.dataset.page === target ? 'block' : 'none';
+    });
+  });
 });
 
 document.getElementById('toggleFlagListBtn').addEventListener('click', () => {
@@ -285,108 +325,142 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
 
 renderFlagTable();
 
-document.getElementById('processBtn').addEventListener('click', () => {
+// Label & badge class per jenis isu pada tabel Cek Bonus gabungan.
+const BONUS_ISSUE_LABELS = { pending: 'Pending', excess: 'Tidak Sesuai', shortage: 'Tidak Sesuai', double: 'Dobel' };
+const BONUS_ISSUE_BADGE_CLASS = { pending: 'badge-pending', excess: 'badge-excess', shortage: 'badge-shortage', double: 'badge-warn' };
+
+// Menggabungkan tiga pengecekan (pending, kesesuaian nominal, dobel) jadi satu daftar
+// baris hasil. Tiap "item" bisa berisi lebih dari satu baris tabel (grup dobel bonus
+// tetap ditampilkan berurutan per kemunculan), tapi disortir sebagai satu kesatuan
+// berdasarkan waktu kejadian paling baru.
+function buildBonusReport(txRaw, givenRaw, pct) {
+  const deposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
+  const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit);
+
+  const items = [];
+
+  // Pending: sudah deposit confirmed tapi belum ada bonus sama sekali.
+  const latestDepositByUsername = dedupeLatest(deposits);
+  const bonusUsernames = new Set(bonusRecords.map(r => r.username));
+  Array.from(latestDepositByUsername.values())
+    .filter(r => !bonusUsernames.has(r.username))
+    .forEach(r => {
+      const expected = computeExpectedBonus(r.amount, pct, r.code);
+      items.push({
+        sortTs: r.timestamp,
+        rows: [{
+          username: r.username, jenis: 'pending', depositAmount: r.amount,
+          expected, given: null, note: '-', waktu: r.dateText || '-', admin: '-',
+        }],
+      });
+    });
+
+  // Tidak Sesuai: bonus sudah diberikan tapi nominalnya beda dari seharusnya
+  // (di luar toleransi pembulatan ke ribuan terdekat).
+  let unmatchedCount = 0;
+  bonusRecords.forEach(bonusRec => {
+    const deposit = findMatchingDeposit(deposits, bonusRec.username, bonusRec.timestamp);
+    if (!deposit) {
+      unmatchedCount++;
+      return;
+    }
+    const expected = computeExpectedBonus(deposit.amount, pct, deposit.code);
+    const evaluation = evaluateBonusAmount(expected, bonusRec.amount);
+    if (evaluation.status === 'ok') return;
+    items.push({
+      sortTs: bonusRec.timestamp,
+      rows: [{
+        username: bonusRec.username, jenis: evaluation.status, depositAmount: deposit.amount,
+        expected, given: bonusRec.amount,
+        note: (evaluation.status === 'excess' ? 'Kelebihan Rp' : 'Kekurangan Rp') + formatRupiah(evaluation.diff),
+        waktu: bonusRec.dateText || '-', admin: bonusRec.admin ? '**@admin' : '-',
+      }],
+    });
+  });
+
+  // Dobel: username yang muncul lebih dari sekali di history bonus.
+  findDuplicateGroups(bonusRecords).forEach(group => {
+    const sorted = group.slice().sort((a, b) => a.timestamp - b.timestamp);
+    const rows = sorted.map((r, i) => ({
+      username: r.username, jenis: 'double', depositAmount: null, expected: null,
+      given: r.amount, note: i === 0 ? sorted.length + 'x diberikan' : '-',
+      waktu: r.dateText || '-', admin: r.admin ? '**@admin' : '-', groupStart: i === 0,
+    }));
+    items.push({ sortTs: sorted[sorted.length - 1].timestamp, rows });
+  });
+
+  items.sort((a, b) => b.sortTs - a.sortTs);
+
+  return {
+    rows: items.flatMap(it => it.rows),
+    counts: {
+      pending: items.filter(it => it.rows[0].jenis === 'pending').length,
+      mismatch: items.filter(it => it.rows[0].jenis === 'excess' || it.rows[0].jenis === 'shortage').length,
+      double: items.filter(it => it.rows[0].jenis === 'double').length,
+    },
+    unmatchedCount,
+  };
+}
+
+document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   const txRaw = document.getElementById('txData').value;
   const givenRaw = document.getElementById('givenData').value;
-  const warnBox = document.getElementById('warnBox');
+  const warnBox = document.getElementById('bonusWarnBox');
   warnBox.innerHTML = '';
 
-  const txRecords = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
-
-  if (txRecords.length === 0) {
-    warnBox.innerHTML = '<div class="warn-box">Data transaksi belum diisi, formatnya tidak terbaca, atau tidak ada baris berstatus Confirmed.</div>';
-    document.getElementById('resultCard').style.display = 'none';
-    document.getElementById('emptyCard').style.display = 'block';
+  const hasAnyData = parseRecords(txRaw).length > 0 || parseRecords(givenRaw).length > 0;
+  if (!hasAnyData) {
+    warnBox.innerHTML = '<div class="warn-box">Data belum diisi atau formatnya tidak terbaca. Paste History QR Pay dan/atau History bonus dulu.</div>';
+    document.getElementById('bonusResultCard').style.display = 'none';
+    document.getElementById('bonusEmptyCard').style.display = 'block';
     return;
   }
-
-  const latestByUsername = dedupeLatest(txRecords);
-  const givenUsernames = new Set(parseRecords(givenRaw).filter(isBonusDeposit).map(r => r.username));
-
-  const pending = Array.from(latestByUsername.values())
-    .filter(r => !givenUsernames.has(r.username));
 
   const pct = parseInt(document.getElementById('pctSelect').value, 10);
-  const body = document.getElementById('resultBody');
-  body.innerHTML = '';
-
-  if (pending.length === 0) {
-    document.getElementById('resultCard').style.display = 'none';
-    document.getElementById('emptyCard').style.display = 'block';
-    document.getElementById('emptyCard').querySelector('.empty-state').textContent = 'Semua username sudah dapat bonus. Tidak ada yang pending.';
-    return;
-  }
-
-  document.getElementById('emptyCard').style.display = 'none';
-  document.getElementById('resultCard').style.display = 'block';
-  document.getElementById('countBadge').textContent = pending.length + ' member';
-
+  const report = buildBonusReport(txRaw, givenRaw, pct);
   const flags = loadFlags();
 
-  pending
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .forEach(r => {
-      const rawBonus = Math.round(r.amount * pct / 100);
-      const bonus = Math.min(rawBonus, getBonusCap(pct, r.code));
-      const flag = findFlag(flags, r.username);
-      const statusCell = flag
-        ? `<span class="badge badge-${flag.category}" title="${flag.note || ''}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}${flag.note ? ' — ' + flag.note : ''}</span>`
-        : '-';
-      const tr = document.createElement('tr');
-      if (flag) tr.classList.add('flagged-row');
-      tr.innerHTML = `
-        <td>${r.username}</td>
-        <td class="amount">${formatRupiah(r.amount)}</td>
-        <td class="cashback">${formatCopyableAmount(bonus)}</td>
-        <td>${r.dateText || '-'}</td>
-        <td class="status-cell">${statusCell}</td>
-      `;
-      body.appendChild(tr);
-    });
-});
+  const unmatchedNote = report.unmatchedCount > 0
+    ? `<div class="warn-box">${report.unmatchedCount} bonus tidak punya deposit confirmed yang cocok di History QR Pay, jadi tidak bisa dicek kesesuaiannya.</div>`
+    : '';
 
-document.getElementById('doubleBtn').addEventListener('click', () => {
-  const givenRaw = document.getElementById('givenData').value;
-  const doubleWarnBox = document.getElementById('doubleWarnBox');
-  doubleWarnBox.innerHTML = '';
-
-  const records = parseRecords(givenRaw).filter(isBonusDeposit);
-
-  if (records.length === 0) {
-    doubleWarnBox.innerHTML = '<div class="warn-box">History belum diisi, formatnya tidak terbaca, atau tidak ada baris berketerangan BONUS DEPOSIT.</div>';
-    document.getElementById('doubleResultCard').style.display = 'none';
-    return;
-  }
-
-  const duplicateGroups = findDuplicateGroups(records);
-  const body = document.getElementById('doubleResultBody');
+  const body = document.getElementById('bonusResultBody');
   body.innerHTML = '';
 
-  if (duplicateGroups.length === 0) {
-    doubleWarnBox.innerHTML = '<div class="warn-box" style="background:var(--success-bg);border-color:var(--success);color:var(--success);">Tidak ditemukan username yang dapat bonus dobel.</div>';
-    document.getElementById('doubleResultCard').style.display = 'none';
+  if (report.rows.length === 0) {
+    document.getElementById('bonusResultCard').style.display = 'none';
+    document.getElementById('bonusEmptyCard').style.display = 'block';
+    document.getElementById('bonusEmptyCard').querySelector('.empty-state').textContent =
+      'Aman: tidak ada yang pending, tidak sesuai, atau dobel.';
+    warnBox.innerHTML = unmatchedNote;
     return;
   }
 
-  document.getElementById('doubleResultCard').style.display = 'block';
-  document.getElementById('doubleCountBadge').textContent = duplicateGroups.length + ' username dobel';
+  document.getElementById('bonusEmptyCard').style.display = 'none';
+  document.getElementById('bonusResultCard').style.display = 'block';
+  warnBox.innerHTML = unmatchedNote;
+  document.getElementById('bonusCountBadge').textContent =
+    `${report.counts.pending} pending · ${report.counts.mismatch} tidak sesuai · ${report.counts.double} dobel`;
 
-  duplicateGroups.forEach(group => {
-    group
-      .slice()
-      .sort((a, b) => a.timestamp - b.timestamp)
-      .forEach((r, i) => {
-        const tr = document.createElement('tr');
-        if (i === 0) tr.classList.add('group-start');
-        tr.innerHTML = `
-          <td>${r.username}</td>
-          <td>${i === 0 ? group.length + 'x' : ''}</td>
-          <td class="amount">${formatRupiah(r.amount)}</td>
-          <td>${r.dateText || '-'}</td>
-          <td>${r.admin ? '**@admin' : '-'}</td>
-        `;
-        body.appendChild(tr);
-      });
+  report.rows.forEach(r => {
+    const flag = findFlag(flags, r.username);
+    const tr = document.createElement('tr');
+    if (flag) tr.classList.add('flagged-row');
+    if (r.groupStart) tr.classList.add('group-start');
+    const jenisLabel = (r.jenis === 'double' && !r.groupStart)
+      ? ''
+      : `<span class="badge ${BONUS_ISSUE_BADGE_CLASS[r.jenis]}">${BONUS_ISSUE_LABELS[r.jenis]}</span>`;
+    tr.innerHTML = `
+      <td>${r.username}${flag ? ` <span class="badge badge-${flag.category}" title="${flag.note || ''}">${FLAG_CATEGORY_LABELS[flag.category] || flag.category}</span>` : ''}</td>
+      <td>${jenisLabel}</td>
+      <td class="amount">${r.depositAmount != null ? formatRupiah(r.depositAmount) : '-'}</td>
+      <td class="amount${r.expected != null ? ' cashback' : ''}">${r.expected != null ? formatCopyableAmount(r.expected) : '-'}</td>
+      <td class="amount">${r.given != null ? formatRupiah(r.given) : '-'}</td>
+      <td>${r.note}</td>
+      <td>${r.waktu}</td>
+      <td>${r.admin}</td>
+    `;
+    body.appendChild(tr);
   });
 });
 

@@ -12,7 +12,12 @@
   --warn-border: #fdba74;
   --danger: #dc2626;
   --danger-bg: #fef2f2;
+  --info: #1d4ed8;
+  --info-bg: #eff4ff;
   --radius: 10px;
+  --sidebar-bg-top: #1e6fa8;
+  --sidebar-bg-mid: #123a5c;
+  --sidebar-bg-bottom: #0b2942;
 }
 * { box-sizing: border-box; }
 body {
@@ -20,20 +25,50 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
-  padding: 24px;
 }
-.container { max-width: 1000px; margin: 0 auto; }
-h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
-.subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 28px; }
-.section { margin-bottom: 32px; }
-.section-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin: 0 0 12px;
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
 }
+.sidebar {
+  flex: 0 0 240px;
+  background: linear-gradient(165deg, var(--sidebar-bg-top) 0%, var(--sidebar-bg-mid) 45%, var(--sidebar-bg-bottom) 100%);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sidebar-brand h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; color: #ffffff; }
+.sidebar-subtitle { color: rgba(255,255,255,0.65); font-size: 12.5px; margin: 0; line-height: 1.4; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
+.nav-item.active {
+  background: rgba(255,255,255,0.12);
+  color: #ffffff;
+  border-left-color: #60a5fa;
+}
+.content {
+  flex: 1;
+  padding: 28px 32px;
+  max-width: 1100px;
+}
+.page-title { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.page-desc { color: var(--text-muted); font-size: 14px; margin: 0 0 20px; line-height: 1.5; }
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -94,6 +129,20 @@ button.ghost:hover { background: #f2f3f5; }
 table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
 th { color: var(--text-muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; }
+.table-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.table-scroll table { font-size: 13px; }
+.table-scroll th {
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  z-index: 1;
+}
+.table-scroll tr:last-child td { border-bottom: none; }
 td.amount, td.cashback { font-variant-numeric: tabular-nums; }
 td.cashback { font-weight: 600; color: var(--success); }
 .sep {
@@ -101,6 +150,9 @@ td.cashback { font-weight: 600; color: var(--success); }
 }
 tr.group-start td {
   border-top: 2px solid var(--warn-border);
+}
+tr.flagged-row td {
+  background: var(--danger-bg);
 }
 tr.total-row td {
   font-weight: 700;
@@ -135,6 +187,10 @@ tr.total-row td {
   background: var(--warn-bg);
   color: #92400e;
 }
+.badge-pending {
+  background: var(--info-bg);
+  color: var(--info);
+}
 .warn-box {
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
@@ -162,6 +218,8 @@ tr.total-row td {
 .badge-safety { background: var(--danger-bg); color: var(--danger); }
 .badge-no-bonus { background: var(--warn-bg); color: #92400e; }
 .badge-other { background: #f1f2f4; color: var(--text-muted); }
+.badge-excess { background: var(--danger-bg); color: var(--danger); }
+.badge-shortage { background: var(--warn-bg); color: #92400e; }
 .flag-delete {
   border: none;
   background: none;
@@ -171,4 +229,12 @@ tr.total-row td {
   padding: 2px 6px;
 }
 .flag-delete:hover { color: var(--danger); }
-td.status-cell { font-size: 12.5px; }
+
+@media (max-width: 760px) {
+  .app-shell { flex-direction: column; }
+  .sidebar { flex: 0 0 auto; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
+  .nav-item { width: auto; border-left: none; border-bottom: 3px solid transparent; }
+  .nav-item.active { border-left-color: transparent; border-bottom-color: #60a5fa; }
+  .content { padding: 20px; }
+}
