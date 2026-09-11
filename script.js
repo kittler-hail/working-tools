@@ -452,14 +452,13 @@ function isBonusDeposit(record) {
 
 // Batas maksimal bonus: 5% selalu dibatasi 100rb. Untuk 10%, hanya kode "BGG"
 // yang dibatasi 200rb — kode lainnya tetap dibatasi 100rb walau pilihan persennya 10%.
-function getBonusCap(pct, code) {
-  if (pct === 10 && (code || '').toUpperCase() === 'BGG') return 200000;
-  return 100000;
+function getBonusCap(code) {
+  return (code || '').toUpperCase() === 'BGG' ? 200000 : 100000;
 }
 
 function computeExpectedBonus(amount, pct, code) {
   const rawBonus = Math.round(amount * pct / 100);
-  return Math.min(rawBonus, getBonusCap(pct, code));
+  return Math.min(rawBonus, getBonusCap(code));
 }
 
 // Bonus yang diberikan boleh dibulatkan ke bawah sampai ribuan terdekat dari nominal
