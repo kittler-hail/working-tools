@@ -29,6 +29,14 @@ const I18N = {
     'ticker.empty': 'Belum ada Member Safety',
     'common.clickToCopy': 'Klik untuk copy',
 
+    'howto.title': 'Cara Penggunaan',
+    'howto.editBtn': 'Edit',
+    'howto.saveBtn': 'Simpan',
+    'howto.cancelBtn': 'Batal',
+    'howto.placeholder': 'Belum ada penjelasan cara pakai fitur ini.',
+    'howto.textareaPlaceholder': 'Tulis penjelasan cara pakai fitur ini...',
+    'howto.saveFailed': 'Gagal menyimpan: {error}',
+
     'dataSumber.qr': 'History QR Pay',
     'dataSumber.history': 'History',
 
@@ -175,6 +183,14 @@ const I18N = {
     'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
     'common.clickToCopy': 'Click to copy',
+
+    'howto.title': 'How to Use',
+    'howto.editBtn': 'Edit',
+    'howto.saveBtn': 'Save',
+    'howto.cancelBtn': 'Cancel',
+    'howto.placeholder': 'No usage instructions yet for this feature.',
+    'howto.textareaPlaceholder': 'Write usage instructions for this feature...',
+    'howto.saveFailed': 'Failed to save: {error}',
 
     'dataSumber.qr': 'History QR Pay',
     'dataSumber.history': 'History',
@@ -349,6 +365,7 @@ function setLanguage(lang) {
   if (typeof renderFlagTable === 'function') renderFlagTable();
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
+  if (typeof renderHowtoBoxes === 'function') renderHowtoBoxes();
   // Tombol ini teksnya tergantung status buka/tutup, jadi tidak dipakaikan
   // data-i18n statis — disinkronkan manual di sini tiap ganti bahasa.
   const flagListContainer = document.getElementById('flagListContainer');
@@ -694,6 +711,71 @@ db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
   console.error('Gagal memuat daftar Member Safety dari Firestore:', err);
 });
 
+// --- Cara Penggunaan per fitur (tersimpan terpusat di Firestore, sinkron di semua
+// browser, sama seperti Member Safety) ---
+// Siapa pun boleh membacanya, tapi cuma admin yang boleh mengubahnya — tombol Edit
+// disembunyikan di UI untuk non-admin DAN isAdminUser() dicek ulang sebelum menulis,
+// tapi penegakan yang sebenarnya tetap harus lewat Firestore Security Rules (sama
+// prinsipnya dengan koleksi "flags" di atas) supaya tidak bisa diakali lewat console.
+const PAGE_NOTES_COLLECTION = 'pageNotes';
+let pageNotesCache = {};
+
+function renderHowtoBoxes() {
+  const admin = isAdminUser();
+  document.querySelectorAll('.howto-card').forEach(card => {
+    const page = card.getAttribute('data-howto-page');
+    const text = (pageNotesCache[page] || '').trim();
+    const viewEl = card.querySelector('.howto-text');
+    const editBtn = card.querySelector('.howto-edit-btn');
+    const formEl = card.querySelector('.howto-edit-form');
+
+    if (text) {
+      viewEl.textContent = text;
+      viewEl.classList.remove('is-placeholder');
+    } else {
+      viewEl.textContent = t('howto.placeholder');
+      viewEl.classList.add('is-placeholder');
+    }
+
+    editBtn.style.display = admin ? 'inline-block' : 'none';
+    if (!admin) formEl.style.display = 'none';
+  });
+}
+
+db.collection(PAGE_NOTES_COLLECTION).onSnapshot(snapshot => {
+  pageNotesCache = {};
+  snapshot.docs.forEach(doc => { pageNotesCache[doc.id] = doc.data().text || ''; });
+  renderHowtoBoxes();
+}, err => {
+  console.error('Gagal memuat Cara Penggunaan dari Firestore:', err);
+});
+
+document.querySelectorAll('.howto-card').forEach(card => {
+  const page = card.getAttribute('data-howto-page');
+  const editBtn = card.querySelector('.howto-edit-btn');
+  const saveBtn = card.querySelector('.howto-save-btn');
+  const cancelBtn = card.querySelector('.howto-cancel-btn');
+  const formEl = card.querySelector('.howto-edit-form');
+  const textarea = card.querySelector('.howto-textarea');
+
+  editBtn.addEventListener('click', () => {
+    if (!isAdminUser()) return;
+    textarea.value = pageNotesCache[page] || '';
+    formEl.style.display = 'block';
+    textarea.focus();
+  });
+  cancelBtn.addEventListener('click', () => {
+    formEl.style.display = 'none';
+  });
+  saveBtn.addEventListener('click', () => {
+    if (!isAdminUser()) return;
+    const text = textarea.value.trim();
+    db.collection(PAGE_NOTES_COLLECTION).doc(page).set({ text, updatedAt: Date.now() })
+      .then(() => { formEl.style.display = 'none'; })
+      .catch(err => alert(t('howto.saveFailed', { error: err.message })));
+  });
+});
+
 // Ticker id bermasalah terbaru di bawah sidebar: daftarnya digandakan dua kali lalu
 // digeser ke atas separuh tingginya sendiri (translateY -50%) — begitu sampai di
 // ujung, posisinya identik dengan awal, jadi terlihat scroll tanpa putus/patah.
@@ -793,6 +875,8 @@ function updateAdminUI() {
     document.getElementById('flagListContainer').style.display = 'none';
     document.getElementById('toggleFlagListBtn').textContent = t('flagged.toggleShow');
   }
+
+  renderHowtoBoxes();
 }
 
 auth.onAuthStateChanged(user => {
