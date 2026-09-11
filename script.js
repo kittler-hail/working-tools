@@ -173,7 +173,7 @@ const I18N = {
     'wd.depositDataTitle': 'Data Deposit (3 Bulan Terakhir)',
     'wd.withdrawDataTitle': 'Data Withdraw (3 Bulan Terakhir)',
     'wd.processTitle': 'Proses',
-    'wd.gameNone': '(Tidak ada)',
+    'wd.gameLabel': 'Jenis Game:',
     'wd.betTypeLabel': 'Jenis Taruhan:',
     'wd.betSingle': 'Single Bet',
     'wd.betParlay': 'Parlay',
@@ -355,7 +355,7 @@ const I18N = {
     'wd.depositDataTitle': 'Deposit Data (Last 3 Months)',
     'wd.withdrawDataTitle': 'Withdraw Data (Last 3 Months)',
     'wd.processTitle': 'Process',
-    'wd.gameNone': '(None)',
+    'wd.gameLabel': 'Game Type:',
     'wd.betTypeLabel': 'Bet Type:',
     'wd.betSingle': 'Single Bet',
     'wd.betParlay': 'Parlay',
@@ -421,6 +421,7 @@ function setLanguage(lang) {
   if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
   if (typeof renderHowtoBoxes === 'function') renderHowtoBoxes();
   if (typeof updateWdDateRange === 'function') updateWdDateRange();
+  if (typeof updateWdGameSummary === 'function') updateWdGameSummary();
   // Tombol ini teksnya tergantung status buka/tutup, jadi tidak dipakaikan
   // data-i18n statis — disinkronkan manual di sini tiap ganti bahasa.
   const flagListContainer = document.getElementById('flagListContainer');
@@ -1761,7 +1762,7 @@ function parseWithdrawRecords(raw) {
   return records;
 }
 
-function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, registerTime, betTypes) {
+function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, games, registerTime, betTypes) {
   const id = stripIdCode(rawId.trim());
   const key = id.toLowerCase();
 
@@ -1829,11 +1830,11 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, regi
     `TOTAL BONUS : ${formatRupiah(totalBonus)}`,
     `STATUS : ${status} (${formatRupiah(winLoseAmount)})`,
   ];
-  // Jenis taruhan (Single Bet/Parlay/O-U, bisa dicampur) cuma relevan untuk game
-  // sport — ditempel di baris hashtag yang sama dengan game-nya.
-  if (game) {
+  // Jenis game (bisa dicampur lebih dari satu) dan jenis taruhan (Single Bet/
+  // Parlay/O-U, relevan cuma untuk game sport) ditempel jadi satu baris hashtag.
+  if (games && games.length) {
     const betSuffix = betTypes && betTypes.length ? ' ' + betTypes.join(' ') : '';
-    lines.push(`#${game}${betSuffix}`);
+    lines.push(`#${games.join(' ')}${betSuffix}`);
   }
 
   // Waktu register opsional — di-paste manual oleh admin (bukan dihitung dari data
@@ -1844,17 +1845,39 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, regi
   return lines.join('\n');
 }
 
-// Menu turunan jenis taruhan (Single Bet/Parlay/O-U) cuma relevan untuk game sport
-// — disembunyikan untuk game lain (slot/casino/dll), dan boleh dicentang lebih dari
-// satu sekaligus ("bisa dicampur").
+// Jenis Game sekarang boleh dicentang lebih dari satu ("dicampur"), bukan pilih
+// satu lewat dropdown lagi. Menu turunan jenis taruhan (Single Bet/Parlay/O-U) cuma
+// relevan kalau SALAH SATU game yang dicentang itu game sport — disembunyikan kalau
+// tidak ada satu pun, dan boleh dicentang lebih dari satu juga ("bisa dicampur").
+// Daftar eksplisit (bukan tebak dari nama, mis. awalan "SPORT") supaya tidak ikut
+// rusak kalau nama game-nya berubah lagi nanti (mis. "SPORT 2" -> "LIGA SB").
+const SPORT_GAMES = ['SPORT 1', 'LIGA SB', 'LIGA OMEGA'];
 function isSportGame(game) {
-  return /^SPORT/i.test(game || '');
+  return SPORT_GAMES.includes((game || '').toUpperCase());
 }
 
-document.getElementById('wdGameSelect').addEventListener('change', () => {
-  const game = document.getElementById('wdGameSelect').value;
-  document.getElementById('wdBetTypeGroup').style.display = isSportGame(game) ? 'flex' : 'none';
+function getCheckedValues(selector) {
+  return Array.from(document.querySelectorAll(selector)).filter(el => el.checked).map(el => el.value);
+}
+
+function updateWdBetTypeVisibility() {
+  const games = getCheckedValues('.wd-game-checkbox');
+  document.getElementById('wdBetTypeGroup').style.display = games.some(isSportGame) ? 'flex' : 'none';
+}
+
+// Daftar game-nya ditaruh di <details> supaya ringkas (collapsed by default) — judul
+// <summary>-nya diperbarui menampilkan game yang sedang dicentang, jadi tetap
+// kelihatan tanpa perlu buka detailnya.
+function updateWdGameSummary() {
+  const games = getCheckedValues('.wd-game-checkbox');
+  const summary = document.getElementById('wdGameSummary');
+  summary.textContent = games.length ? `${t('wd.gameLabel')} ${games.join(', ')}` : t('wd.gameLabel');
+}
+
+document.querySelectorAll('.wd-game-checkbox').forEach(cb => {
+  cb.addEventListener('change', () => { updateWdBetTypeVisibility(); updateWdGameSummary(); });
 });
+updateWdGameSummary();
 
 document.getElementById('wdProcessBtn').addEventListener('click', () => {
   const website = document.getElementById('wdWebsiteInput').value.trim();
@@ -1862,13 +1885,8 @@ document.getElementById('wdProcessBtn').addEventListener('click', () => {
   const registerTime = document.getElementById('wdRegisterInput').value.trim();
   const depositRaw = document.getElementById('wdDepositData').value;
   const withdrawRaw = document.getElementById('wdWithdrawData').value;
-  const game = document.getElementById('wdGameSelect').value;
-  const betTypes = isSportGame(game)
-    ? ['wdBetSingle', 'wdBetParlay', 'wdBetOu']
-        .map(id => document.getElementById(id))
-        .filter(el => el.checked)
-        .map(el => el.value)
-    : [];
+  const games = getCheckedValues('.wd-game-checkbox');
+  const betTypes = games.some(isSportGame) ? getCheckedValues('#wdBetTypeGroup input[type="checkbox"]') : [];
   const warnBox = document.getElementById('wdWarnBox');
   warnBox.innerHTML = '';
 
@@ -1882,7 +1900,7 @@ document.getElementById('wdProcessBtn').addEventListener('click', () => {
     return;
   }
 
-  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game, registerTime, betTypes);
+  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, games, registerTime, betTypes);
 
   if (report === null) {
     warnBox.innerHTML = `<div class="warn-box">${t('wd.noDataWarn')}</div>`;

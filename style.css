@@ -420,6 +420,27 @@ textarea {
 .bet-type-label { font-size: 13.5px; font-weight: 500; color: var(--text-muted); }
 .checkbox-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 500; cursor: pointer; }
 .checkbox-chip input { cursor: pointer; }
+.wd-game-details {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: #fafbfc;
+}
+.wd-game-details summary {
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.wd-game-details summary::-webkit-details-marker { color: var(--text-muted); }
+.wd-game-details[open] summary { margin-bottom: 10px; }
+.wd-game-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 5px 12px;
+}
+.wd-game-group .checkbox-chip { font-size: 12.5px; }
 select, button {
   font-family: inherit;
   font-size: 14px;

@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <div class="app-shell">
@@ -446,8 +446,8 @@
             <div class="controls">
               <select id="winloseGameSelect">
                 <option value="SPORT 1">SPORT 1</option>
-                <option value="SPORT 2">SPORT 2</option>
-                <option value="SPORT OMEGA">SPORT OMEGA</option>
+                <option value="LIGA SB">LIGA SB</option>
+                <option value="LIGA OMEGA">LIGA OMEGA</option>
                 <option value="SSC">SSC</option>
                 <option value="PG SOFT">PG SOFT</option>
                 <option value="PPLAY">PPLAY</option>
@@ -553,34 +553,36 @@
         <div class="card">
           <div class="card-header">
             <h3 data-i18n="wd.processTitle">Proses</h3>
-            <div class="controls">
-              <select id="wdGameSelect">
-                <option value="" data-i18n="wd.gameNone">(Tidak ada)</option>
-                <option value="SPORT 1">SPORT 1</option>
-                <option value="SPORT 2">SPORT 2</option>
-                <option value="SPORT OMEGA">SPORT OMEGA</option>
-                <option value="SSC">SSC</option>
-                <option value="PG SOFT">PG SOFT</option>
-                <option value="PPLAY">PPLAY</option>
-                <option value="CT CASINO">CT CASINO</option>
-                <option value="12LIVE">12LIVE</option>
-                <option value="AFB GAMING 2022">AFB GAMING 2022</option>
-                <option value="DREAM GAMING">DREAM GAMING</option>
-                <option value="GD88">GD88</option>
-                <option value="HABANERO">HABANERO</option>
-                <option value="JDB">JDB</option>
-                <option value="PHUMCASINO">PHUMCASINO</option>
-                <option value="TANGKAS">TANGKAS</option>
-                <option value="PKV">PKV</option>
-              </select>
-              <button class="primary" id="wdProcessBtn" data-i18n="wd.processBtn">Proses</button>
+            <button class="primary" id="wdProcessBtn" data-i18n="wd.processBtn">Proses</button>
+          </div>
+
+          <details class="wd-game-details" id="wdGameDetails">
+            <summary id="wdGameSummary">Jenis Game</summary>
+            <div class="wd-game-group" id="wdGameCheckGroup">
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="SPORT 1"><span>SPORT 1</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="LIGA SB"><span>LIGA SB</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="LIGA OMEGA"><span>LIGA OMEGA</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="SSC"><span>SSC</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="PG SOFT"><span>PG SOFT</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="PPLAY"><span>PPLAY</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="CT CASINO"><span>CT CASINO</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="12LIVE"><span>12LIVE</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="AFB GAMING 2022"><span>AFB GAMING 2022</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="DREAM GAMING"><span>DREAM GAMING</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="GD88"><span>GD88</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="HABANERO"><span>HABANERO</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="JDB"><span>JDB</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="PHUMCASINO"><span>PHUMCASINO</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="TANGKAS"><span>TANGKAS</span></label>
+              <label class="checkbox-chip"><input type="checkbox" class="wd-game-checkbox" value="PKV"><span>PKV</span></label>
             </div>
-            <div class="controls" id="wdBetTypeGroup" style="display:none;">
-              <span class="bet-type-label" data-i18n="wd.betTypeLabel">Jenis Taruhan:</span>
-              <label class="checkbox-chip"><input type="checkbox" id="wdBetSingle" value="SINGLE BET"><span data-i18n="wd.betSingle">Single Bet</span></label>
-              <label class="checkbox-chip"><input type="checkbox" id="wdBetParlay" value="PARLAY"><span data-i18n="wd.betParlay">Parlay</span></label>
-              <label class="checkbox-chip"><input type="checkbox" id="wdBetOu" value="O/U"><span data-i18n="wd.betOu">O/U</span></label>
-            </div>
+          </details>
+
+          <div class="controls" id="wdBetTypeGroup" style="display:none;">
+            <span class="bet-type-label" data-i18n="wd.betTypeLabel">Jenis Taruhan:</span>
+            <label class="checkbox-chip"><input type="checkbox" id="wdBetSingle" value="SINGLE BET"><span data-i18n="wd.betSingle">Single Bet</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="wdBetParlay" value="PARLAY"><span data-i18n="wd.betParlay">Parlay</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="wdBetOu" value="O/U"><span data-i18n="wd.betOu">O/U</span></label>
           </div>
 
           <div id="wdWarnBox"></div>
@@ -623,6 +625,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=9"></script>
+<script src="script.js?v=13"></script>
 </body>
 </html>
