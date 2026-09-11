@@ -929,6 +929,9 @@ function renderFlagTable() {
 // --- Login admin (Firebase Auth) ---
 function updateAdminUI() {
   const admin = isAdminUser();
+  // Sidebar berubah warna jadi hijau kalau lagi login admin, supaya kelihatan jelas
+  // dari jauh sedang login atau tidak — lihat aturan warnanya di style.css.
+  document.body.classList.toggle('admin-active', admin);
   document.getElementById('adminLoggedOut').style.display = admin ? 'none' : 'block';
   document.getElementById('adminLoggedIn').style.display = admin ? 'flex' : 'none';
   // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap.

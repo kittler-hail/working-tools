@@ -19,6 +19,9 @@
   --sidebar-bg-top: #1f8fc4;
   --sidebar-bg-mid: #103f63;
   --sidebar-bg-bottom: #081b2e;
+  --sidebar-bg-top-admin: #22c55e;
+  --sidebar-bg-mid-admin: #14532d;
+  --sidebar-bg-bottom-admin: #06170d;
 }
 * { box-sizing: border-box; }
 body {
@@ -43,7 +46,12 @@ body {
   flex-direction: column;
   gap: 24px;
   z-index: 30;
-  transition: width 0.28s ease, padding 0.28s ease;
+  transition: width 0.28s ease, padding 0.28s ease, background 0.4s ease;
+}
+/* Sidebar berubah hijau selama admin login, jadi kelihatan jelas dari jauh status
+   login-nya tanpa perlu buka menu Login. */
+body.admin-active .sidebar {
+  background: linear-gradient(165deg, var(--sidebar-bg-top-admin) 0%, var(--sidebar-bg-mid-admin) 45%, var(--sidebar-bg-bottom-admin) 100%);
 }
 .sidebar > * { flex-shrink: 0; }
 .app-shell.sidebar-collapsed .sidebar { width: 0; padding-left: 0; padding-right: 0; }
