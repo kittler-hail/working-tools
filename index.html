@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <div class="app-shell">
@@ -51,6 +51,7 @@
             <div class="inner">
               <button class="nav-item nav-sub" data-page="newmember" data-i18n="nav.newmember">2.1 New Member First Deposit</button>
               <button class="nav-item nav-sub" data-page="winlose" data-i18n="nav.winlose">2.2 Win/Lose All Game</button>
+              <button class="nav-item nav-sub" data-page="withdrawreport" data-i18n="nav.withdrawreport">2.3 Laporan Withdraw</button>
             </div>
           </div>
         </div>
@@ -156,6 +157,10 @@
             <button class="dash-link" data-goto="winlose">
               <span class="dash-link-title" data-i18n="dashboard.linkWinloseTitle">Win/Lose Member All Game</span>
               <span class="dash-link-desc" data-i18n="dashboard.linkWinloseDesc">Urutkan id berdasarkan menang/kalah.</span>
+            </button>
+            <button class="dash-link" data-goto="withdrawreport">
+              <span class="dash-link-title" data-i18n="dashboard.linkWithdrawTitle">Laporan Withdraw</span>
+              <span class="dash-link-desc" data-i18n="dashboard.linkWithdrawDesc">Ringkasan deposit &amp; withdraw satu id member.</span>
             </button>
           </div>
         </div>
@@ -503,6 +508,88 @@
         </div>
       </section>
 
+      <section class="page" id="page-withdrawreport" data-page="withdrawreport" style="display:none;">
+        <h2 class="page-title" data-i18n="wd.title">Laporan Withdraw</h2>
+        <p class="page-desc" data-i18n="wd.pageDesc">Cek ringkasan deposit &amp; withdraw satu id member, berdasarkan data History yang di-paste.</p>
+
+        <div class="card howto-card" data-howto-page="withdrawreport">
+          <div class="card-header">
+            <h3 data-i18n="howto.title">Cara Penggunaan</h3>
+            <button class="ghost howto-edit-btn" style="display:none;" data-i18n="howto.editBtn">Edit</button>
+          </div>
+          <div class="howto-view"><p class="howto-text"></p></div>
+          <div class="howto-edit-form" style="display:none;">
+            <textarea class="howto-textarea" data-i18n-placeholder="howto.textareaPlaceholder"></textarea>
+            <div class="howto-edit-actions">
+              <button class="primary howto-save-btn" data-i18n="howto.saveBtn">Simpan</button>
+              <button class="ghost howto-cancel-btn" data-i18n="howto.cancelBtn">Batal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="wd.detailTitle">Detail Member</h2>
+          <div class="inline-form">
+            <input type="text" id="wdWebsiteInput" data-i18n-placeholder="wd.websitePlaceholder">
+            <input type="text" id="wdIdInput" data-i18n-placeholder="wd.idPlaceholder">
+          </div>
+        </div>
+
+        <div class="info-box copyable" id="wdRangeInfo" data-i18n-title="common.clickToCopy"></div>
+
+        <div class="row">
+          <div class="card">
+            <h2 data-i18n="wd.depositDataTitle">Data Deposit (3 Bulan Terakhir)</h2>
+            <textarea id="wdDepositData"></textarea>
+          </div>
+          <div class="card">
+            <h2 data-i18n="wd.withdrawDataTitle">Data Withdraw (3 Bulan Terakhir)</h2>
+            <textarea id="wdWithdrawData"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="wd.processTitle">Proses</h3>
+            <div class="controls">
+              <select id="wdGameSelect">
+                <option value="" data-i18n="wd.gameNone">(Tidak ada)</option>
+                <option value="SPORT 1">SPORT 1</option>
+                <option value="SPORT 2">SPORT 2</option>
+                <option value="SPORT OMEGA">SPORT OMEGA</option>
+                <option value="SSC">SSC</option>
+                <option value="PG SOFT">PG SOFT</option>
+                <option value="PPLAY">PPLAY</option>
+                <option value="CT CASINO">CT CASINO</option>
+                <option value="12LIVE">12LIVE</option>
+                <option value="AFB GAMING 2022">AFB GAMING 2022</option>
+                <option value="DREAM GAMING">DREAM GAMING</option>
+                <option value="GD88">GD88</option>
+                <option value="HABANERO">HABANERO</option>
+                <option value="JDB">JDB</option>
+                <option value="PHUMCASINO">PHUMCASINO</option>
+                <option value="TANGKAS">TANGKAS</option>
+              </select>
+              <button class="primary" id="wdProcessBtn" data-i18n="wd.processBtn">Proses</button>
+            </div>
+          </div>
+
+          <div id="wdWarnBox"></div>
+
+          <div id="wdResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" data-i18n="wd.resultTitle">Hasil Laporan</span>
+              <button class="ghost" id="wdCopyBtn" data-i18n="wd.copyBtn">Copy Hasil</button>
+            </div>
+            <textarea id="wdResultText" readonly style="min-height:220px;"></textarea>
+          </div>
+
+          <div id="wdEmptyCard">
+            <div class="empty-state" data-i18n="wd.emptyState">Isi ID member &amp; data Deposit/Withdraw, lalu klik "Proses".</div>
+          </div>
+        </div>
+      </section>
+
       </main>
     </div>
 
@@ -527,6 +614,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=3"></script>
+<script src="script.js?v=6"></script>
 </body>
 </html>

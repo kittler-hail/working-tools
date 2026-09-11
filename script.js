@@ -13,6 +13,7 @@ const I18N = {
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
+    'nav.withdrawreport': '2.3 Laporan Withdraw',
 
     'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
@@ -55,6 +56,8 @@ const I18N = {
     'dashboard.linkNewMemberDesc': 'Cari deposit pertama tiap id member baru.',
     'dashboard.linkWinloseTitle': 'Win/Lose Member All Game',
     'dashboard.linkWinloseDesc': 'Urutkan id berdasarkan menang/kalah.',
+    'dashboard.linkWithdrawTitle': 'Laporan Withdraw',
+    'dashboard.linkWithdrawDesc': 'Ringkasan deposit & withdraw satu id member.',
 
     'bonus.title': 'Bonus',
     'bonus.cekBonusTitle': 'Cek Bonus',
@@ -159,6 +162,24 @@ const I18N = {
     'winlose.emptyNoData': 'Data belum diisi atau formatnya tidak terbaca.',
     'winlose.emptyNoMatch': 'Tidak ada id yang lolos ambang batas ini.',
     'winlose.countBadge': '{lose} kalah · {win} menang',
+
+    'wd.title': 'Laporan Withdraw',
+    'wd.pageDesc': 'Cek ringkasan deposit & withdraw satu id member, berdasarkan data History yang di-paste.',
+    'wd.detailTitle': 'Detail Member',
+    'wd.websitePlaceholder': 'Nama Website',
+    'wd.idPlaceholder': 'ID Member',
+    'wd.rangeInfo': 'Rentang data (3 bulan terakhir, klik untuk copy): <strong>{range}</strong>',
+    'wd.depositDataTitle': 'Data Deposit (3 Bulan Terakhir)',
+    'wd.withdrawDataTitle': 'Data Withdraw (3 Bulan Terakhir)',
+    'wd.processTitle': 'Proses',
+    'wd.gameNone': '(Tidak ada)',
+    'wd.processBtn': 'Proses',
+    'wd.resultTitle': 'Hasil Laporan',
+    'wd.copyBtn': 'Copy Hasil',
+    'wd.copyBtnDone': 'Tersalin!',
+    'wd.emptyState': 'Isi ID member & data Deposit/Withdraw, lalu klik "Proses".',
+    'wd.noIdWarn': 'Isi ID member dulu.',
+    'wd.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
   },
   en: {
     'nav.dashboard': 'Dashboard',
@@ -169,6 +190,7 @@ const I18N = {
     'nav.group2': '2. Member',
     'nav.newmember': '2.1 New Member First Deposit',
     'nav.winlose': '2.2 Win/Lose All Game',
+    'nav.withdrawreport': '2.3 Laporan Withdraw',
 
     'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
@@ -211,6 +233,8 @@ const I18N = {
     'dashboard.linkNewMemberDesc': "Find each new member id's first deposit.",
     'dashboard.linkWinloseTitle': 'Win/Lose Member All Game',
     'dashboard.linkWinloseDesc': 'Rank ids by win/loss amount.',
+    'dashboard.linkWithdrawTitle': 'Withdraw Report',
+    'dashboard.linkWithdrawDesc': "One member's deposit & withdraw summary.",
 
     'bonus.title': 'Bonus',
     'bonus.cekBonusTitle': 'Check Bonus',
@@ -315,6 +339,24 @@ const I18N = {
     'winlose.emptyNoData': "No data entered yet, or the format isn't recognized.",
     'winlose.emptyNoMatch': 'No ids pass this threshold.',
     'winlose.countBadge': '{lose} losing · {win} winning',
+
+    'wd.title': 'Withdraw Report',
+    'wd.pageDesc': "Check one member's deposit & withdraw summary from the pasted History data.",
+    'wd.detailTitle': 'Member Detail',
+    'wd.websitePlaceholder': 'Website Name',
+    'wd.idPlaceholder': 'Member ID',
+    'wd.rangeInfo': 'Data range (last 3 months, click to copy): <strong>{range}</strong>',
+    'wd.depositDataTitle': 'Deposit Data (Last 3 Months)',
+    'wd.withdrawDataTitle': 'Withdraw Data (Last 3 Months)',
+    'wd.processTitle': 'Process',
+    'wd.gameNone': '(None)',
+    'wd.processBtn': 'Process',
+    'wd.resultTitle': 'Report Result',
+    'wd.copyBtn': 'Copy Result',
+    'wd.copyBtnDone': 'Copied!',
+    'wd.emptyState': 'Fill in the member ID & Deposit/Withdraw data, then click "Process".',
+    'wd.noIdWarn': 'Fill in the member ID first.',
+    'wd.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
   },
 };
 
@@ -368,6 +410,7 @@ function setLanguage(lang) {
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
   if (typeof renderHowtoBoxes === 'function') renderHowtoBoxes();
+  if (typeof updateWdDateRange === 'function') updateWdDateRange();
   // Tombol ini teksnya tergantung status buka/tutup, jadi tidak dipakaikan
   // data-i18n statis — disinkronkan manual di sini tiap ganti bahasa.
   const flagListContainer = document.getElementById('flagListContainer');
@@ -955,7 +998,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged', 'inputbonus']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged', 'inputbonus', 'withdrawreport']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -1647,6 +1690,183 @@ document.getElementById('winloseFileRemove').addEventListener('click', (e) => {
   document.getElementById('winloseData').value = '';
 });
 
+// --- Laporan Withdraw ---
+// Ringkasan satu id member: deposit & withdraw TERBARU (plus totalnya di hari yang
+// sama dengan masing-masing), sisa saldo setelah withdraw terbaru, dan statistik
+// akumulasi selama rentang data yang di-paste (idealnya 3 bulan terakhir, sesuai
+// arahan di kartu Cara Penggunaan). "Data Deposit" tetap dibaca lewat parseRecords()
+// yang sudah ada (formatnya sama seperti Deposit Request History/History), tapi
+// "Data Withdraw" BEDA bentuknya — lihat parseWithdrawRecords() di bawah — jadi
+// dibikinkan parser sendiri.
+//
+// SISA SALDO dihitung dari SELURUH data yang di-paste (total deposit dikurangi total
+// withdraw, bukan cuma hari ini), supaya benar-benar mencerminkan saldo akhir —
+// makanya rentang data yang di-paste harus mencakup sejak saldo terakhir "nol"
+// (idealnya 3 bulan terakhir), bukan cuma sehari.
+function sameLocalDay(ts1, ts2) {
+  const a = new Date(ts1);
+  const b = new Date(ts2);
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+// Withdraw Request History satu baris = satu record (bukan multi-baris per blok
+// seperti Deposit Request History), kolomnya (tab-separated): No, User Name, Bank
+// Name, Account Name, Account Number, Date/Time, Withdraw Amount, Old Balance, New
+// Balance, Payment Method, Status, Status Date, Remark, Edited By.
+//
+// Nominalnya (Withdraw Amount/Old Balance/New Balance) ditulis koma = pemisah ribuan,
+// titik = desimal (mis. "17,000.00") — TAPI angka itu masih perlu dikali 1000 untuk
+// jadi Rupiah yang benar, laporan ini nominalnya "diringkas" per-ribu dibanding
+// Deposit/History yang nominalnya Rupiah utuh. Dikonfirmasi dari selisih Old Balance
+// - Withdraw Amount = New Balance di satuan aslinya (17,020.18 - 17,000.00 = 20.18)
+// — begitu dikali 1000 semua, hasilnya Rp17.020.180 - Rp17.000.000 = Rp20.180, tetap
+// konsisten, jadi memang cuma soal satuan tampilan, bukan bug pembulatan.
+const WD_AMOUNT_RE = /^-?[\d,]+(?:\.\d+)?$/;
+
+function parseWithdrawAmount(str) {
+  const n = parseFloat((str || '').replace(/,/g, ''));
+  return isNaN(n) ? 0 : Math.round(n * 1000);
+}
+
+function parseWithdrawRecords(raw) {
+  const records = [];
+  raw.split(/\r?\n/).forEach(line => {
+    const cols = line.split('\t').map(c => c.trim());
+    // Butuh minimal sampai kolom Status (indeks 10) — baris header/ringkasan/kosong
+    // otomatis gagal di pengecekan "@" atau format nominal di bawah.
+    if (cols.length < 11) return;
+    const usernameCol = cols[1] || '';
+    if (!usernameCol.includes('@')) return;
+    if (!WD_AMOUNT_RE.test(cols[6] || '')) return;
+
+    const code = usernameCol.slice(0, usernameCol.indexOf('@'));
+    const username = usernameCol.slice(usernameCol.indexOf('@') + 1);
+    const amount = parseWithdrawAmount(cols[6]);
+    const newBalance = parseWithdrawAmount(cols[8]);
+    const { timestamp, text: dateText } = parseDateTime((cols[5] || '').match(DATETIME_RE));
+    const status = cols[10] || '';
+
+    records.push({ username, amount, newBalance, timestamp, dateText, status, code });
+  });
+  return records;
+}
+
+function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game) {
+  const id = stripIdCode(rawId.trim());
+  const key = id.toLowerCase();
+
+  const deposits = parseRecords(depositRaw)
+    .filter(r => r.status.toLowerCase() === 'confirmed')
+    .filter(r => r.username.toLowerCase() === key);
+  const withdraws = parseWithdrawRecords(withdrawRaw)
+    .filter(r => r.status.toLowerCase() === 'confirmed')
+    .filter(r => r.username.toLowerCase() === key);
+
+  if (deposits.length === 0 && withdraws.length === 0) return null;
+
+  const sumAmount = list => list.reduce((s, r) => s + r.amount, 0);
+  const latestOf = list => (list.length === 0 ? null : list.reduce((a, b) => (b.timestamp > a.timestamp ? b : a)));
+
+  const lastDeposit = latestOf(deposits);
+  const lastWithdraw = latestOf(withdraws);
+
+  // TOTAL DP/TOTAL WD di blok atas = total di hari yang sama dengan deposit/withdraw
+  // TERBARU masing-masing (bisa beda hari kalau member terakhir deposit & withdraw
+  // tidak di hari yang sama).
+  const totalDpToday = lastDeposit ? sumAmount(deposits.filter(r => sameLocalDay(r.timestamp, lastDeposit.timestamp))) : 0;
+  const totalWdToday = lastWithdraw ? sumAmount(withdraws.filter(r => sameLocalDay(r.timestamp, lastWithdraw.timestamp))) : 0;
+
+  const totalDpAll = sumAmount(deposits);
+  const totalWdAll = sumAmount(withdraws);
+  // TOTAL BONUS di sini sengaja lebih luas dari isBonusDeposit() (yang hanya
+  // mengenali remark "BONUS DEPOSIT"/"BONUS DP") — mencakup SEMUA kredit dari admin
+  // (bonus deposit harian, cashback slot, referral, dll), bukan cuma yang remark-nya
+  // literal "bonus". Sinyalnya: depositType "agent" (Payment Method "Agent Deposit")
+  // ATAU "bonus" — dua-duanya kredit dari admin, beda dengan "Member Deposit" asli
+  // (depositType kosong). Tetap masuk hitungan TOTAL DP juga (tidak dikurangkan),
+  // karena TOTAL DP memang didefinisikan mencakup bonus/cashback — lihat komentar
+  // fungsi ini di atas.
+  const totalBonus = sumAmount(deposits.filter(r => r.depositType === 'bonus' || r.depositType === 'agent'));
+  // SISA SALDO diambil langsung dari kolom "New Balance" pada withdraw TERBARU yang
+  // di-paste (bukan dihitung sendiri dari total deposit - total withdraw) — itu
+  // saldo yang beneran tercatat di sistem, bukan estimasi. Kalau belum pernah
+  // withdraw sama sekali, tidak ada New Balance untuk dijadikan acuan, jadi dipakai
+  // total deposit dikurangi total withdraw (=total deposit, karena WD-nya 0) sebagai
+  // estimasi seadanya.
+  const sisaSaldo = lastWithdraw ? lastWithdraw.newBalance : (totalDpAll - totalWdAll);
+
+  // STATUS dihitung dari uang ASLI member saja, bukan dari TOTAL DP apa adanya —
+  // TOTAL DP di atas sudah termasuk TOTAL BONUS (lihat komentar di atasnya), jadi
+  // TOTAL DP - TOTAL BONUS = deposit murni milik member sendiri. Hasil = deposit
+  // murni dikurangi total withdraw: minus (member menarik lebih banyak dari uang
+  // aslinya sendiri) = WIN, positif (member masih menyisakan uang asli di sistem,
+  // belum ditarik semua) = LOSE.
+  const winLoseResult = (totalDpAll - totalBonus) - totalWdAll;
+  const status = winLoseResult < 0 ? 'WIN' : (winLoseResult > 0 ? 'LOSE' : 'IMPAS');
+
+  const lines = [
+    website || '-',
+    `ID : ${id}`,
+    `DP : ${lastDeposit ? 'Rp' + formatRupiah(lastDeposit.amount) + ' | ' + (lastDeposit.dateText || '-') : '-'}`,
+    `TOTAL DP : Rp${formatRupiah(totalDpToday)}`,
+    `WD : ${lastWithdraw ? 'Rp' + formatRupiah(lastWithdraw.amount) + ' | ' + (lastWithdraw.dateText || '-') : '-'}`,
+    `TOTAL WD : Rp${formatRupiah(totalWdToday)}`,
+    `SISA SALDO : Rp${formatRupiah(sisaSaldo)}`,
+    '',
+    'STATISTIK 3 BULAN',
+    `TOTAL DP : Rp${formatRupiah(totalDpAll)}`,
+    `TOTAL WD : Rp${formatRupiah(totalWdAll)}`,
+    `TOTAL BONUS : Rp${formatRupiah(totalBonus)}`,
+    `STATUS : ${status} (AKUMULASI)`,
+  ];
+  if (game) lines.push(`#${game}`);
+
+  return lines.join('\n');
+}
+
+document.getElementById('wdProcessBtn').addEventListener('click', () => {
+  const website = document.getElementById('wdWebsiteInput').value.trim();
+  const idRaw = document.getElementById('wdIdInput').value.trim();
+  const depositRaw = document.getElementById('wdDepositData').value;
+  const withdrawRaw = document.getElementById('wdWithdrawData').value;
+  const game = document.getElementById('wdGameSelect').value;
+  const warnBox = document.getElementById('wdWarnBox');
+  warnBox.innerHTML = '';
+
+  const resultCard = document.getElementById('wdResultCard');
+  const emptyCard = document.getElementById('wdEmptyCard');
+
+  if (!idRaw) {
+    warnBox.innerHTML = `<div class="warn-box">${t('wd.noIdWarn')}</div>`;
+    resultCard.style.display = 'none';
+    emptyCard.style.display = 'block';
+    return;
+  }
+
+  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game);
+
+  if (report === null) {
+    warnBox.innerHTML = `<div class="warn-box">${t('wd.noDataWarn')}</div>`;
+    resultCard.style.display = 'none';
+    emptyCard.style.display = 'block';
+    return;
+  }
+
+  emptyCard.style.display = 'none';
+  resultCard.style.display = 'block';
+  document.getElementById('wdResultText').value = report;
+});
+
+document.getElementById('wdCopyBtn').addEventListener('click', () => {
+  const text = document.getElementById('wdResultText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('wdCopyBtn');
+    const original = btn.textContent;
+    btn.textContent = t('wd.copyBtnDone');
+    setTimeout(() => { btn.textContent = original; }, 1000);
+  });
+});
+
 // --- Jam digital WIB di topbar ---
 // Selalu dikunci ke zona waktu Asia/Jakarta (WIB) lewat Intl.DateTimeFormat, jadi
 // jamnya tetap benar berapa pun zona waktu perangkat yang membuka situs ini.
@@ -1666,6 +1886,59 @@ function updateTopbarClock() {
 
 updateTopbarClock();
 setInterval(updateTopbarClock, 1000);
+
+// --- Rentang tanggal "3 bulan ke belakang" di halaman Laporan Withdraw ---
+// Supaya admin tahu persis dari tanggal berapa sampai tanggal berapa data
+// Deposit/Withdraw yang perlu di-paste — patokannya cuma tanggal & bulan (bukan
+// jam), dihitung dari kalender WIB (Asia/Jakarta), bukan zona waktu perangkat yang
+// membuka situs ini. Komponen tanggal WIB diambil dulu lewat Intl.DateTimeFormat,
+// baru dikurangi 3 bulan pakai Date biasa sebagai "kalkulator kalender" murni
+// (bukan dikonversi timezone lagi) supaya hasilnya tidak ikut bergeser oleh zona
+// waktu device yang membuka situs ini.
+function getJakartaDateParts(date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(date);
+  const get = type => parts.find(p => p.type === type).value;
+  return { year: +get('year'), month: +get('month'), day: +get('day') };
+}
+
+// Format MM/DD/YYYY — sama seperti format tanggal di kolom filter "Date" pada
+// laporan History admin panel (mis. "09/10/2026 - 09/10/2026"), supaya rentang
+// ini bisa langsung di-copy-paste ke filter tanggalnya.
+function formatMDY({ year, month, day }) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(month)}/${pad(day)}/${year}`;
+}
+
+function updateWdDateRange() {
+  const el = document.getElementById('wdRangeInfo');
+  if (!el) return;
+  const nowParts = getJakartaDateParts(new Date());
+  // Date di sini cuma dipakai sebagai kalkulator kalender (mundur 3 bulan dari
+  // tanggal WIB yang sudah didapat) — bukan diformat ulang lewat timezone apa pun.
+  const fromCalc = new Date(nowParts.year, nowParts.month - 1, nowParts.day);
+  fromCalc.setMonth(fromCalc.getMonth() - 3);
+  const fromParts = { year: fromCalc.getFullYear(), month: fromCalc.getMonth() + 1, day: fromCalc.getDate() };
+  const range = `${formatMDY(fromParts)} - ${formatMDY(nowParts)}`;
+  el.innerHTML = t('wd.rangeInfo', { range });
+  el.dataset.copyText = range;
+}
+
+updateWdDateRange();
+// Cukup dicek tiap menit — patokannya cuma tanggal, jadi tidak perlu presisi detik.
+setInterval(updateWdDateRange, 60000);
+
+// Klik buat copy rentang tanggalnya (dipasang sekali di sini, bukan tiap kali
+// updateWdDateRange() jalan, supaya listener-nya tidak menumpuk — nilai yang
+// di-copy dibaca dari data-copy-text yang diperbarui tiap kali fungsi itu jalan).
+document.getElementById('wdRangeInfo').addEventListener('click', function () {
+  navigator.clipboard.writeText(this.dataset.copyText || '').then(() => {
+    this.classList.add('copied');
+    setTimeout(() => this.classList.remove('copied'), 500);
+  });
+});
 
 // Terapkan bahasa tersimpan (atau default Indonesia) — ditaruh paling akhir supaya
 // semua fungsi render (renderFlagTable, renderDashboard, dst) dan variabel yang

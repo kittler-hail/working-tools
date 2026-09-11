@@ -535,13 +535,23 @@ tr.total-row td {
   margin-bottom: 12px;
   color: #92400e;
 }
-.flag-form {
+.info-box {
+  background: var(--info-bg);
+  border: 1px solid var(--info);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  color: var(--info);
+}
+.info-box strong { font-weight: 700; }
+.flag-form, .inline-form {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.flag-form input[type="text"] {
+.flag-form input[type="text"], .inline-form input[type="text"] {
   flex: 1;
   min-width: 160px;
   font-size: 14px;
