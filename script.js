@@ -934,8 +934,15 @@ function updateAdminUI() {
   document.body.classList.toggle('admin-active', admin);
   document.getElementById('adminLoggedOut').style.display = admin ? 'none' : 'block';
   document.getElementById('adminLoggedIn').style.display = admin ? 'flex' : 'none';
-  // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap.
-  if (admin) document.getElementById('adminEmailLabel').textContent = currentUser.email.split('@')[0];
+  // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap —
+  // dipakai juga di sapaan "Hello!" yang gantikan logo selama admin login.
+  document.getElementById('sidebarLogo').style.display = admin ? 'none' : 'block';
+  document.getElementById('sidebarHello').style.display = admin ? 'flex' : 'none';
+  if (admin) {
+    const name = currentUser.email.split('@')[0];
+    document.getElementById('adminEmailLabel').textContent = name;
+    document.getElementById('sidebarHelloName').textContent = name;
+  }
   document.getElementById('importFlagsBtn').disabled = !admin;
 
   // Lihat daftar Member Safety & Backup/Restore: khusus admin. Menambah id baru

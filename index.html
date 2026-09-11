@@ -7,14 +7,18 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <div class="app-shell">
 
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <img src="logo.png" alt="Working Tools" class="sidebar-logo">
+        <img src="logo.png" alt="Working Tools" class="sidebar-logo" id="sidebarLogo">
+        <div class="sidebar-hello" id="sidebarHello" style="display:none;">
+          <span class="sidebar-hello-greet">Hello!</span>
+          <span class="sidebar-hello-name" id="sidebarHelloName"></span>
+        </div>
       </div>
       <nav class="sidebar-nav">
         <button class="nav-item nav-top active" data-page="dashboard" data-i18n="nav.dashboard">
@@ -625,6 +629,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=14"></script>
+<script src="script.js?v=15"></script>
 </body>
 </html>
