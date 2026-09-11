@@ -417,6 +417,9 @@ textarea {
   flex-wrap: wrap;
 }
 .controls label { font-size: 14px; font-weight: 500; }
+.bet-type-label { font-size: 13.5px; font-weight: 500; color: var(--text-muted); }
+.checkbox-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 500; cursor: pointer; }
+.checkbox-chip input { cursor: pointer; }
 select, button {
   font-family: inherit;
   font-size: 14px;

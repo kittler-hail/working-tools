@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <div class="app-shell">
@@ -575,6 +575,12 @@
               </select>
               <button class="primary" id="wdProcessBtn" data-i18n="wd.processBtn">Proses</button>
             </div>
+            <div class="controls" id="wdBetTypeGroup" style="display:none;">
+              <span class="bet-type-label" data-i18n="wd.betTypeLabel">Jenis Taruhan:</span>
+              <label class="checkbox-chip"><input type="checkbox" id="wdBetSingle" value="SINGLE BET"><span data-i18n="wd.betSingle">Single Bet</span></label>
+              <label class="checkbox-chip"><input type="checkbox" id="wdBetParlay" value="PARLAY"><span data-i18n="wd.betParlay">Parlay</span></label>
+              <label class="checkbox-chip"><input type="checkbox" id="wdBetOu" value="O/U"><span data-i18n="wd.betOu">O/U</span></label>
+            </div>
           </div>
 
           <div id="wdWarnBox"></div>
@@ -617,6 +623,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=7"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>

@@ -168,12 +168,16 @@ const I18N = {
     'wd.detailTitle': 'Detail Member',
     'wd.websitePlaceholder': 'Nama Website',
     'wd.idPlaceholder': 'ID Member',
-    'wd.registerPlaceholder': 'Waktu Register (paste)',
+    'wd.registerPlaceholder': 'Waktu Register (opsional)',
     'wd.rangeInfo': 'Rentang data (3 bulan terakhir, klik untuk copy): <strong>{range}</strong>',
     'wd.depositDataTitle': 'Data Deposit (3 Bulan Terakhir)',
     'wd.withdrawDataTitle': 'Data Withdraw (3 Bulan Terakhir)',
     'wd.processTitle': 'Proses',
     'wd.gameNone': '(Tidak ada)',
+    'wd.betTypeLabel': 'Jenis Taruhan:',
+    'wd.betSingle': 'Single Bet',
+    'wd.betParlay': 'Parlay',
+    'wd.betOu': 'O/U',
     'wd.processBtn': 'Proses',
     'wd.resultTitle': 'Hasil Laporan',
     'wd.copyBtn': 'Copy Hasil',
@@ -346,12 +350,16 @@ const I18N = {
     'wd.detailTitle': 'Member Detail',
     'wd.websitePlaceholder': 'Website Name',
     'wd.idPlaceholder': 'Member ID',
-    'wd.registerPlaceholder': 'Registration Time (paste)',
+    'wd.registerPlaceholder': 'Registration Time (optional)',
     'wd.rangeInfo': 'Data range (last 3 months, click to copy): <strong>{range}</strong>',
     'wd.depositDataTitle': 'Deposit Data (Last 3 Months)',
     'wd.withdrawDataTitle': 'Withdraw Data (Last 3 Months)',
     'wd.processTitle': 'Process',
     'wd.gameNone': '(None)',
+    'wd.betTypeLabel': 'Bet Type:',
+    'wd.betSingle': 'Single Bet',
+    'wd.betParlay': 'Parlay',
+    'wd.betOu': 'O/U',
     'wd.processBtn': 'Process',
     'wd.resultTitle': 'Report Result',
     'wd.copyBtn': 'Copy Result',
@@ -1753,7 +1761,7 @@ function parseWithdrawRecords(raw) {
   return records;
 }
 
-function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, registerTime) {
+function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, registerTime, betTypes) {
   const id = stripIdCode(rawId.trim());
   const key = id.toLowerCase();
 
@@ -1797,14 +1805,11 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, regi
   // estimasi seadanya.
   const sisaSaldo = lastWithdraw ? lastWithdraw.newBalance : (totalDpAll - totalWdAll);
 
-  // STATUS dihitung dari uang ASLI member saja, bukan dari TOTAL DP apa adanya —
-  // TOTAL DP di atas sudah termasuk TOTAL BONUS (lihat komentar di atasnya), jadi
-  // TOTAL DP - TOTAL BONUS = deposit murni milik member sendiri. Hasil = deposit
-  // murni dikurangi total withdraw: minus (member menarik lebih banyak dari uang
-  // aslinya sendiri) = WIN, positif (member masih menyisakan uang asli di sistem,
-  // belum ditarik semua) = LOSE.
+  // Akumulasi dihitung dari sudut pandang saldo KITA (operator): deposit itu saldo
+  // MASUK jadi plus, sementara withdraw dan bonus itu saldo KELUAR dari kita jadi
+  // minus. Hasil plus = WIN, hasil minus = LOSE.
   const winLoseResult = (totalDpAll - totalBonus) - totalWdAll;
-  const status = winLoseResult < 0 ? 'WIN' : (winLoseResult > 0 ? 'LOSE' : 'IMPAS');
+  const status = winLoseResult > 0 ? 'WIN' : (winLoseResult < 0 ? 'LOSE' : 'IMPAS');
   // Nominal yang ditampilkan di baris STATUS = selisih akumulasinya (Math.abs, karena
   // arah untung/rugi sudah terwakili oleh kata WIN/LOSE itu sendiri).
   const winLoseAmount = Math.abs(winLoseResult);
@@ -1812,27 +1817,44 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, regi
   const lines = [
     website || '-',
     `ID : ${id}`,
-    `DP : ${lastDeposit ? 'Rp' + formatRupiah(lastDeposit.amount) + ' | ' + (lastDeposit.dateText || '-') : '-'}`,
-    `TOTAL DP : Rp${formatRupiah(totalDpToday)}`,
-    `WD : ${lastWithdraw ? 'Rp' + formatRupiah(lastWithdraw.amount) + ' | ' + (lastWithdraw.dateText || '-') : '-'}`,
-    `TOTAL WD : Rp${formatRupiah(totalWdToday)}`,
-    `SISA SALDO : Rp${formatRupiah(sisaSaldo)}`,
+    `DP : ${lastDeposit ? formatRupiah(lastDeposit.amount) + ' | ' + (lastDeposit.dateText || '-') : '-'}`,
+    `TOTAL DP : ${formatRupiah(totalDpToday)}`,
+    `WD : ${lastWithdraw ? formatRupiah(lastWithdraw.amount) + ' | ' + (lastWithdraw.dateText || '-') : '-'}`,
+    `TOTAL WD : ${formatRupiah(totalWdToday)}`,
+    `SISA SALDO : ${formatRupiah(sisaSaldo)}`,
     '',
     'STATISTIK 3 BULAN',
-    `TOTAL DP : Rp${formatRupiah(totalDpAll)}`,
-    `TOTAL WD : Rp${formatRupiah(totalWdAll)}`,
-    `TOTAL BONUS : Rp${formatRupiah(totalBonus)}`,
-    `STATUS : ${status} (Rp${formatRupiah(winLoseAmount)})`,
+    `TOTAL DP : ${formatRupiah(totalDpAll)}`,
+    `TOTAL WD : ${formatRupiah(totalWdAll)}`,
+    `TOTAL BONUS : ${formatRupiah(totalBonus)}`,
+    `STATUS : ${status} (${formatRupiah(winLoseAmount)})`,
   ];
-  if (game) lines.push(`#${game}`);
+  // Jenis taruhan (Single Bet/Parlay/O-U, bisa dicampur) cuma relevan untuk game
+  // sport — ditempel di baris hashtag yang sama dengan game-nya.
+  if (game) {
+    const betSuffix = betTypes && betTypes.length ? ' ' + betTypes.join(' ') : '';
+    lines.push(`#${game}${betSuffix}`);
+  }
 
-  // Waktu register di-paste manual oleh admin (bukan dihitung dari data Deposit/
-  // Withdraw), jadi ditampilkan apa adanya. Selalu di paling bawah, dipisah satu
-  // baris kosong dari sisa laporan di atasnya.
-  lines.push('', `REGISTER : ${registerTime || '-'}`);
+  // Waktu register opsional — di-paste manual oleh admin (bukan dihitung dari data
+  // Deposit/Withdraw), jadi baris ini cuma ditampilkan kalau memang diisi. Selalu di
+  // paling bawah, dipisah satu baris kosong dari sisa laporan di atasnya.
+  if (registerTime) lines.push('', `REGISTER : ${registerTime}`);
 
   return lines.join('\n');
 }
+
+// Menu turunan jenis taruhan (Single Bet/Parlay/O-U) cuma relevan untuk game sport
+// — disembunyikan untuk game lain (slot/casino/dll), dan boleh dicentang lebih dari
+// satu sekaligus ("bisa dicampur").
+function isSportGame(game) {
+  return /^SPORT/i.test(game || '');
+}
+
+document.getElementById('wdGameSelect').addEventListener('change', () => {
+  const game = document.getElementById('wdGameSelect').value;
+  document.getElementById('wdBetTypeGroup').style.display = isSportGame(game) ? 'flex' : 'none';
+});
 
 document.getElementById('wdProcessBtn').addEventListener('click', () => {
   const website = document.getElementById('wdWebsiteInput').value.trim();
@@ -1841,6 +1863,12 @@ document.getElementById('wdProcessBtn').addEventListener('click', () => {
   const depositRaw = document.getElementById('wdDepositData').value;
   const withdrawRaw = document.getElementById('wdWithdrawData').value;
   const game = document.getElementById('wdGameSelect').value;
+  const betTypes = isSportGame(game)
+    ? ['wdBetSingle', 'wdBetParlay', 'wdBetOu']
+        .map(id => document.getElementById(id))
+        .filter(el => el.checked)
+        .map(el => el.value)
+    : [];
   const warnBox = document.getElementById('wdWarnBox');
   warnBox.innerHTML = '';
 
@@ -1854,7 +1882,7 @@ document.getElementById('wdProcessBtn').addEventListener('click', () => {
     return;
   }
 
-  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game, registerTime);
+  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game, registerTime, betTypes);
 
   if (report === null) {
     warnBox.innerHTML = `<div class="warn-box">${t('wd.noDataWarn')}</div>`;
