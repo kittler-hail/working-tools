@@ -168,6 +168,7 @@ const I18N = {
     'wd.detailTitle': 'Detail Member',
     'wd.websitePlaceholder': 'Nama Website',
     'wd.idPlaceholder': 'ID Member',
+    'wd.registerPlaceholder': 'Waktu Register (paste)',
     'wd.rangeInfo': 'Rentang data (3 bulan terakhir, klik untuk copy): <strong>{range}</strong>',
     'wd.depositDataTitle': 'Data Deposit (3 Bulan Terakhir)',
     'wd.withdrawDataTitle': 'Data Withdraw (3 Bulan Terakhir)',
@@ -345,6 +346,7 @@ const I18N = {
     'wd.detailTitle': 'Member Detail',
     'wd.websitePlaceholder': 'Website Name',
     'wd.idPlaceholder': 'Member ID',
+    'wd.registerPlaceholder': 'Registration Time (paste)',
     'wd.rangeInfo': 'Data range (last 3 months, click to copy): <strong>{range}</strong>',
     'wd.depositDataTitle': 'Deposit Data (Last 3 Months)',
     'wd.withdrawDataTitle': 'Withdraw Data (Last 3 Months)',
@@ -1751,7 +1753,7 @@ function parseWithdrawRecords(raw) {
   return records;
 }
 
-function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game) {
+function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game, registerTime) {
   const id = stripIdCode(rawId.trim());
   const key = id.toLowerCase();
 
@@ -1803,6 +1805,9 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game) {
   // belum ditarik semua) = LOSE.
   const winLoseResult = (totalDpAll - totalBonus) - totalWdAll;
   const status = winLoseResult < 0 ? 'WIN' : (winLoseResult > 0 ? 'LOSE' : 'IMPAS');
+  // Nominal yang ditampilkan di baris STATUS = selisih akumulasinya (Math.abs, karena
+  // arah untung/rugi sudah terwakili oleh kata WIN/LOSE itu sendiri).
+  const winLoseAmount = Math.abs(winLoseResult);
 
   const lines = [
     website || '-',
@@ -1817,9 +1822,14 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game) {
     `TOTAL DP : Rp${formatRupiah(totalDpAll)}`,
     `TOTAL WD : Rp${formatRupiah(totalWdAll)}`,
     `TOTAL BONUS : Rp${formatRupiah(totalBonus)}`,
-    `STATUS : ${status} (AKUMULASI)`,
+    `STATUS : ${status} (Rp${formatRupiah(winLoseAmount)})`,
   ];
   if (game) lines.push(`#${game}`);
+
+  // Waktu register di-paste manual oleh admin (bukan dihitung dari data Deposit/
+  // Withdraw), jadi ditampilkan apa adanya. Selalu di paling bawah, dipisah satu
+  // baris kosong dari sisa laporan di atasnya.
+  lines.push('', `REGISTER : ${registerTime || '-'}`);
 
   return lines.join('\n');
 }
@@ -1827,6 +1837,7 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, game) {
 document.getElementById('wdProcessBtn').addEventListener('click', () => {
   const website = document.getElementById('wdWebsiteInput').value.trim();
   const idRaw = document.getElementById('wdIdInput').value.trim();
+  const registerTime = document.getElementById('wdRegisterInput').value.trim();
   const depositRaw = document.getElementById('wdDepositData').value;
   const withdrawRaw = document.getElementById('wdWithdrawData').value;
   const game = document.getElementById('wdGameSelect').value;
@@ -1843,7 +1854,7 @@ document.getElementById('wdProcessBtn').addEventListener('click', () => {
     return;
   }
 
-  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game);
+  const report = buildWithdrawReport(depositRaw, withdrawRaw, idRaw, website, game, registerTime);
 
   if (report === null) {
     warnBox.innerHTML = `<div class="warn-box">${t('wd.noDataWarn')}</div>`;
