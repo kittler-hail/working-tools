@@ -1048,7 +1048,7 @@ document.getElementById('importFlagsFile').addEventListener('change', (e) => {
 // berdasarkan waktu kejadian paling baru.
 function buildBonusReport(txRaw, givenRaw, pct) {
   const deposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
-  const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit);
+  const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit).filter(r => r.status.toLowerCase() === 'confirmed');
   // Bonus awal + susulan kekurangannya digabung jadi satu "event" per kejadian
   // sebelum dicocokkan/dicek dobel — lihat komentar di groupBonusEvents().
   const bonusEvents = groupBonusEvents(bonusRecords);
