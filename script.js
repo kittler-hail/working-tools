@@ -1225,20 +1225,23 @@ document.getElementById('inputBonusProcessBtn').addEventListener('click', () => 
 
   rows.forEach(r => {
     const isDouble = doubleUsernames.has(r.username.toLowerCase());
+    // Kode di depan id (mis. "BBC@") ditampilkan utuh di fitur ini karena dibutuhkan —
+    // beda dari menu lain yang memang menghilangkannya.
+    const idWithCode = r.code ? `${r.code}@${r.username}` : r.username;
     const tr = document.createElement('tr');
     if (isDouble) tr.classList.add('kind-double');
     tr.innerHTML = `
-      <td class="idcell">${r.username}${isDouble ? ' <span class="badge badge-warn">2x+</span>' : ''}</td>
+      <td class="idcell">${idWithCode}${isDouble ? ' <span class="badge badge-warn">2x+</span>' : ''}</td>
       <td class="amount">${formatCopyableAmount(r.amount)}</td>
     `;
     body.appendChild(tr);
-    makeCopyable(tr.querySelector('.idcell'), r.username);
+    makeCopyable(tr.querySelector('.idcell'), idWithCode);
     makeCopyable(tr.children[1], String(r.amount));
   });
 });
 
 document.getElementById('inputBonusCopyBtn').addEventListener('click', () => {
-  const text = lastInputBonusRows.map(r => `${r.username}\t${r.amount}`).join('\n');
+  const text = lastInputBonusRows.map(r => `${r.code ? r.code + '@' + r.username : r.username}\t${r.amount}`).join('\n');
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('inputBonusCopyBtn');
     const original = btn.textContent;
