@@ -579,8 +579,9 @@ function groupBonusEvents(bonusRecords) {
 function findDuplicateGroups(records) {
   const groups = new Map();
   records.forEach(r => {
-    if (!groups.has(r.username)) groups.set(r.username, []);
-    groups.get(r.username).push(r);
+    const key = r.username.toLowerCase();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
   });
   return Array.from(groups.values())
     .filter(list => list.length >= 2)
