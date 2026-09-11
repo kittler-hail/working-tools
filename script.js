@@ -74,6 +74,7 @@ const I18N = {
     'bonus.noteExcess': 'Kelebihan Rp',
     'bonus.noteShortage': 'Kekurangan Rp',
     'bonus.noteDouble': '{count}x diberikan',
+    'bonus.noteMultiRowSuffix': '({count} baris digabung)',
 
     'inputBonus.title': 'Input Bonus',
     'inputBonus.dataTitle': 'Data Input Bonus',
@@ -229,6 +230,7 @@ const I18N = {
     'bonus.noteExcess': 'Excess Rp',
     'bonus.noteShortage': 'Shortfall Rp',
     'bonus.noteDouble': 'given {count}x',
+    'bonus.noteMultiRowSuffix': '({count} rows combined)',
 
     'inputBonus.title': 'Input Bonus',
     'inputBonus.dataTitle': 'Input Bonus Data',
@@ -520,7 +522,7 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
 
   const pairs = [];
   const pendingDeposits = [];
-  let unmatchedCount = 0;
+  const unmatchedEvents = [];
 
   byUser.forEach(data => {
     const ds = data.deposits.slice().sort((a, b) => a.timestamp - b.timestamp);
@@ -535,7 +537,7 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
         if (ds[i].timestamp <= bonus.timestamp) { matched = ds[i]; break; }
       }
       if (!matched) {
-        unmatchedCount++;
+        unmatchedEvents.push(bonus);
       } else {
         pairs.push({ deposit: matched, bonus });
       }
@@ -548,7 +550,27 @@ function matchDepositsAndBonuses(deposits, bonusRecords) {
     }
   });
 
-  return { pairs, pendingDeposits, unmatchedCount };
+  return { pairs, pendingDeposits, unmatchedEvents };
+}
+
+// Beberapa bonus event bisa kepasang ke deposit YANG SAMA (mis. bonus awal dikasih
+// kurang, lalu ditutup dengan susulan beberapa saat kemudian) — lihat komentar di
+// atas matchDepositsAndBonuses(). Di real data, admin biasanya TIDAK menandai baris
+// susulan itu dengan kata kunci apa pun di History (kolom Remark kosong), jadi tidak
+// bisa diandalkan cuma dari teksnya (lihat groupBonusEvents() yang menangani kasus
+// KALAU memang ada kata kuncinya). Makanya di sini bonus-bonus yang kepasang ke
+// deposit yang sama digabung lagi jadi satu grup SEBELUM dievaluasi kesesuaiannya:
+// dibandingkan JUMLAH semuanya vs seharusnya — bukan satu-satu — supaya pembayaran
+// yang sengaja dicicil (mis. 20rb lalu susulan 10rb untuk deposit yang seharusnya
+// dapat 30rb) tidak salah terbaca "kekurangan" pada kedua baris sekaligus maupun
+// "dobel" padahal totalnya sudah pas.
+function groupPairsByDeposit(pairs) {
+  const map = new Map();
+  pairs.forEach(({ deposit, bonus }) => {
+    if (!map.has(deposit)) map.set(deposit, { deposit, bonusEvents: [] });
+    map.get(deposit).bonusEvents.push(bonus);
+  });
+  return Array.from(map.values());
 }
 
 // Satu "bonus" yang sah bisa terdiri dari lebih dari satu baris History: bonus awal,
@@ -1137,7 +1159,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
   // sebelum dicocokkan/dicek dobel — lihat komentar di groupBonusEvents().
   const bonusEvents = groupBonusEvents(bonusRecords);
 
-  const { pairs, pendingDeposits, unmatchedCount } = matchDepositsAndBonuses(deposits, bonusEvents);
+  const { pairs, pendingDeposits, unmatchedEvents } = matchDepositsAndBonuses(deposits, bonusEvents);
 
   const items = [];
 
@@ -1151,25 +1173,32 @@ function buildBonusReport(txRaw, givenRaw, pct) {
     });
   });
 
-  // Tidak Sesuai: bonus sudah diberikan tapi nominalnya beda dari seharusnya
-  // (di luar toleransi pembulatan ke ribuan terdekat).
-  pairs.forEach(({ deposit, bonus }) => {
+  // Tidak Sesuai: JUMLAH semua bonus yang kepasang ke satu deposit beda dari
+  // seharusnya (di luar toleransi pembulatan ke ribuan terdekat) — lihat komentar
+  // di groupPairsByDeposit(). Kalau totalnya pas, deposit ini tidak ditampilkan
+  // sama sekali walau bonusnya dikasih lewat lebih dari satu baris History.
+  groupPairsByDeposit(pairs).forEach(({ deposit, bonusEvents: given }) => {
     const expected = computeExpectedBonus(deposit.amount, pct, deposit.code);
-    const evaluation = evaluateBonusAmount(expected, bonus.amount);
+    const totalGiven = given.reduce((sum, b) => sum + b.amount, 0);
+    const evaluation = evaluateBonusAmount(expected, totalGiven);
     if (evaluation.status === 'ok') return;
-    items.push({
-      sortTs: bonus.timestamp,
-      rows: [{
-        kind: 'mismatch', username: bonus.username, expected, given: bonus.amount,
-        note: t(evaluation.status === 'excess' ? 'bonus.noteExcess' : 'bonus.noteShortage') + formatRupiah(evaluation.diff),
-        waktu: bonus.dateText || '-',
-      }],
-    });
+    const sorted = given.slice().sort((a, b) => a.timestamp - b.timestamp);
+    const noteKey = evaluation.status === 'excess' ? 'bonus.noteExcess' : 'bonus.noteShortage';
+    const note = t(noteKey) + formatRupiah(evaluation.diff)
+      + (sorted.length > 1 ? ' ' + t('bonus.noteMultiRowSuffix', { count: sorted.length }) : '');
+    const rows = sorted.map((b, i) => ({
+      kind: 'mismatch', username: b.username, expected: i === 0 ? expected : null,
+      given: b.amount, note: i === 0 ? note : '-',
+      waktu: b.dateText || '-', groupStart: i === 0,
+    }));
+    items.push({ sortTs: sorted[sorted.length - 1].timestamp, rows });
   });
 
-  // Dobel: username yang punya lebih dari satu EVENT bonus terpisah (bukan cuma
-  // bonus awal + susulan kekurangannya, yang sudah digabung jadi satu event di atas).
-  findDuplicateGroups(bonusEvents).forEach(group => {
+  // Dobel: username yang punya lebih dari satu bonus event yang SAMA-SAMA TIDAK
+  // ketemu deposit confirmed yang cocok (unmatchedEvents). Bonus yang kepasang ke
+  // deposit yang sama sudah dievaluasi lewat jumlahnya di atas, jadi tidak pernah
+  // masuk sini walau ada 2+ baris History untuknya.
+  findDuplicateGroups(unmatchedEvents).forEach(group => {
     const sorted = group.slice().sort((a, b) => a.timestamp - b.timestamp);
     const rows = sorted.map((r, i) => ({
       kind: 'double', username: r.username, expected: null,
@@ -1188,7 +1217,7 @@ function buildBonusReport(txRaw, givenRaw, pct) {
       mismatch: items.filter(it => it.rows[0].kind === 'mismatch').length,
       double: items.filter(it => it.rows[0].kind === 'double').length,
     },
-    unmatchedCount,
+    unmatchedCount: unmatchedEvents.length,
   };
 }
 
