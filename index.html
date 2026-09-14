@@ -7,10 +7,10 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
-<div class="app-shell">
+<div class="app-shell" id="appShell" style="display:none;">
 
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
@@ -24,6 +24,12 @@
         <button class="nav-item nav-top active" data-page="dashboard" data-i18n="nav.dashboard">
           <span class="nav-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></span>
           <span>Dashboard</span>
+        </button>
+
+        <button class="nav-item nav-top" data-page="accountrequests" id="navAccountRequests" style="display:none;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M2.5 19v-1.2c0-2.8 2.5-4.6 6.5-4.6s6.5 1.8 6.5 4.6V19"></path><path d="M17 8h4"></path><path d="M19 6v4"></path></svg></span>
+          <span data-i18n="nav.accountrequests">Permintaan Akun</span>
+          <span class="nav-badge" id="navAccountRequestsBadge" style="display:none;">0</span>
         </button>
 
         <div class="nav-group open">
@@ -92,10 +98,7 @@
             <span id="langFlag" class="flag-icon"></span>
           </button>
           <div id="adminCorner">
-            <div id="adminLoggedOut">
-              <button class="admin-toggle" id="adminLoginToggle" type="button" data-i18n="admin.loginBtn">Login</button>
-            </div>
-            <div id="adminLoggedIn" style="display:none;">
+            <div id="adminLoggedIn">
               <span class="admin-email" id="adminEmailLabel"></span>
               <button class="ghost" id="adminLogoutBtn" type="button" data-i18n="admin.logout">Logout</button>
             </div>
@@ -170,6 +173,54 @@
         </div>
       </section>
 
+      <section class="page" id="page-accountrequests" data-page="accountrequests" style="display:none;">
+        <h2 class="page-title" data-i18n="accreq.title">Permintaan Akun</h2>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="accreq.pendingTitle">Menunggu Persetujuan</h3>
+            <span class="badge badge-warn" id="accreqPendingBadge">0</span>
+          </div>
+          <div id="accreqWarnBox"></div>
+          <div class="table-scroll">
+            <table id="accreqPendingTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th data-i18n="accreq.thName">Nama</th>
+                  <th data-i18n="accreq.thEmail">Email</th>
+                  <th data-i18n="accreq.thNote">Catatan</th>
+                  <th data-i18n="accreq.thRequested">Diajukan</th>
+                  <th data-i18n="accreq.thAction">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="accreqPendingBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="accreqPendingEmpty" data-i18n="accreq.pendingEmpty">Tidak ada permintaan yang menunggu.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="accreq.historyTitle">Riwayat</h3>
+          </div>
+          <div class="table-scroll">
+            <table id="accreqHistoryTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th data-i18n="accreq.thName">Nama</th>
+                  <th data-i18n="accreq.thEmail">Email</th>
+                  <th data-i18n="accreq.thStatus">Status</th>
+                  <th data-i18n="accreq.thReviewed">Ditinjau</th>
+                  <th data-i18n="accreq.thAction">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="accreqHistoryBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="accreqHistoryEmpty" data-i18n="accreq.historyEmpty">Belum ada riwayat.</div>
+        </div>
+      </section>
+
       <section class="page" id="page-bonus" data-page="bonus" style="display:none;">
         <h2 class="page-title" data-i18n="bonus.title">Bonus</h2>
 
@@ -202,6 +253,11 @@
 
           <div id="bonusWarnBox"></div>
 
+          <div class="hidden-bonus-bar" id="bonusHiddenBar" style="display:none;">
+            <button type="button" class="link-btn" id="bonusHiddenToggleBtn"></button>
+            <div class="hidden-bonus-list" id="bonusHiddenList" style="display:none;"></div>
+          </div>
+
           <div id="bonusResultCard" style="display:none;">
             <div class="summary-bar">
               <span class="result-title" data-i18n="bonus.resultTitle">Hasil cek bonus</span>
@@ -216,6 +272,7 @@
                     <th data-i18n="bonus.thGiven">Diberikan</th>
                     <th data-i18n="bonus.thNote">Keterangan</th>
                     <th data-i18n="bonus.thTime">Waktu</th>
+                    <th data-i18n="bonus.thAction">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="bonusResultBody"></tbody>
@@ -607,28 +664,39 @@
 
       </main>
     </div>
+  </div>
 
-  <div class="modal-overlay" id="adminLoginModal" style="display:none;">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 data-i18n="admin.modalTitle">Login Admin</h3>
-        <button class="modal-close" id="adminLoginClose" type="button">&times;</button>
+  <div class="auth-gate" id="authGate">
+    <div class="auth-gate-box">
+      <img src="logo.png" alt="Working Tools" class="auth-gate-logo">
+      <div class="auth-gate-tabs">
+        <button type="button" class="auth-gate-tab active" id="gateTabLogin" data-i18n="gate.tabLogin">Login</button>
+        <button type="button" class="auth-gate-tab" id="gateTabRequest" data-i18n="gate.tabRequest">Ajukan Akun</button>
       </div>
-      <div class="admin-login-form">
-        <input type="email" id="adminEmailInput" data-i18n-placeholder="admin.emailPlaceholder" placeholder="Email admin">
-        <input type="password" id="adminPasswordInput" data-i18n-placeholder="admin.passwordPlaceholder" placeholder="Password">
-        <button class="primary" id="adminLoginBtn" type="button" data-i18n="admin.loginSubmit">Login</button>
-        <div class="admin-login-error" id="adminLoginError"></div>
+
+      <div class="auth-gate-panel" id="gateLoginPanel">
+        <p class="auth-gate-desc" data-i18n="gate.loginDesc">Masuk untuk mengakses semua fitur Working Tools.</p>
+        <input type="email" id="gateEmailInput" data-i18n-placeholder="admin.emailPlaceholder" placeholder="Email">
+        <input type="password" id="gatePasswordInput" data-i18n-placeholder="admin.passwordPlaceholder" placeholder="Password">
+        <button class="primary" id="gateLoginBtn" type="button" data-i18n="admin.loginSubmit">Login</button>
+        <div class="admin-login-error" id="gateLoginError"></div>
+      </div>
+
+      <div class="auth-gate-panel" id="gateRequestPanel" style="display:none;">
+        <p class="auth-gate-desc" data-i18n="gate.requestDesc">Belum punya akun? Kirim permintaan, admin akan meninjau &amp; menyetujuinya.</p>
+        <input type="text" id="gateReqNameInput" data-i18n-placeholder="gate.namePlaceholder" placeholder="Nama">
+        <input type="email" id="gateReqEmailInput" data-i18n-placeholder="gate.emailPlaceholder" placeholder="Email">
+        <input type="text" id="gateReqNoteInput" data-i18n-placeholder="gate.notePlaceholder" placeholder="Catatan (opsional)">
+        <button class="primary" id="gateRequestBtn" type="button" data-i18n="gate.requestSubmit">Kirim Permintaan</button>
+        <div class="auth-gate-msg" id="gateRequestMsg"></div>
       </div>
     </div>
   </div>
-
-</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=15"></script>
+<script src="script.js?v=17"></script>
 </body>
 </html>

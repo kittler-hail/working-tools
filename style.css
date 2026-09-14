@@ -339,6 +339,62 @@ body {
   border-radius: 8px;
 }
 .admin-login-error { font-size: 12.5px; color: var(--danger); min-height: 14px; }
+
+/* --- Gerbang login: menutupi seluruh app (bukan cuma modal admin) selama belum
+   ada akun yang login — lihat updateAuthGate() di script.js. --- */
+.auth-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px 16px;
+}
+.auth-gate-box {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 28px;
+  width: 360px;
+  max-width: 100%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  border: 1px solid var(--border);
+}
+.auth-gate-logo { display: block; height: 40px; margin: 0 auto 20px; }
+.auth-gate-tabs { display: flex; gap: 4px; background: #f1f2f4; border-radius: 8px; padding: 3px; margin-bottom: 18px; }
+.auth-gate-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.auth-gate-tab.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.auth-gate-panel { display: flex; flex-direction: column; gap: 10px; }
+.auth-gate-desc { font-size: 12.5px; color: var(--text-muted); margin: 0 0 2px; line-height: 1.5; }
+.auth-gate-panel input {
+  font-size: 14px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.auth-gate-msg { font-size: 12.5px; min-height: 14px; }
+.auth-gate-msg.is-error { color: var(--danger); }
+.auth-gate-msg.is-success { color: var(--success); }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
 .content {
   flex: 1;
   padding: 28px 32px;
@@ -627,6 +683,53 @@ tr.total-row td {
 }
 .flag-delete:hover { color: var(--danger); }
 .flag-note { font-size: 11.5px; color: var(--text-muted); }
+
+.hidden-bonus-bar { margin-bottom: 12px; font-size: 12.5px; }
+.hidden-bonus-bar .link-btn {
+  border: none;
+  background: none;
+  color: var(--info);
+  cursor: pointer;
+  font-size: 12.5px;
+  padding: 0;
+}
+.hidden-bonus-bar .link-btn:hover { text-decoration: underline; }
+.hidden-bonus-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.hidden-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f2f4;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;
+}
+.hidden-id-chip button {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.hidden-id-chip button:hover { color: var(--danger); }
+.row-hide-btn {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12.5px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.row-hide-btn:hover { color: var(--danger); }
 
 .dash-stats .stat-card {
   flex: 1;

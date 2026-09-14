@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'adminrey@workingtools.com';
+    }
+
+    // Member Safety: siapa pun yang sudah login boleh baca & menambah id baru,
+    // tapi cuma admin yang boleh mengubah/menghapus entri yang sudah ada.
+    match /flags/{docId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && !exists(/databases/$(database)/documents/flags/$(docId));
+      allow update, delete: if isAdmin();
+    }
+
+    // Cara Penggunaan per halaman: siapa pun yang sudah login boleh baca, cuma
+    // admin boleh menulis.
+    match /pageNotes/{page} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Permintaan pembuatan akun: siapa pun (termasuk yang belum login, karena
+    // memang belum punya akun) boleh mengirim satu permintaan baru berstatus
+    // "pending" tanpa field aneh-aneh. Cuma admin yang boleh membaca daftarnya
+    // (supaya email/nama pemohon tidak bisa dibaca publik) dan mengubah status-nya
+    // (approve/reject).
+    match /accountRequests/{requestId} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'note', 'status', 'requestedAt', 'reviewedAt', 'reviewedBy'])
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.reviewedAt == null
+                    && request.resource.data.reviewedBy == null
+                    && request.resource.data.name is string && request.resource.data.name.size() > 0
+                    && request.resource.data.email is string && request.resource.data.email.size() > 0
+                    && request.resource.data.requestedAt is number;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Profil akun non-admin yang dibuat admin lewat persetujuan permintaan akun.
+    // Cuma dibaca/ditulis lewat halaman Permintaan Akun (admin), belum dipakai
+    // user biasa membaca datanya sendiri — tapi dibuka untuk siapa pun yang login
+    // supaya siap dipakai kalau nanti dibutuhkan tanpa perlu ubah rules lagi.
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

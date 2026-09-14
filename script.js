@@ -6,6 +6,7 @@
 const I18N = {
   id: {
     'nav.dashboard': 'Dashboard',
+    'nav.accountrequests': 'Permintaan Akun',
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Cek Bonus',
     'nav.flagged': '1.2 Member Safety',
@@ -15,16 +16,50 @@ const I18N = {
     'nav.winlose': '2.2 Win/Lose All Game',
     'nav.withdrawreport': '2.3 Laporan Withdraw',
 
-    'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
-    'admin.modalTitle': 'Login Admin',
-    'admin.emailPlaceholder': 'Email admin',
+    'admin.emailPlaceholder': 'Email',
     'admin.passwordPlaceholder': 'Password',
     'admin.loginSubmit': 'Login',
     'admin.loginError': 'Email atau password salah.',
     'admin.importAdminOnly': 'Hanya admin yang bisa import backup. Login admin dulu.',
     'admin.editAdminOnly': 'Id "{id}" sudah ada di daftar. Hapus/ubah id yang sudah ada hanya bisa oleh admin — login admin dulu.',
     'admin.deleteFailed': 'Gagal menghapus: {error}',
+
+    'gate.tabLogin': 'Login',
+    'gate.tabRequest': 'Ajukan Akun',
+    'gate.loginDesc': 'Masuk untuk mengakses semua fitur Working Tools.',
+    'gate.requestDesc': 'Belum punya akun? Kirim permintaan, admin akan meninjau & menyetujuinya.',
+    'gate.namePlaceholder': 'Nama',
+    'gate.emailPlaceholder': 'Email',
+    'gate.notePlaceholder': 'Catatan (opsional)',
+    'gate.requestSubmit': 'Kirim Permintaan',
+    'gate.requestFillRequired': 'Isi nama dan email dulu.',
+    'gate.requestSent': 'Permintaan terkirim. Tunggu persetujuan admin — kamu akan bisa login begitu akun disetujui dan email set password diterima.',
+    'gate.requestFailed': 'Gagal mengirim permintaan: {error}',
+
+    'accreq.title': 'Permintaan Akun',
+    'accreq.pendingTitle': 'Menunggu Persetujuan',
+    'accreq.pendingEmpty': 'Tidak ada permintaan yang menunggu.',
+    'accreq.historyTitle': 'Riwayat',
+    'accreq.historyEmpty': 'Belum ada riwayat.',
+    'accreq.thName': 'Nama',
+    'accreq.thEmail': 'Email',
+    'accreq.thNote': 'Catatan',
+    'accreq.thRequested': 'Diajukan',
+    'accreq.thStatus': 'Status',
+    'accreq.thReviewed': 'Ditinjau',
+    'accreq.thAction': 'Aksi',
+    'accreq.approveBtn': 'Setujui',
+    'accreq.approving': 'Memproses...',
+    'accreq.rejectBtn': 'Tolak',
+    'accreq.resendBtn': 'Kirim Ulang Email',
+    'accreq.statusApproved': 'Disetujui',
+    'accreq.statusRejected': 'Ditolak',
+    'accreq.confirmReject': 'Tolak permintaan akun dari "{name}"?',
+    'accreq.approveFailed': 'Gagal menyetujui: {error}',
+    'accreq.rejectFailed': 'Gagal menolak: {error}',
+    'accreq.resendDone': 'Email set password terkirim ulang.',
+    'accreq.resendFailed': 'Gagal mengirim ulang: {error}',
 
     'ticker.title': 'Member Safety Baru:',
     'ticker.empty': 'Belum ada Member Safety',
@@ -69,8 +104,16 @@ const I18N = {
     'bonus.thGiven': 'Diberikan',
     'bonus.thNote': 'Keterangan',
     'bonus.thTime': 'Waktu',
+    'bonus.thAction': 'Aksi',
     'bonus.noDataWarn': 'Data belum diisi atau formatnya tidak terbaca. Paste History QR Pay dan/atau History bonus dulu.',
     'bonus.safeEmpty': 'Aman: tidak ada yang pending, tidak sesuai, atau dobel.',
+    'bonus.allHiddenEmpty': 'Semua isu yang ditemukan sedang disembunyikan ({count} id). Klik "Tampilkan" di atas untuk melihatnya lagi.',
+    'bonus.hideIdBtn': 'Sembunyikan',
+    'bonus.hideIdTitle': 'Sembunyikan id ini dari hasil Cek Bonus (tersimpan di browser ini saja)',
+    'bonus.hiddenCount': '{count} id disembunyikan',
+    'bonus.hiddenShow': 'Tampilkan',
+    'bonus.hiddenHideList': 'Sembunyikan daftar',
+    'bonus.unhideBtn': 'Tampilkan lagi',
     'bonus.unmatchedNote': '{count} bonus tidak punya deposit confirmed yang cocok di History QR Pay, jadi tidak bisa dicek kesesuaiannya.',
     'bonus.countBadge': '{pending} pending · {mismatch} tidak sesuai · {double} dobel',
     'bonus.notePending': 'Belum dapat bonus',
@@ -188,6 +231,7 @@ const I18N = {
   },
   en: {
     'nav.dashboard': 'Dashboard',
+    'nav.accountrequests': 'Account Requests',
     'nav.group1': '1. Bonus',
     'nav.bonus': '1.1 Check Bonus',
     'nav.flagged': '1.2 Member Safety',
@@ -197,16 +241,50 @@ const I18N = {
     'nav.winlose': '2.2 Win/Lose All Game',
     'nav.withdrawreport': '2.3 Laporan Withdraw',
 
-    'admin.loginBtn': 'Login',
     'admin.logout': 'Logout',
-    'admin.modalTitle': 'Admin Login',
-    'admin.emailPlaceholder': 'Admin email',
+    'admin.emailPlaceholder': 'Email',
     'admin.passwordPlaceholder': 'Password',
     'admin.loginSubmit': 'Login',
     'admin.loginError': 'Wrong email or password.',
     'admin.importAdminOnly': 'Only admin can import a backup. Please log in as admin first.',
     'admin.editAdminOnly': 'Id "{id}" already exists in the list. Only admin can edit/delete existing ids — log in as admin first.',
     'admin.deleteFailed': 'Failed to delete: {error}',
+
+    'gate.tabLogin': 'Login',
+    'gate.tabRequest': 'Request Account',
+    'gate.loginDesc': 'Sign in to access all Working Tools features.',
+    'gate.requestDesc': "Don't have an account? Send a request and an admin will review it.",
+    'gate.namePlaceholder': 'Name',
+    'gate.emailPlaceholder': 'Email',
+    'gate.notePlaceholder': 'Note (optional)',
+    'gate.requestSubmit': 'Send Request',
+    'gate.requestFillRequired': 'Fill in name and email first.',
+    'gate.requestSent': "Request sent. Wait for admin approval — you'll be able to log in once approved and you receive the set-password email.",
+    'gate.requestFailed': 'Failed to send request: {error}',
+
+    'accreq.title': 'Account Requests',
+    'accreq.pendingTitle': 'Awaiting Approval',
+    'accreq.pendingEmpty': 'No pending requests.',
+    'accreq.historyTitle': 'History',
+    'accreq.historyEmpty': 'No history yet.',
+    'accreq.thName': 'Name',
+    'accreq.thEmail': 'Email',
+    'accreq.thNote': 'Note',
+    'accreq.thRequested': 'Requested',
+    'accreq.thStatus': 'Status',
+    'accreq.thReviewed': 'Reviewed',
+    'accreq.thAction': 'Action',
+    'accreq.approveBtn': 'Approve',
+    'accreq.approving': 'Processing...',
+    'accreq.rejectBtn': 'Reject',
+    'accreq.resendBtn': 'Resend Email',
+    'accreq.statusApproved': 'Approved',
+    'accreq.statusRejected': 'Rejected',
+    'accreq.confirmReject': 'Reject the account request from "{name}"?',
+    'accreq.approveFailed': 'Failed to approve: {error}',
+    'accreq.rejectFailed': 'Failed to reject: {error}',
+    'accreq.resendDone': 'Set-password email resent.',
+    'accreq.resendFailed': 'Failed to resend: {error}',
 
     'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
@@ -251,8 +329,16 @@ const I18N = {
     'bonus.thGiven': 'Given',
     'bonus.thNote': 'Note',
     'bonus.thTime': 'Time',
+    'bonus.thAction': 'Action',
     'bonus.noDataWarn': "No data entered yet, or the format isn't recognized. Paste the QR Pay History and/or bonus History first.",
     'bonus.safeEmpty': 'All clear: nothing pending, mismatched, or duplicated.',
+    'bonus.allHiddenEmpty': 'All issues found are currently hidden ({count} id(s)). Click "Show" above to see them again.',
+    'bonus.hideIdBtn': 'Hide',
+    'bonus.hideIdTitle': 'Hide this id from Check Bonus results (saved in this browser only)',
+    'bonus.hiddenCount': '{count} id(s) hidden',
+    'bonus.hiddenShow': 'Show',
+    'bonus.hiddenHideList': 'Hide list',
+    'bonus.unhideBtn': 'Unhide',
     'bonus.unmatchedNote': "{count} bonus(es) have no matching confirmed deposit in the QR Pay History, so they couldn't be checked.",
     'bonus.countBadge': '{pending} pending · {mismatch} mismatched · {double} duplicate',
     'bonus.notePending': 'No bonus yet',
@@ -752,6 +838,15 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const ADMIN_EMAIL = 'adminrey@workingtools.com';
+
+// App Firebase kedua, khusus dipakai admin untuk membuat akun baru saat menyetujui
+// permintaan akun (lihat approveAccountRequest()). createUserWithEmailAndPassword()
+// otomatis login sebagai akun yang baru dibuat pada instance auth yang dipakai —
+// kalau dijalankan di 'auth' utama, sesi login admin sendiri akan tergantikan.
+// Instance kedua ini terpisah total dari 'auth', jadi admin tetap login normal.
+const accountCreatorApp = firebase.initializeApp(firebaseConfig, 'accountCreator');
+const accountCreatorAuth = accountCreatorApp.auth();
+
 const FLAGS_COLLECTION = 'flags';
 // Kunci kategori tetap sama di semua bahasa (dipakai sebagai nilai data) — hanya
 // labelnya (lewat categoryLabel()) yang ikut berganti bahasa.
@@ -778,14 +873,50 @@ function isAdminUser() {
   return !!(currentUser && currentUser.email === ADMIN_EMAIL);
 }
 
-db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
-  flagsCache = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+function isSignedIn() {
+  return !!currentUser;
+}
+
+// Listener flags/pageNotes cuma dipasang SETELAH ada akun yang login (lihat
+// startAuthedListeners()/stopAuthedListeners(), dipanggil dari auth.onAuthStateChanged
+// di bawah) — bukan langsung saat script dimuat seperti sebelumnya. Firestore Rules
+// sekarang mewajibkan login untuk membaca kedua koleksi ini (akses semua fitur harus
+// pakai akun), jadi memasangnya lebih awal cuma akan gagal permission-denied dan tidak
+// otomatis pulih begitu user login (onSnapshot berhenti total setelah error).
+let unsubFlags = null;
+let unsubPageNotes = null;
+
+function startAuthedListeners() {
+  if (!unsubFlags) {
+    unsubFlags = db.collection(FLAGS_COLLECTION).onSnapshot(snapshot => {
+      flagsCache = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+      renderFlagTable();
+      renderDashboard();
+      renderSidebarTicker();
+    }, err => {
+      console.error('Gagal memuat daftar Member Safety dari Firestore:', err);
+    });
+  }
+  if (!unsubPageNotes) {
+    unsubPageNotes = db.collection(PAGE_NOTES_COLLECTION).onSnapshot(snapshot => {
+      pageNotesCache = {};
+      snapshot.docs.forEach(doc => { pageNotesCache[doc.id] = doc.data().text || ''; });
+      renderHowtoBoxes();
+    }, err => {
+      console.error('Gagal memuat Cara Penggunaan dari Firestore:', err);
+    });
+  }
+}
+
+function stopAuthedListeners() {
+  if (unsubFlags) { unsubFlags(); unsubFlags = null; }
+  if (unsubPageNotes) { unsubPageNotes(); unsubPageNotes = null; }
+  flagsCache = [];
+  pageNotesCache = {};
   renderFlagTable();
-  renderDashboard();
   renderSidebarTicker();
-}, err => {
-  console.error('Gagal memuat daftar Member Safety dari Firestore:', err);
-});
+  renderHowtoBoxes();
+}
 
 // --- Cara Penggunaan per fitur (tersimpan terpusat di Firestore, sinkron di semua
 // browser, sama seperti Member Safety) ---
@@ -817,14 +948,6 @@ function renderHowtoBoxes() {
     if (!admin) formEl.style.display = 'none';
   });
 }
-
-db.collection(PAGE_NOTES_COLLECTION).onSnapshot(snapshot => {
-  pageNotesCache = {};
-  snapshot.docs.forEach(doc => { pageNotesCache[doc.id] = doc.data().text || ''; });
-  renderHowtoBoxes();
-}, err => {
-  console.error('Gagal memuat Cara Penggunaan dari Firestore:', err);
-});
 
 document.querySelectorAll('.howto-card').forEach(card => {
   const page = card.getAttribute('data-howto-page');
@@ -926,27 +1049,164 @@ function renderFlagTable() {
   });
 }
 
-// --- Login admin (Firebase Auth) ---
+// --- Permintaan pembuatan akun (Firestore, cuma dibaca admin) ---
+// Siapa pun yang belum punya akun mengisi form di auth gate (nama + email + catatan,
+// TANPA password — lihat komentar di accountCreatorAuth di atas soal alasannya).
+// Admin meninjau di halaman "Permintaan Akun" dan approve/reject dari sana.
+const ACCOUNT_REQUESTS_COLLECTION = 'accountRequests';
+const USERS_COLLECTION = 'users';
+let accountRequestsCache = [];
+let unsubAccountRequests = null;
+
+function startAdminListeners() {
+  if (!unsubAccountRequests) {
+    unsubAccountRequests = db.collection(ACCOUNT_REQUESTS_COLLECTION).onSnapshot(snapshot => {
+      accountRequestsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderAccountRequests();
+    }, err => {
+      console.error('Gagal memuat permintaan akun dari Firestore:', err);
+    });
+  }
+}
+
+function stopAdminListeners() {
+  if (unsubAccountRequests) { unsubAccountRequests(); unsubAccountRequests = null; }
+  accountRequestsCache = [];
+  renderAccountRequests();
+}
+
+// Password acak sekali pakai, cuma dipakai sebentar untuk createUserWithEmailAndPassword
+// (Firebase Auth mewajibkan sebuah password saat bikin akun) lalu langsung dibuang dari
+// memori — TIDAK pernah disimpan ke Firestore maupun ditunjukkan ke siapa pun, termasuk
+// admin. User yang baru disetujui mengatur password sendiri lewat email "set password"
+// yang dikirim otomatis setelah akunnya dibuat.
+function generateTempPassword() {
+  const bytes = new Uint8Array(18);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(36).padStart(2, '0')).join('') + 'Aa1!';
+}
+
+function renderAccountRequests() {
+  const pending = accountRequestsCache.filter(r => r.status === 'pending').sort((a, b) => a.requestedAt - b.requestedAt);
+  const history = accountRequestsCache.filter(r => r.status !== 'pending').sort((a, b) => (b.reviewedAt || 0) - (a.reviewedAt || 0));
+
+  document.getElementById('accreqPendingBadge').textContent = pending.length;
+  const navBadge = document.getElementById('navAccountRequestsBadge');
+  navBadge.textContent = pending.length;
+  navBadge.style.display = pending.length > 0 ? 'inline-block' : 'none';
+
+  const pendingTable = document.getElementById('accreqPendingTable');
+  const pendingEmpty = document.getElementById('accreqPendingEmpty');
+  const pendingBody = document.getElementById('accreqPendingBody');
+  pendingBody.innerHTML = '';
+  pendingTable.style.display = pending.length ? 'table' : 'none';
+  pendingEmpty.style.display = pending.length ? 'none' : 'block';
+
+  pending.forEach(req => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${req.name}</td>
+      <td>${req.email}</td>
+      <td>${req.note || '-'}</td>
+      <td>${new Date(req.requestedAt).toLocaleString(localeCode())}</td>
+      <td class="action-cell">
+        <button type="button" class="primary accreq-approve-btn">${t('accreq.approveBtn')}</button>
+        <button type="button" class="ghost accreq-reject-btn">${t('accreq.rejectBtn')}</button>
+      </td>
+    `;
+    pendingBody.appendChild(tr);
+    tr.querySelector('.accreq-approve-btn').addEventListener('click', (e) => approveAccountRequest(req, e.target));
+    tr.querySelector('.accreq-reject-btn').addEventListener('click', () => rejectAccountRequest(req));
+  });
+
+  const historyTable = document.getElementById('accreqHistoryTable');
+  const historyEmpty = document.getElementById('accreqHistoryEmpty');
+  const historyBody = document.getElementById('accreqHistoryBody');
+  historyBody.innerHTML = '';
+  historyTable.style.display = history.length ? 'table' : 'none';
+  historyEmpty.style.display = history.length ? 'none' : 'block';
+
+  history.forEach(req => {
+    const tr = document.createElement('tr');
+    const statusBadge = req.status === 'approved'
+      ? `<span class="badge">${t('accreq.statusApproved')}</span>`
+      : `<span class="badge badge-warn">${t('accreq.statusRejected')}</span>`;
+    tr.innerHTML = `
+      <td>${req.name}</td>
+      <td>${req.email}</td>
+      <td>${statusBadge}</td>
+      <td>${req.reviewedAt ? new Date(req.reviewedAt).toLocaleString(localeCode()) : '-'}</td>
+      <td class="action-cell">${req.status === 'approved' ? `<button type="button" class="ghost accreq-resend-btn">${t('accreq.resendBtn')}</button>` : ''}</td>
+    `;
+    historyBody.appendChild(tr);
+    const resendBtn = tr.querySelector('.accreq-resend-btn');
+    if (resendBtn) resendBtn.addEventListener('click', () => resendSetPasswordEmail(req.email, resendBtn));
+  });
+}
+
+function approveAccountRequest(req, btn) {
+  btn.disabled = true;
+  btn.textContent = t('accreq.approving');
+  const tempPassword = generateTempPassword();
+
+  accountCreatorAuth.createUserWithEmailAndPassword(req.email, tempPassword)
+    .then(cred => db.collection(USERS_COLLECTION).doc(cred.user.uid).set({
+      name: req.name,
+      email: req.email,
+      createdAt: Date.now(),
+      createdBy: currentUser.email,
+    }))
+    .then(() => accountCreatorAuth.signOut())
+    .then(() => auth.sendPasswordResetEmail(req.email))
+    .then(() => db.collection(ACCOUNT_REQUESTS_COLLECTION).doc(req.id).update({
+      status: 'approved',
+      reviewedAt: Date.now(),
+      reviewedBy: currentUser.email,
+    }))
+    .catch(err => {
+      alert(t('accreq.approveFailed', { error: err.message }));
+      btn.disabled = false;
+      btn.textContent = t('accreq.approveBtn');
+    });
+}
+
+function rejectAccountRequest(req) {
+  if (!confirm(t('accreq.confirmReject', { name: req.name || req.email }))) return;
+  db.collection(ACCOUNT_REQUESTS_COLLECTION).doc(req.id).update({
+    status: 'rejected',
+    reviewedAt: Date.now(),
+    reviewedBy: currentUser.email,
+  }).catch(err => alert(t('accreq.rejectFailed', { error: err.message })));
+}
+
+function resendSetPasswordEmail(email, btn) {
+  btn.disabled = true;
+  auth.sendPasswordResetEmail(email)
+    .then(() => alert(t('accreq.resendDone')))
+    .catch(err => alert(t('accreq.resendFailed', { error: err.message })))
+    .finally(() => { btn.disabled = false; });
+}
+
+// --- Login (siapa pun yang sudah punya akun — admin atau user biasa) ---
 function updateAdminUI() {
   const admin = isAdminUser();
   // Sidebar berubah warna jadi hijau kalau lagi login admin, supaya kelihatan jelas
-  // dari jauh sedang login atau tidak — lihat aturan warnanya di style.css.
+  // dari jauh sedang login admin atau bukan — lihat aturan warnanya di style.css.
+  // User biasa yang login TIDAK ikut kena tema ini, tampilannya tetap biru seperti
+  // biasa — cuma bedanya sekarang wajib login dulu untuk melihatnya (lihat authGate).
   document.body.classList.toggle('admin-active', admin);
-  document.getElementById('adminLoggedOut').style.display = admin ? 'none' : 'block';
-  document.getElementById('adminLoggedIn').style.display = admin ? 'flex' : 'none';
-  // Cuma nama sebelum "@" yang ditampilkan (mis. "adminrey"), bukan email lengkap —
-  // dipakai juga di sapaan "Hello!" yang gantikan logo selama admin login.
   document.getElementById('sidebarLogo').style.display = admin ? 'none' : 'block';
   document.getElementById('sidebarHello').style.display = admin ? 'flex' : 'none';
-  if (admin) {
-    const name = currentUser.email.split('@')[0];
-    document.getElementById('adminEmailLabel').textContent = name;
-    document.getElementById('sidebarHelloName').textContent = name;
+  if (currentUser) {
+    // Admin: sapaan pakai nama sebelum "@" (mis. "adminrey"). User biasa: email
+    // penuh saja di pojok kanan atas, tidak ada sapaan/tema khusus.
+    document.getElementById('adminEmailLabel').textContent = admin ? currentUser.email.split('@')[0] : currentUser.email;
+    if (admin) document.getElementById('sidebarHelloName').textContent = currentUser.email.split('@')[0];
   }
   document.getElementById('importFlagsBtn').disabled = !admin;
 
   // Lihat daftar Member Safety & Backup/Restore: khusus admin. Menambah id baru
-  // (form "Tambah" di atas) tetap terbuka untuk semua, tidak ikut dibatasi di sini.
+  // (form "Tambah" di atas) tetap terbuka untuk semua akun, tidak ikut dibatasi di sini.
   document.getElementById('toggleFlagListBtn').style.display = admin ? 'inline-block' : 'none';
   document.getElementById('flagListAdminNote').style.display = admin ? 'none' : 'block';
   document.getElementById('flagBackupActions').style.display = admin ? 'flex' : 'none';
@@ -955,6 +1215,11 @@ function updateAdminUI() {
   // Statistik Member Safety di Dashboard juga khusus admin.
   document.getElementById('dashAdminStats').style.display = admin ? 'flex' : 'none';
   document.getElementById('dashStatsAdminNote').style.display = admin ? 'none' : 'block';
+
+  // Halaman Permintaan Akun: khusus admin, disembunyikan total dari sidebar untuk
+  // akun biasa (sama prinsipnya dengan proteksi Member Safety — lihat komentar di
+  // firebaseConfig di atas).
+  document.getElementById('navAccountRequests').style.display = admin ? 'flex' : 'none';
 
   if (!admin) {
     // Kalau admin logout saat daftarnya lagi kebuka, tutup lagi & reset teks tombolnya.
@@ -965,51 +1230,101 @@ function updateAdminUI() {
   renderHowtoBoxes();
 }
 
+// Menampilkan/menyembunyikan seluruh app di balik gerbang login — akses semua fitur
+// (bukan cuma yang admin-only) sekarang wajib pakai akun. Ditentukan murni dari
+// isSignedIn() (bukan isAdminUser()), jadi akun biasa yang sudah disetujui admin bisa
+// masuk dan pakai semua fitur, cuma tidak dapat menu/tema khusus admin.
+function updateAuthGate() {
+  const signedIn = isSignedIn();
+  document.getElementById('appShell').style.display = signedIn ? 'flex' : 'none';
+  document.getElementById('authGate').style.display = signedIn ? 'none' : 'flex';
+}
+
 auth.onAuthStateChanged(user => {
   currentUser = user;
+  updateAuthGate();
   updateAdminUI();
-  renderFlagTable();
+  if (user) {
+    startAuthedListeners();
+    if (isAdminUser()) startAdminListeners(); else stopAdminListeners();
+  } else {
+    stopAuthedListeners();
+    stopAdminListeners();
+  }
 });
 
-function openAdminModal() {
-  document.getElementById('adminLoginModal').style.display = 'flex';
-  document.getElementById('adminEmailInput').focus();
+// --- Auth gate: tab Login <-> Ajukan Akun ---
+function setGateTab(tab) {
+  document.getElementById('gateTabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('gateTabRequest').classList.toggle('active', tab === 'request');
+  document.getElementById('gateLoginPanel').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('gateRequestPanel').style.display = tab === 'request' ? 'flex' : 'none';
 }
+document.getElementById('gateTabLogin').addEventListener('click', () => setGateTab('login'));
+document.getElementById('gateTabRequest').addEventListener('click', () => setGateTab('request'));
 
-function closeAdminModal() {
-  document.getElementById('adminLoginModal').style.display = 'none';
-  document.getElementById('adminLoginError').textContent = '';
-  document.getElementById('adminEmailInput').value = '';
-  document.getElementById('adminPasswordInput').value = '';
-}
-
-document.getElementById('adminLoginToggle').addEventListener('click', openAdminModal);
-document.getElementById('adminLoginClose').addEventListener('click', closeAdminModal);
-
-// Klik area gelap di luar kotak modal juga menutup modalnya.
-document.getElementById('adminLoginModal').addEventListener('click', (e) => {
-  if (e.target.id === 'adminLoginModal') closeAdminModal();
-});
-
-function submitAdminLogin() {
-  const email = document.getElementById('adminEmailInput').value.trim();
-  const password = document.getElementById('adminPasswordInput').value;
-  const errBox = document.getElementById('adminLoginError');
+function submitGateLogin() {
+  const email = document.getElementById('gateEmailInput').value.trim();
+  const password = document.getElementById('gatePasswordInput').value;
+  const errBox = document.getElementById('gateLoginError');
   errBox.textContent = '';
   auth.signInWithEmailAndPassword(email, password)
-    .then(() => closeAdminModal())
+    .then(() => {
+      document.getElementById('gateEmailInput').value = '';
+      document.getElementById('gatePasswordInput').value = '';
+    })
     .catch(() => {
       errBox.textContent = t('admin.loginError');
     });
 }
 
-document.getElementById('adminLoginBtn').addEventListener('click', submitAdminLogin);
+document.getElementById('gateLoginBtn').addEventListener('click', submitGateLogin);
 
-['adminEmailInput', 'adminPasswordInput'].forEach(id => {
+['gateEmailInput', 'gatePasswordInput'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitAdminLogin();
+    if (e.key === 'Enter') submitGateLogin();
   });
 });
+
+function submitAccountRequest() {
+  const nameInput = document.getElementById('gateReqNameInput');
+  const emailInput = document.getElementById('gateReqEmailInput');
+  const noteInput = document.getElementById('gateReqNoteInput');
+  const msgBox = document.getElementById('gateRequestMsg');
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim().toLowerCase();
+  const note = noteInput.value.trim();
+
+  msgBox.className = 'auth-gate-msg';
+  msgBox.textContent = '';
+
+  if (!name || !email) {
+    msgBox.textContent = t('gate.requestFillRequired');
+    msgBox.classList.add('is-error');
+    return;
+  }
+
+  db.collection(ACCOUNT_REQUESTS_COLLECTION).add({
+    name,
+    email,
+    note,
+    status: 'pending',
+    requestedAt: Date.now(),
+    reviewedAt: null,
+    reviewedBy: null,
+  }).then(() => {
+    nameInput.value = '';
+    emailInput.value = '';
+    noteInput.value = '';
+    msgBox.textContent = t('gate.requestSent');
+    msgBox.classList.add('is-success');
+  }).catch(err => {
+    msgBox.textContent = t('gate.requestFailed', { error: err.message });
+    msgBox.classList.add('is-error');
+  });
+}
+
+document.getElementById('gateRequestBtn').addEventListener('click', submitAccountRequest);
 
 document.getElementById('adminLogoutBtn').addEventListener('click', () => auth.signOut());
 
@@ -1019,7 +1334,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'winlose', 'flagged', 'inputbonus', 'withdrawreport']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -1216,7 +1531,7 @@ document.getElementById('importFlagsFile').addEventListener('change', (e) => {
 // baris hasil. Tiap "item" bisa berisi lebih dari satu baris tabel (grup dobel bonus
 // tetap ditampilkan berurutan per kemunculan), tapi disortir sebagai satu kesatuan
 // berdasarkan waktu kejadian paling baru.
-function buildBonusReport(txRaw, givenRaw, pct) {
+function buildBonusReport(txRaw, givenRaw, pct, hiddenIds) {
   const deposits = parseRecords(txRaw).filter(r => r.status.toLowerCase() === 'confirmed');
   const bonusRecords = parseRecords(givenRaw).filter(isBonusDeposit).filter(r => r.status.toLowerCase() === 'confirmed');
   // Bonus awal + susulan kekurangannya digabung jadi satu "event" per kejadian
@@ -1274,16 +1589,81 @@ function buildBonusReport(txRaw, givenRaw, pct) {
 
   items.sort((a, b) => b.sortTs - a.sortTs);
 
+  // ID yang disembunyikan (lihat loadHiddenBonusIds()) dikeluarkan dari hasil
+  // sebelum hitungan badge dibuat, supaya badge selalu cocok dengan yang tampil.
+  const visibleItems = hiddenIds && hiddenIds.size > 0
+    ? items.filter(it => !hiddenIds.has(it.rows[0].username.toLowerCase()))
+    : items;
+
   return {
-    rows: items.flatMap(it => it.rows),
+    rows: visibleItems.flatMap(it => it.rows),
     counts: {
-      pending: items.filter(it => it.rows[0].kind === 'pending').length,
-      mismatch: items.filter(it => it.rows[0].kind === 'mismatch').length,
-      double: items.filter(it => it.rows[0].kind === 'double').length,
+      pending: visibleItems.filter(it => it.rows[0].kind === 'pending').length,
+      mismatch: visibleItems.filter(it => it.rows[0].kind === 'mismatch').length,
+      double: visibleItems.filter(it => it.rows[0].kind === 'double').length,
     },
     unmatchedCount: unmatchedEvents.length,
+    hiddenCount: items.length - visibleItems.length,
   };
 }
+
+// Daftar id yang disembunyikan dari hasil Cek Bonus (misalnya karena sudah dicek
+// atau diperbaiki manual dan sering muncul lagi sebagai dobel/kekurangan/kelebihan).
+// Cuma tersimpan di localStorage browser ini — beda dari Member Safety yang sinkron
+// lewat Firestore — supaya tidak hilang saat refresh tapi tetap gampang direset
+// per device dan tidak memengaruhi orang lain.
+const HIDDEN_BONUS_IDS_KEY = 'workingTools.hiddenBonusIds';
+
+function loadHiddenBonusIds() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIDDEN_BONUS_IDS_KEY) || '[]');
+    return new Set(Array.isArray(raw) ? raw : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveHiddenBonusIds(set) {
+  localStorage.setItem(HIDDEN_BONUS_IDS_KEY, JSON.stringify([...set]));
+}
+
+let bonusHiddenListOpen = false;
+
+function renderBonusHiddenBar() {
+  const bar = document.getElementById('bonusHiddenBar');
+  const list = document.getElementById('bonusHiddenList');
+  const toggleBtn = document.getElementById('bonusHiddenToggleBtn');
+  const hidden = loadHiddenBonusIds();
+
+  if (hidden.size === 0) {
+    bar.style.display = 'none';
+    bonusHiddenListOpen = false;
+    return;
+  }
+
+  bar.style.display = 'block';
+  toggleBtn.textContent = t('bonus.hiddenCount', { count: hidden.size })
+    + ' · ' + (bonusHiddenListOpen ? t('bonus.hiddenHideList') : t('bonus.hiddenShow'));
+  list.style.display = bonusHiddenListOpen ? 'flex' : 'none';
+
+  list.innerHTML = [...hidden].sort().map(id => `
+    <span class="hidden-id-chip">${id}<button type="button" data-id="${id}" title="${t('bonus.unhideBtn')}">×</button></span>
+  `).join('');
+
+  list.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hiddenSet = loadHiddenBonusIds();
+      hiddenSet.delete(btn.getAttribute('data-id'));
+      saveHiddenBonusIds(hiddenSet);
+      runBonusCheck();
+    });
+  });
+}
+
+document.getElementById('bonusHiddenToggleBtn').addEventListener('click', () => {
+  bonusHiddenListOpen = !bonusHiddenListOpen;
+  renderBonusHiddenBar();
+});
 
 // Klik nilai berformat (id atau nominal) untuk copy versi polosnya ke clipboard.
 function makeCopyable(el, plainText) {
@@ -1297,7 +1677,7 @@ function makeCopyable(el, plainText) {
   });
 }
 
-document.getElementById('bonusProcessBtn').addEventListener('click', () => {
+function runBonusCheck() {
   const txRaw = document.getElementById('txData').value;
   const givenRaw = document.getElementById('givenData').value;
   const warnBox = document.getElementById('bonusWarnBox');
@@ -1308,12 +1688,15 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
     warnBox.innerHTML = `<div class="warn-box">${t('bonus.noDataWarn')}</div>`;
     document.getElementById('bonusResultCard').style.display = 'none';
     document.getElementById('bonusEmptyCard').style.display = 'block';
+    renderBonusHiddenBar();
     return;
   }
 
   const pct = parseInt(document.getElementById('pctSelect').value, 10);
-  const report = buildBonusReport(txRaw, givenRaw, pct);
+  const hiddenIds = loadHiddenBonusIds();
+  const report = buildBonusReport(txRaw, givenRaw, pct, hiddenIds);
   const flags = loadFlags();
+  renderBonusHiddenBar();
 
   const unmatchedNote = report.unmatchedCount > 0
     ? `<div class="warn-box">${t('bonus.unmatchedNote', { count: report.unmatchedCount })}</div>`
@@ -1325,7 +1708,8 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
   if (report.rows.length === 0) {
     document.getElementById('bonusResultCard').style.display = 'none';
     document.getElementById('bonusEmptyCard').style.display = 'block';
-    document.getElementById('bonusEmptyCard').querySelector('.empty-state').textContent = t('bonus.safeEmpty');
+    document.getElementById('bonusEmptyCard').querySelector('.empty-state').textContent =
+      report.hiddenCount > 0 ? t('bonus.allHiddenEmpty', { count: report.hiddenCount }) : t('bonus.safeEmpty');
     warnBox.innerHTML = unmatchedNote;
     return;
   }
@@ -1348,14 +1732,24 @@ document.getElementById('bonusProcessBtn').addEventListener('click', () => {
       <td class="amount">${r.given != null ? formatCopyableAmount(r.given) : '-'}</td>
       <td>${r.note}</td>
       <td>${r.waktu}</td>
+      <td class="action-cell"><button type="button" class="row-hide-btn" title="${t('bonus.hideIdTitle')}">${t('bonus.hideIdBtn')}</button></td>
     `;
     body.appendChild(tr);
 
     makeCopyable(tr.querySelector('.idcell'), r.username);
     if (r.expected != null) makeCopyable(tr.children[1], String(r.expected));
     if (r.given != null) makeCopyable(tr.children[2], String(r.given));
+
+    tr.querySelector('.row-hide-btn').addEventListener('click', () => {
+      const hiddenSet = loadHiddenBonusIds();
+      hiddenSet.add(r.username.toLowerCase());
+      saveHiddenBonusIds(hiddenSet);
+      runBonusCheck();
+    });
   });
-});
+}
+
+document.getElementById('bonusProcessBtn').addEventListener('click', runBonusCheck);
 
 // --- Input Bonus ---
 // Fitur simpel: paste laporan bonus yang sudah diberikan (format multi-baris yang
