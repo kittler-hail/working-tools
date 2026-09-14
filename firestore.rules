@@ -50,5 +50,17 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
+
+    // Log aktivitas ringan (login/logout, ubah Member Safety, permintaan akun) —
+    // cuma untuk ditonton admin lewat notifikasi lonceng, bukan data yang butuh
+    // proteksi tinggi. Siapa pun (termasuk yang belum login, karena "mengajukan
+    // permintaan akun" memang terjadi sebelum login) boleh menambah satu entri,
+    // tapi cuma admin yang boleh membaca/menghapus daftarnya.
+    match /activityLog/{logId} {
+      allow create: if request.resource.data.keys().hasOnly(['type', 'actorEmail', 'requesterEmail', 'requesterName', 'targetId', 'targetEmail', 'category', 'createdAt'])
+                    && request.resource.data.type is string
+                    && request.resource.data.createdAt is number;
+      allow read, delete: if isAdmin();
+    }
   }
 }

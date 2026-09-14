@@ -61,6 +61,16 @@ const I18N = {
     'accreq.resendDone': 'Email set password terkirim ulang.',
     'accreq.resendFailed': 'Gagal mengirim ulang: {error}',
 
+    'activity.title': 'Aktivitas Pengguna',
+    'activity.empty': 'Belum ada aktivitas.',
+    'activity.login': '{email} login',
+    'activity.logout': '{email} logout',
+    'activity.flagAdd': '{email} menambahkan id "{id}" ke Member Safety ({category})',
+    'activity.flagDelete': '{email} menghapus id "{id}" dari Member Safety',
+    'activity.requestSubmitted': '{name} ({email}) mengajukan permintaan akun',
+    'activity.requestApproved': '{email} menyetujui permintaan akun dari {target}',
+    'activity.requestRejected': '{email} menolak permintaan akun dari {target}',
+
     'ticker.title': 'Member Safety Baru:',
     'ticker.empty': 'Belum ada Member Safety',
     'common.clickToCopy': 'Klik untuk copy',
@@ -285,6 +295,16 @@ const I18N = {
     'accreq.rejectFailed': 'Failed to reject: {error}',
     'accreq.resendDone': 'Set-password email resent.',
     'accreq.resendFailed': 'Failed to resend: {error}',
+
+    'activity.title': 'User Activity',
+    'activity.empty': 'No activity yet.',
+    'activity.login': '{email} logged in',
+    'activity.logout': '{email} logged out',
+    'activity.flagAdd': '{email} added id "{id}" to Member Safety ({category})',
+    'activity.flagDelete': '{email} removed id "{id}" from Member Safety',
+    'activity.requestSubmitted': '{name} ({email}) requested an account',
+    'activity.requestApproved': '{email} approved the account request from {target}',
+    'activity.requestRejected': '{email} rejected the account request from {target}',
 
     'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
@@ -1042,9 +1062,11 @@ function renderFlagTable() {
       const docId = btn.getAttribute('data-doc-id');
       if (!confirm(t('flagged.confirmDelete1', { id }))) return;
       if (!confirm(t('flagged.confirmDelete2', { id }))) return;
-      db.collection(FLAGS_COLLECTION).doc(docId).delete().catch(err => {
-        alert(t('admin.deleteFailed', { error: err.message }));
-      });
+      db.collection(FLAGS_COLLECTION).doc(docId).delete()
+        .then(() => logActivity({ type: 'flag_delete', actorEmail: currentUser.email, targetId: id }))
+        .catch(err => {
+          alert(t('admin.deleteFailed', { error: err.message }));
+        });
     });
   });
 }
@@ -1058,6 +1080,24 @@ const USERS_COLLECTION = 'users';
 let accountRequestsCache = [];
 let unsubAccountRequests = null;
 
+// Log aktivitas ringan (login/logout, ubah Member Safety, permintaan akun) — cuma
+// buat notifikasi lonceng admin, bukan data sensitif. Siapa pun boleh MENAMBAH satu
+// entri tentang aksinya sendiri (lihat firestore.rules), tapi cuma admin yang bisa
+// membaca daftarnya — makanya listener-nya jalan bareng startAdminListeners().
+const ACTIVITY_LOG_COLLECTION = 'activityLog';
+const ACTIVITY_LOG_LIMIT = 50;
+const NOTIF_LAST_SEEN_KEY = 'workingTools.lastSeenActivityAt';
+let activityLogCache = [];
+let unsubActivityLog = null;
+
+// Gagal mencatat aktivitas TIDAK boleh menggagalkan aksi utamanya (login, hapus id,
+// dst) — makanya cuma di-log ke console kalau errornya, tidak ada .catch() yang
+// mengganggu alur pemanggilnya.
+function logActivity(fields) {
+  db.collection(ACTIVITY_LOG_COLLECTION).add({ ...fields, createdAt: Date.now() })
+    .catch(err => console.error('Gagal mencatat aktivitas:', err));
+}
+
 function startAdminListeners() {
   if (!unsubAccountRequests) {
     unsubAccountRequests = db.collection(ACCOUNT_REQUESTS_COLLECTION).onSnapshot(snapshot => {
@@ -1067,13 +1107,90 @@ function startAdminListeners() {
       console.error('Gagal memuat permintaan akun dari Firestore:', err);
     });
   }
+  if (!unsubActivityLog) {
+    unsubActivityLog = db.collection(ACTIVITY_LOG_COLLECTION).orderBy('createdAt', 'desc').limit(ACTIVITY_LOG_LIMIT)
+      .onSnapshot(snapshot => {
+        activityLogCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderActivityLog();
+      }, err => {
+        console.error('Gagal memuat aktivitas dari Firestore:', err);
+      });
+  }
 }
 
 function stopAdminListeners() {
   if (unsubAccountRequests) { unsubAccountRequests(); unsubAccountRequests = null; }
+  if (unsubActivityLog) { unsubActivityLog(); unsubActivityLog = null; }
   accountRequestsCache = [];
+  activityLogCache = [];
   renderAccountRequests();
+  renderActivityLog();
 }
+
+// Judul notifikasi dibangun dari field terstruktur (bukan string siap-pakai) supaya
+// ikut berganti bahasa waktu toggle bendera di-klik — sama prinsipnya dengan seluruh
+// teks lain di app ini yang lewat t().
+function activityText(entry) {
+  switch (entry.type) {
+    case 'login': return t('activity.login', { email: entry.actorEmail });
+    case 'logout': return t('activity.logout', { email: entry.actorEmail });
+    case 'flag_add': return t('activity.flagAdd', { email: entry.actorEmail, id: entry.targetId, category: categoryLabel(entry.category) });
+    case 'flag_delete': return t('activity.flagDelete', { email: entry.actorEmail, id: entry.targetId });
+    case 'account_request_submitted': return t('activity.requestSubmitted', { name: entry.requesterName, email: entry.requesterEmail });
+    case 'account_request_approved': return t('activity.requestApproved', { email: entry.actorEmail, target: entry.targetEmail });
+    case 'account_request_rejected': return t('activity.requestRejected', { email: entry.actorEmail, target: entry.targetEmail });
+    default: return entry.type;
+  }
+}
+
+function renderActivityLog() {
+  const lastSeenAt = parseInt(localStorage.getItem(NOTIF_LAST_SEEN_KEY) || '0', 10);
+  const unreadCount = activityLogCache.filter(e => e.createdAt > lastSeenAt).length;
+
+  const badge = document.getElementById('notifBadge');
+  badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+  badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+
+  const list = document.getElementById('notifList');
+  const empty = document.getElementById('notifEmpty');
+  list.innerHTML = '';
+
+  if (activityLogCache.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  activityLogCache.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'notif-item';
+    div.innerHTML = `
+      <div class="notif-item-text">${activityText(entry)}</div>
+      <div class="notif-item-time">${new Date(entry.createdAt).toLocaleString(localeCode())}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('notifBellBtn').addEventListener('click', () => {
+  const dropdown = document.getElementById('notifDropdown');
+  const isOpen = dropdown.style.display !== 'none';
+  dropdown.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    // Buka dropdown = tandai semua sudah dibaca (per browser, sama seperti hidden
+    // bonus ids — bukan data yang perlu sinkron).
+    localStorage.setItem(NOTIF_LAST_SEEN_KEY, String(Date.now()));
+    renderActivityLog();
+  }
+});
+
+// Klik di luar lonceng/dropdown menutupnya lagi.
+document.addEventListener('click', (e) => {
+  const notif = document.getElementById('topbarNotif');
+  if (!notif.contains(e.target)) {
+    document.getElementById('notifDropdown').style.display = 'none';
+  }
+});
 
 // Password acak sekali pakai, cuma dipakai sebentar untuk createUserWithEmailAndPassword
 // (Firebase Auth mewajibkan sebuah password saat bikin akun) lalu langsung dibuang dari
@@ -1163,6 +1280,7 @@ function approveAccountRequest(req, btn) {
       reviewedAt: Date.now(),
       reviewedBy: currentUser.email,
     }))
+    .then(() => logActivity({ type: 'account_request_approved', actorEmail: currentUser.email, targetEmail: req.email }))
     .catch(err => {
       alert(t('accreq.approveFailed', { error: err.message }));
       btn.disabled = false;
@@ -1176,7 +1294,9 @@ function rejectAccountRequest(req) {
     status: 'rejected',
     reviewedAt: Date.now(),
     reviewedBy: currentUser.email,
-  }).catch(err => alert(t('accreq.rejectFailed', { error: err.message })));
+  })
+    .then(() => logActivity({ type: 'account_request_rejected', actorEmail: currentUser.email, targetEmail: req.email }))
+    .catch(err => alert(t('accreq.rejectFailed', { error: err.message })));
 }
 
 function resendSetPasswordEmail(email, btn) {
@@ -1220,6 +1340,10 @@ function updateAdminUI() {
   // akun biasa (sama prinsipnya dengan proteksi Member Safety — lihat komentar di
   // firebaseConfig di atas).
   document.getElementById('navAccountRequests').style.display = admin ? 'flex' : 'none';
+
+  // Lonceng notifikasi Aktivitas Pengguna: khusus admin juga.
+  document.getElementById('topbarNotif').style.display = admin ? 'block' : 'none';
+  if (!admin) document.getElementById('notifDropdown').style.display = 'none';
 
   if (!admin) {
     // Kalau admin logout saat daftarnya lagi kebuka, tutup lagi & reset teks tombolnya.
@@ -1269,9 +1393,12 @@ function submitGateLogin() {
   const errBox = document.getElementById('gateLoginError');
   errBox.textContent = '';
   auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
+    .then(cred => {
       document.getElementById('gateEmailInput').value = '';
       document.getElementById('gatePasswordInput').value = '';
+      // Pakai email dari hasil sign-in langsung (bukan variabel currentUser global)
+      // supaya tidak bergantung urutan firing onAuthStateChanged vs promise ini.
+      logActivity({ type: 'login', actorEmail: cred.user.email });
     })
     .catch(() => {
       errBox.textContent = t('admin.loginError');
@@ -1318,6 +1445,7 @@ function submitAccountRequest() {
     noteInput.value = '';
     msgBox.textContent = t('gate.requestSent');
     msgBox.classList.add('is-success');
+    logActivity({ type: 'account_request_submitted', requesterName: name, requesterEmail: email });
   }).catch(err => {
     msgBox.textContent = t('gate.requestFailed', { error: err.message });
     msgBox.classList.add('is-error');
@@ -1326,7 +1454,10 @@ function submitAccountRequest() {
 
 document.getElementById('gateRequestBtn').addEventListener('click', submitAccountRequest);
 
-document.getElementById('adminLogoutBtn').addEventListener('click', () => auth.signOut());
+document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+  if (currentUser) logActivity({ type: 'logout', actorEmail: currentUser.email });
+  auth.signOut();
+});
 
 // --- Navigasi sidebar: satu halaman ("page") aktif ditampilkan, sisanya disembunyikan ---
 const navItems = document.querySelectorAll('.nav-item');
@@ -1437,6 +1568,7 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
     .then(() => {
       idInput.value = '';
       noteInput.value = '';
+      logActivity({ type: 'flag_add', actorEmail: currentUser.email, targetId: id, category });
     })
     .catch(err => {
       warnBox.innerHTML = err.code === 'permission-denied'
