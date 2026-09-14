@@ -74,6 +74,7 @@ const I18N = {
     'ticker.title': 'Member Safety Baru:',
     'ticker.empty': 'Belum ada Member Safety',
     'common.clickToCopy': 'Klik untuk copy',
+    'devtools.blockedMessage': 'Akses developer tools dinonaktifkan di halaman ini.',
 
     'howto.title': 'Cara Penggunaan',
     'howto.editBtn': 'Edit',
@@ -309,6 +310,7 @@ const I18N = {
     'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
     'common.clickToCopy': 'Click to copy',
+    'devtools.blockedMessage': 'Developer tools access is disabled on this page.',
 
     'howto.title': 'How to Use',
     'howto.editBtn': 'Edit',
@@ -540,6 +542,63 @@ function setLanguage(lang) {
 document.getElementById('langToggle').addEventListener('click', () => {
   setLanguage(currentLang === 'id' ? 'en' : 'id');
 });
+
+// --- Deteksi DevTools terbuka (deteren tampilan, BUKAN proteksi keamanan asli — data
+// tetap diamankan lewat Firestore Rules, bukan lewat ini). Dua sinyal digabung karena
+// masing-masing cuma nangkep satu skenario:
+//  1) Selisih ukuran outer/inner window — kena kalau DevTools nempel (docked) di
+//     sisi/bawah browser.
+//  2) "Umpan" console.log — properti getter di objek yang di-log cuma kepanggil
+//     kalau panel Console beneran aktif me-render tampilannya, jadi kena juga
+//     kalau DevTools dibuka sebagai jendela terpisah (undocked).
+// Sengaja dibikin REVERSIBEL (overlay hilang otomatis begitu sinyalnya negatif) dan
+// butuh 2x deteksi berturut-turut sebelum muncul, supaya resize/zoom sesaat yang wajar
+// tidak keliru dianggap DevTools kebuka.
+(function () {
+  const SIZE_GAP_THRESHOLD = 160;
+  const CHECK_INTERVAL_MS = 1000;
+  let consecutiveHits = 0;
+  let overlayShown = false;
+
+  function checkSizeGap() {
+    return (window.outerWidth - window.innerWidth) > SIZE_GAP_THRESHOLD
+      || (window.outerHeight - window.innerHeight) > SIZE_GAP_THRESHOLD;
+  }
+
+  function checkConsoleBait() {
+    let hit = false;
+    const bait = new Image();
+    Object.defineProperty(bait, 'id', { get() { hit = true; return ''; } });
+    console.log(bait);
+    console.clear();
+    return hit;
+  }
+
+  function showOverlay() {
+    if (overlayShown) return;
+    overlayShown = true;
+    const el = document.createElement('div');
+    el.id = 'devtoolsOverlay';
+    el.innerHTML = `
+      <img src="logo.png" alt="Working Tools">
+      <p>${t('devtools.blockedMessage')}</p>
+    `;
+    document.body.appendChild(el);
+  }
+
+  function hideOverlay() {
+    overlayShown = false;
+    const el = document.getElementById('devtoolsOverlay');
+    if (el) el.remove();
+  }
+
+  setInterval(() => {
+    const detected = checkSizeGap() || checkConsoleBait();
+    consecutiveHits = detected ? consecutiveHits + 1 : 0;
+    if (consecutiveHits >= 2) showOverlay();
+    else if (!detected) hideOverlay();
+  }, CHECK_INTERVAL_MS);
+})();
 
 // Record baru dikenali dari baris yang kolom ke-2 (setelah nomor urut) mengandung
 // username (selalu ada tanda "@"), misalnya "1\tBBC@ima888\tBCA". Baris lain yang

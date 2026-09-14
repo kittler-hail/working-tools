@@ -340,6 +340,26 @@ body {
 }
 .admin-login-error { font-size: 12.5px; color: var(--danger); min-height: 14px; }
 
+/* --- Overlay deteksi DevTools: cuma deteren kosmetik (lihat komentar di script.js),
+   bisa false-positive di beberapa setup layar/zoom — makanya didesain reversibel
+   (hilang lagi otomatis begitu sinyalnya negatif), bukan blokir permanen. --- */
+#devtoolsOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #0b1220;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+#devtoolsOverlay img { height: 48px; }
+#devtoolsOverlay p { margin: 0; font-size: 14px; color: rgba(255,255,255,0.75); max-width: 320px; }
+
 /* --- Gerbang login: menutupi seluruh app (bukan cuma modal admin) selama belum
    ada akun yang login — lihat updateAuthGate() di script.js. --- */
 .auth-gate {
