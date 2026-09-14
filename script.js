@@ -239,6 +239,28 @@ const I18N = {
     'wd.emptyState': 'Isi ID member & data Deposit/Withdraw, lalu klik "Proses".',
     'wd.noIdWarn': 'Isi ID member dulu.',
     'wd.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
+
+    'nav.winlosemember': '2.4 Win/Lose Member',
+    'wlm.title': 'Win/Lose Member',
+    'wlm.pageDesc': 'Rekap bulanan total deposit, withdraw, bonus harian & bonus cashback satu id member, tersusun per bulan lengkap dengan status win/lose-nya.',
+    'wlm.idTitle': 'ID Member',
+    'wlm.depositDataTitle': 'Data Deposit Request History',
+    'wlm.withdrawDataTitle': 'Data Withdraw History',
+    'wlm.processTitle': 'Proses',
+    'wlm.processBtn': 'Proses',
+    'wlm.resultTitle': 'Rekap per Bulan',
+    'wlm.thDeposit': 'Total Deposit',
+    'wlm.thWithdraw': 'Total Withdraw',
+    'wlm.thHarian': 'Bonus Harian',
+    'wlm.thCashback': 'Bonus Cashback',
+    'wlm.thStatus': 'Status (Win/Lose)',
+    'wlm.totalRowLabel': 'TOTAL',
+    'wlm.statusWin': 'WIN',
+    'wlm.statusLose': 'LOSE',
+    'wlm.statusImpas': 'IMPAS',
+    'wlm.emptyState': 'Isi ID member & data Deposit Request History/Withdraw History, lalu klik "Proses".',
+    'wlm.noIdWarn': 'Isi ID member dulu.',
+    'wlm.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
   },
   en: {
     'nav.dashboard': 'Dashboard',
@@ -475,6 +497,28 @@ const I18N = {
     'wd.emptyState': 'Fill in the member ID & Deposit/Withdraw data, then click "Process".',
     'wd.noIdWarn': 'Fill in the member ID first.',
     'wd.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
+
+    'nav.winlosemember': '2.4 Win/Lose Member',
+    'wlm.title': 'Win/Lose Member',
+    'wlm.pageDesc': "Monthly recap of one member's total deposit, withdraw, daily bonus & cashback bonus, broken down by month with a win/lose status.",
+    'wlm.idTitle': 'Member ID',
+    'wlm.depositDataTitle': 'Deposit Request History Data',
+    'wlm.withdrawDataTitle': 'Withdraw History Data',
+    'wlm.processTitle': 'Process',
+    'wlm.processBtn': 'Process',
+    'wlm.resultTitle': 'Monthly Recap',
+    'wlm.thDeposit': 'Total Deposit',
+    'wlm.thWithdraw': 'Total Withdraw',
+    'wlm.thHarian': 'Daily Bonus',
+    'wlm.thCashback': 'Cashback Bonus',
+    'wlm.thStatus': 'Status (Win/Lose)',
+    'wlm.totalRowLabel': 'TOTAL',
+    'wlm.statusWin': 'WIN',
+    'wlm.statusLose': 'LOSE',
+    'wlm.statusImpas': 'EVEN',
+    'wlm.emptyState': 'Fill in the member ID & Deposit Request History/Withdraw History data, then click "Process".',
+    'wlm.noIdWarn': 'Fill in the member ID first.',
+    'wlm.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
   },
 };
 
@@ -622,6 +666,13 @@ const STATUS_RE = /\b(Confirmed|Pending|Failed|Rejected|Success|Cancelled)\b/i;
 const BONUS_DEPOSIT_RE = /\bBONUS\s+(?:DEPOSIT|DP)\b|\bKEKURANGAN\s+BONUS(?:\s+(?:DEPOSIT|DP))?\b/i;
 const AGENT_DEPOSIT_RE = /\bAGENT\s+DEPOSIT\b/i;
 const BONUS_TOPUP_RE = /\bKEKURANGAN\s+BONUS\b/i;
+// Khusus dipakai Win/Lose Member untuk memisah Bonus Harian & Bonus Cashback jadi
+// kolom sendiri-sendiri (lihat classifyWlmDeposit()) — SENGAJA regex baru, bukan
+// menumpangi BONUS_DEPOSIT_RE/depositType yang sudah ada, supaya Cek Bonus & Laporan
+// Withdraw (yang sudah menganggap remark "...BONUS DEPOSIT HARIAN" sebagai bonus
+// deposit biasa) tidak ikut berubah perilakunya.
+const BONUS_HARIAN_RE = /\bHARIAN\b/i;
+const BONUS_CASHBACK_RE = /\bCASHBACK\b/i;
 
 function splitIntoRecordBlocks(raw) {
   const lines = raw.split(/\r?\n/);
@@ -679,7 +730,7 @@ function parseRecords(raw) {
       else if (AGENT_DEPOSIT_RE.test(block)) depositType = 'agent';
       const isBonusTopup = depositType === 'bonus' && BONUS_TOPUP_RE.test(block);
 
-      return { username, amount, timestamp, dateText, status, depositType, code, isBonusTopup };
+      return { username, amount, timestamp, dateText, status, depositType, code, isBonusTopup, block };
     })
     .filter(r => r.username);
 }
@@ -1524,7 +1575,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport', 'winlosemember']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -2517,6 +2568,165 @@ document.getElementById('wdCopyBtn').addEventListener('click', () => {
     btn.textContent = t('wd.copyBtnDone');
     setTimeout(() => { btn.textContent = original; }, 1000);
   });
+});
+
+// --- Win/Lose Member: rekap bulanan Deposit/Withdraw/Bonus Harian/Bonus Cashback
+// satu id, dari Data Deposit Request History + Data Withdraw History (format sama
+// persis dengan yang dipakai Laporan Withdraw — lihat komentar parseWithdrawRecords).
+// Setiap baris DEPOSIT diklasifikasi ke salah satu dari 3 ember: Bonus Harian, Bonus
+// Cashback, atau (kalau bukan dua-duanya) digabung jadi Total Deposit — mencakup
+// deposit asli member MAUPUN bonus/kredit admin lain (deposit bonus, referral, dst)
+// yang tidak secara spesifik ditandai "HARIAN"/"CASHBACK", sesuai permintaan supaya
+// semua itu "digabung" jadi satu angka Total Deposit.
+function classifyWlmDeposit(record) {
+  if (BONUS_HARIAN_RE.test(record.block)) return 'harian';
+  if (BONUS_CASHBACK_RE.test(record.block)) return 'cashback';
+  return 'deposit';
+}
+
+function wlmMonthKey(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function wlmMonthLabel(key) {
+  const [year, month] = key.split('-').map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(localeCode(), { month: 'long', year: 'numeric' });
+}
+
+function buildWinLoseMemberReport(depositRaw, withdrawRaw, rawId) {
+  const id = stripIdCode(rawId.trim());
+  const key = id.toLowerCase();
+
+  const deposits = parseRecords(depositRaw)
+    .filter(r => r.status.toLowerCase() === 'confirmed')
+    .filter(r => r.username.toLowerCase() === key);
+  const withdraws = parseWithdrawRecords(withdrawRaw)
+    .filter(r => r.status.toLowerCase() === 'confirmed')
+    .filter(r => r.username.toLowerCase() === key);
+
+  if (deposits.length === 0 && withdraws.length === 0) return null;
+
+  const months = new Map();
+  const ensureMonth = monthKey => {
+    if (!months.has(monthKey)) months.set(monthKey, { deposit: 0, withdraw: 0, harian: 0, cashback: 0 });
+    return months.get(monthKey);
+  };
+
+  deposits.forEach(r => {
+    const m = ensureMonth(wlmMonthKey(r.timestamp));
+    const bucket = classifyWlmDeposit(r);
+    if (bucket === 'harian') m.harian += r.amount;
+    else if (bucket === 'cashback') m.cashback += r.amount;
+    else m.deposit += r.amount;
+  });
+
+  withdraws.forEach(r => {
+    ensureMonth(wlmMonthKey(r.timestamp)).withdraw += r.amount;
+  });
+
+  // Akumulasi dihitung dari sudut pandang saldo KITA (operator), sama prinsipnya
+  // dengan Laporan Withdraw: Total Deposit itu saldo MASUK (plus), Withdraw/Bonus
+  // Harian/Bonus Cashback itu saldo KELUAR dari kita (minus). Plus = WIN, minus = LOSE.
+  const rows = Array.from(months.entries())
+    .sort((a, b) => a[0].localeCompare(b[0])) // "YYYY-MM" terurut kronologis, terlama dulu
+    .map(([monthKey, m]) => ({
+      monthKey,
+      ...m,
+      winLose: m.deposit - m.withdraw - m.harian - m.cashback,
+    }));
+
+  const total = rows.reduce((acc, r) => ({
+    deposit: acc.deposit + r.deposit,
+    withdraw: acc.withdraw + r.withdraw,
+    harian: acc.harian + r.harian,
+    cashback: acc.cashback + r.cashback,
+    winLose: acc.winLose + r.winLose,
+  }), { deposit: 0, withdraw: 0, harian: 0, cashback: 0, winLose: 0 });
+
+  return { id, rows, total };
+}
+
+// Kolom Withdraw/Bonus Harian/Bonus Cashback selalu disimpan sebagai jumlah positif
+// (murni sum nominal), tapi TAMPILANNYA harus format akuntansi negatif (merah + kurung)
+// karena ini saldo pengeluaran — makanya dibalik tandanya khusus untuk ditampilkan,
+// bukan untuk disimpan/dihitung ulang.
+function wlmFormatOutflow(amount) {
+  if (amount === 0) return formatRupiah(0);
+  return `<span class="wlm-amount-negative">(${formatRupiah(amount)})</span>`;
+}
+
+function wlmStatusHtml(winLose) {
+  const cls = winLose > 0 ? 'wlm-status-win' : (winLose < 0 ? 'wlm-status-lose' : 'wlm-status-impas');
+  const label = winLose > 0 ? t('wlm.statusWin') : (winLose < 0 ? t('wlm.statusLose') : t('wlm.statusImpas'));
+  const amountText = winLose < 0 ? `(${formatRupiah(Math.abs(winLose))})` : formatRupiah(winLose);
+  return `<span class="${cls}">${label} ${amountText}</span>`;
+}
+
+function renderWinLoseMemberReport(report) {
+  document.getElementById('wlmThId').textContent = report.id;
+  document.getElementById('wlmResultTitle').textContent = t('wlm.resultTitle');
+
+  const overallBadge = document.getElementById('wlmOverallBadge');
+  overallBadge.className = 'badge ' + (report.total.winLose < 0 ? 'badge-warn' : '');
+  overallBadge.innerHTML = wlmStatusHtml(report.total.winLose);
+
+  const body = document.getElementById('wlmResultBody');
+  body.innerHTML = '';
+  report.rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${wlmMonthLabel(r.monthKey)}</td>
+      <td class="amount">${formatRupiah(r.deposit)}</td>
+      <td class="amount">${wlmFormatOutflow(r.withdraw)}</td>
+      <td class="amount">${wlmFormatOutflow(r.harian)}</td>
+      <td class="amount">${wlmFormatOutflow(r.cashback)}</td>
+      <td>${wlmStatusHtml(r.winLose)}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('wlmResultFoot').innerHTML = `
+    <tr>
+      <td>${t('wlm.totalRowLabel')}</td>
+      <td class="amount">${formatRupiah(report.total.deposit)}</td>
+      <td class="amount">${wlmFormatOutflow(report.total.withdraw)}</td>
+      <td class="amount">${wlmFormatOutflow(report.total.harian)}</td>
+      <td class="amount">${wlmFormatOutflow(report.total.cashback)}</td>
+      <td>${wlmStatusHtml(report.total.winLose)}</td>
+    </tr>
+  `;
+}
+
+document.getElementById('wlmProcessBtn').addEventListener('click', () => {
+  const idRaw = document.getElementById('wlmIdInput').value.trim();
+  const depositRaw = document.getElementById('wlmDepositData').value;
+  const withdrawRaw = document.getElementById('wlmWithdrawData').value;
+  const warnBox = document.getElementById('wlmWarnBox');
+  warnBox.innerHTML = '';
+
+  const resultCard = document.getElementById('wlmResultCard');
+  const emptyCard = document.getElementById('wlmEmptyCard');
+
+  if (!idRaw) {
+    warnBox.innerHTML = `<div class="warn-box">${t('wlm.noIdWarn')}</div>`;
+    resultCard.style.display = 'none';
+    emptyCard.style.display = 'block';
+    return;
+  }
+
+  const report = buildWinLoseMemberReport(depositRaw, withdrawRaw, idRaw);
+
+  if (!report) {
+    warnBox.innerHTML = `<div class="warn-box">${t('wlm.noDataWarn')}</div>`;
+    resultCard.style.display = 'none';
+    emptyCard.style.display = 'block';
+    return;
+  }
+
+  emptyCard.style.display = 'none';
+  resultCard.style.display = 'block';
+  renderWinLoseMemberReport(report);
 });
 
 // --- Jam digital WIB di topbar ---

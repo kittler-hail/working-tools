@@ -405,6 +405,13 @@ body {
 .auth-gate-msg.is-error { color: var(--danger); }
 .auth-gate-msg.is-success { color: var(--success); }
 
+/* --- Win/Lose Member: format akuntansi (negatif = merah + kurung), status win/lose --- */
+.wlm-amount-negative { color: var(--danger); }
+.wlm-status-win { color: var(--success); font-weight: 700; }
+.wlm-status-lose { color: var(--danger); font-weight: 700; }
+.wlm-status-impas { color: var(--text-muted); font-weight: 700; }
+#wlmResultFoot td { font-weight: 700; border-top: 2px solid var(--border); }
+
 .nav-badge {
   margin-left: auto;
   background: var(--danger);

@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <div class="app-shell" id="appShell" style="display:none;">
@@ -62,6 +62,7 @@
               <button class="nav-item nav-sub" data-page="newmember" data-i18n="nav.newmember">2.1 New Member First Deposit</button>
               <button class="nav-item nav-sub" data-page="winlose" data-i18n="nav.winlose">2.2 Win/Lose All Game</button>
               <button class="nav-item nav-sub" data-page="withdrawreport" data-i18n="nav.withdrawreport">2.3 Laporan Withdraw</button>
+              <button class="nav-item nav-sub" data-page="winlosemember" data-i18n="nav.winlosemember">2.4 Win/Lose Member</button>
             </div>
           </div>
         </div>
@@ -673,6 +674,78 @@
         </div>
       </section>
 
+      <section class="page" id="page-winlosemember" data-page="winlosemember" style="display:none;">
+        <h2 class="page-title" data-i18n="wlm.title">Win/Lose Member</h2>
+        <p class="page-desc" data-i18n="wlm.pageDesc">Rekap bulanan deposit, withdraw, bonus harian &amp; cashback satu id member, plus status win/lose-nya.</p>
+
+        <div class="card howto-card" data-howto-page="winlosemember">
+          <div class="card-header">
+            <h3 data-i18n="howto.title">Cara Penggunaan</h3>
+            <button class="ghost howto-edit-btn" style="display:none;" data-i18n="howto.editBtn">Edit</button>
+          </div>
+          <div class="howto-view"><p class="howto-text"></p></div>
+          <div class="howto-edit-form" style="display:none;">
+            <textarea class="howto-textarea" data-i18n-placeholder="howto.textareaPlaceholder"></textarea>
+            <div class="howto-edit-actions">
+              <button class="primary howto-save-btn" data-i18n="howto.saveBtn">Simpan</button>
+              <button class="ghost howto-cancel-btn" data-i18n="howto.cancelBtn">Batal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="wlm.idTitle">ID Member</h2>
+          <input type="text" id="wlmIdInput" data-i18n-placeholder="wd.idPlaceholder">
+        </div>
+
+        <div class="row">
+          <div class="card">
+            <h2 data-i18n="wlm.depositDataTitle">Data Deposit Request History</h2>
+            <textarea id="wlmDepositData"></textarea>
+          </div>
+          <div class="card">
+            <h2 data-i18n="wlm.withdrawDataTitle">Data Withdraw History</h2>
+            <textarea id="wlmWithdrawData"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="wlm.processTitle">Proses</h3>
+            <button class="primary" id="wlmProcessBtn" data-i18n="wlm.processBtn">Proses</button>
+          </div>
+
+          <div id="wlmWarnBox"></div>
+
+          <div id="wlmResultCard" style="display:none;">
+            <div class="summary-bar">
+              <span class="result-title" id="wlmResultTitle"></span>
+              <span class="badge" id="wlmOverallBadge"></span>
+            </div>
+            <div class="table-scroll">
+              <table id="wlmResultTable">
+                <thead>
+                  <tr>
+                    <th id="wlmThId">ID</th>
+                    <th data-i18n="wlm.thDeposit">Total Deposit</th>
+                    <th data-i18n="wlm.thWithdraw">Total Withdraw</th>
+                    <th data-i18n="wlm.thHarian">Bonus Harian</th>
+                    <th data-i18n="wlm.thCashback">Bonus Cashback</th>
+                    <th data-i18n="wlm.thStatus">Status (Win/Lose)</th>
+                  </tr>
+                </thead>
+                <tbody id="wlmResultBody"></tbody>
+                <tfoot id="wlmResultFoot"></tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div id="wlmEmptyCard">
+            <div class="empty-state" data-i18n="wlm.emptyState">Isi ID member &amp; data Deposit/Withdraw, lalu klik "Proses".</div>
+          </div>
+        </div>
+      </section>
+
       </main>
     </div>
   </div>
@@ -708,6 +781,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=19"></script>
+<script src="script.js?v=20"></script>
 </body>
 </html>
