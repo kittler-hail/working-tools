@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <div class="app-shell" id="appShell" style="display:none;">
@@ -484,11 +484,6 @@
         </div>
 
         <div class="card">
-          <h2 data-i18n="wd.websitePlaceholder">Nama Website</h2>
-          <input type="text" id="winloseWebsiteInput" data-i18n-placeholder="wd.websitePlaceholder">
-        </div>
-
-        <div class="card">
           <h2 data-i18n="winlose.dataTitle">Data Win/Lose</h2>
 
           <div class="upload-zone" id="winloseUploadZone">
@@ -516,17 +511,6 @@
           <div class="upload-divider"><span data-i18n="winlose.uploadOr">atau paste manual</span></div>
 
           <textarea id="winloseData"></textarea>
-        </div>
-
-        <div class="row">
-          <div class="card">
-            <h2 data-i18n="wlm.depositDataTitle">Data Deposit Request History</h2>
-            <textarea id="winloseDepositData"></textarea>
-          </div>
-          <div class="card">
-            <h2 data-i18n="wlm.withdrawDataTitle">Data Withdraw History</h2>
-            <textarea id="winloseWithdrawData"></textarea>
-          </div>
         </div>
 
         <div class="card">
@@ -578,22 +562,13 @@
                 <button class="ghost" id="winloseCopyBtn" data-i18n="winlose.copyBtn">Copy Hasil</button>
               </div>
             </div>
-            <div class="wlm-period-header" id="winlosePeriodHeader"></div>
             <div class="table-scroll">
               <table id="winloseResultTable">
                 <thead>
                   <tr>
                     <th data-i18n="winlose.thId">ID Member</th>
                     <th data-i18n="winlose.thGame">Game</th>
-                    <th data-i18n="winlose.thWinLose">Status Game</th>
-                    <th data-i18n="winlose.thLastDp">Last Total DP</th>
-                    <th data-i18n="winlose.thLastWd">Last Total WD</th>
-                    <th data-i18n="winlose.thDpMonth">Total DP Bulan Ini</th>
-                    <th data-i18n="winlose.thWdMonth">Total WD Bulan Ini</th>
-                    <th data-i18n="winlose.thStatusMonth">Status Bulan Ini</th>
-                    <th data-i18n="winlose.thDpAll">Total DP Selama Ini</th>
-                    <th data-i18n="winlose.thWdAll">Total WD Selama Ini</th>
-                    <th data-i18n="winlose.thStatusAll">Status Selama Ini</th>
+                    <th data-i18n="winlose.thWinLose">Win/Lose</th>
                   </tr>
                 </thead>
                 <tbody id="winloseResultBody"></tbody>
@@ -806,6 +781,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="script.js?v=21"></script>
+<script src="script.js?v=20"></script>
 </body>
 </html>
