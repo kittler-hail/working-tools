@@ -211,7 +211,16 @@ const I18N = {
     'winlose.copyBtnDone': 'Tersalin!',
     'winlose.thId': 'ID Member',
     'winlose.thGame': 'Game',
-    'winlose.thWinLose': 'Win/Lose',
+    'winlose.thWinLose': 'Status Game',
+    'winlose.thLastDp': 'Last Total DP',
+    'winlose.thLastWd': 'Last Total WD',
+    'winlose.thDpMonth': 'Total DP Bulan Ini',
+    'winlose.thWdMonth': 'Total WD Bulan Ini',
+    'winlose.thStatusMonth': 'Status Bulan Ini',
+    'winlose.thDpAll': 'Total DP Selama Ini',
+    'winlose.thWdAll': 'Total WD Selama Ini',
+    'winlose.thStatusAll': 'Status Selama Ini',
+    'winlose.periodLabel': '{website} - PERIODE {period}',
     'winlose.emptyState': 'Isi Data Win/Lose, lalu klik "Proses".',
     'winlose.emptyNoData': 'Data belum diisi atau formatnya tidak terbaca.',
     'winlose.emptyNoMatch': 'Tidak ada id yang lolos ambang batas ini.',
@@ -469,7 +478,16 @@ const I18N = {
     'winlose.copyBtnDone': 'Copied!',
     'winlose.thId': 'Member ID',
     'winlose.thGame': 'Game',
-    'winlose.thWinLose': 'Win/Loss',
+    'winlose.thWinLose': 'Game Status',
+    'winlose.thLastDp': 'Last Total DP',
+    'winlose.thLastWd': 'Last Total WD',
+    'winlose.thDpMonth': 'Total DP This Month',
+    'winlose.thWdMonth': 'Total WD This Month',
+    'winlose.thStatusMonth': 'Status This Month',
+    'winlose.thDpAll': 'Total DP So Far',
+    'winlose.thWdAll': 'Total WD So Far',
+    'winlose.thStatusAll': 'Status So Far',
+    'winlose.periodLabel': '{website} - PERIOD {period}',
     'winlose.emptyState': 'Fill in the Win/Lose Data, then click "Process".',
     'winlose.emptyNoData': "No data entered yet, or the format isn't recognized.",
     'winlose.emptyNoMatch': 'No ids pass this threshold.',
@@ -2218,19 +2236,72 @@ function buildWinLoseReport(raw, threshold, game) {
 
 let lastWinLoseRecords = [];
 
+// Menghitung DP/WD satu member (last-day, bulan ini, dan sepanjang data yang
+// di-paste) untuk diselipkan ke tiap baris Win/Lose All Game, dipasangkan lewat id
+// yang sama dengan baris game-nya. "Total DP" di sini SENGAJA menjumlah semua jenis
+// deposit (member asli, bonus, agent/referral) jadi satu — sama seperti definisi
+// "TOTAL DP" di Laporan Withdraw — TIDAK memisah Bonus Harian/Cashback seperti di
+// Win/Lose Member (beda kebutuhan, laporan ini fokusnya ke performa game per id).
+function computeMemberMoneyFlow(deposits, withdraws, id) {
+  // Id dari data Win/Lose Game masih mentah (mis. "TEST@Supra2073", ada kode di
+  // depan), sedangkan parseRecords()/parseWithdrawRecords() sudah membuang kode itu
+  // dari field "username" (jadi "Supra2073" saja) — harus disamakan dulu di sini,
+  // kalau tidak pencocokannya tidak akan pernah nemu.
+  const key = stripIdCode(id).toLowerCase();
+  const memberDeposits = deposits.filter(r => r.username.toLowerCase() === key);
+  const memberWithdraws = withdraws.filter(r => r.username.toLowerCase() === key);
+
+  const sumAmount = list => list.reduce((s, r) => s + r.amount, 0);
+  const latestOf = list => (list.length === 0 ? null : list.reduce((a, b) => (b.timestamp > a.timestamp ? b : a)));
+
+  const lastDeposit = latestOf(memberDeposits);
+  const lastWithdraw = latestOf(memberWithdraws);
+  const lastDp = lastDeposit ? sumAmount(memberDeposits.filter(r => sameLocalDay(r.timestamp, lastDeposit.timestamp))) : 0;
+  const lastWd = lastWithdraw ? sumAmount(memberWithdraws.filter(r => sameLocalDay(r.timestamp, lastWithdraw.timestamp))) : 0;
+
+  const now = new Date();
+  const isThisMonth = ts => {
+    const d = new Date(ts);
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  };
+  const dpMonth = sumAmount(memberDeposits.filter(r => isThisMonth(r.timestamp)));
+  const wdMonth = sumAmount(memberWithdraws.filter(r => isThisMonth(r.timestamp)));
+
+  const dpAll = sumAmount(memberDeposits);
+  const wdAll = sumAmount(memberWithdraws);
+
+  return {
+    lastDp, lastWd,
+    dpMonth, wdMonth, statusMonth: dpMonth - wdMonth,
+    dpAll, wdAll, statusAll: dpAll - wdAll,
+  };
+}
+
+// Withdraw/dua kolom Status di sini pakai format akuntansi yang sama dengan Win/Lose
+// Member (negatif = merah + kurung) — wlmFormatOutflow() membalik tanda nominal yang
+// selalu tersimpan positif (WD), sedangkan yang ini langsung menampilkan nilai yang
+// memang sudah bisa plus/minus (Status).
+function formatAccountingSigned(amount) {
+  if (amount < 0) return `<span class="wlm-amount-negative">(${formatRupiah(Math.abs(amount))})</span>`;
+  return formatRupiah(amount);
+}
+
 document.getElementById('winloseProcessBtn').addEventListener('click', () => {
   const raw = document.getElementById('winloseData').value;
   const threshold = parseInt(document.getElementById('winloseThresholdSelect').value, 10) || 0;
   const game = document.getElementById('winloseGameSelect').value;
+  const website = document.getElementById('winloseWebsiteInput').value.trim();
+  const depositRaw = document.getElementById('winloseDepositData').value;
+  const withdrawRaw = document.getElementById('winloseWithdrawData').value;
   const warnBox = document.getElementById('winloseWarnBox');
   warnBox.innerHTML = '';
 
   const records = buildWinLoseReport(raw, threshold, game);
-  lastWinLoseRecords = records;
   const body = document.getElementById('winloseResultBody');
   body.innerHTML = '';
 
   if (records.length === 0) {
+    lastWinLoseRecords = [];
     document.getElementById('winloseResultCard').style.display = 'none';
     document.getElementById('winloseEmptyCard').style.display = 'block';
     document.getElementById('winloseEmptyCard').querySelector('.empty-state').textContent =
@@ -2240,19 +2311,35 @@ document.getElementById('winloseProcessBtn').addEventListener('click', () => {
     return;
   }
 
+  const deposits = parseRecords(depositRaw).filter(r => r.status.toLowerCase() === 'confirmed');
+  const withdraws = parseWithdrawRecords(withdrawRaw).filter(r => r.status.toLowerCase() === 'confirmed');
+  lastWinLoseRecords = records.map(r => ({ ...r, flow: computeMemberMoneyFlow(deposits, withdraws, r.id) }));
+
   document.getElementById('winloseEmptyCard').style.display = 'none';
   document.getElementById('winloseResultCard').style.display = 'block';
   const loseCount = records.filter(r => r.value < 0).length;
   const winCount = records.filter(r => r.value > 0).length;
   document.getElementById('winloseCountBadge').textContent = t('winlose.countBadge', { lose: loseCount, win: winCount });
 
-  records.forEach(r => {
+  const period = new Date().toLocaleDateString(localeCode(), { month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('winlosePeriodHeader').textContent = t('winlose.periodLabel', { website: website || '-', period });
+
+  lastWinLoseRecords.forEach(r => {
+    const { flow } = r;
     const tr = document.createElement('tr');
     tr.classList.add(r.value < 0 ? 'row-lose' : 'row-win');
     tr.innerHTML = `
       <td class="idcell">${r.id}</td>
       <td><span class="badge badge-game">${r.game}</span></td>
       <td class="amount ${r.value < 0 ? 'lose' : 'win'}">${formatSourceStyleAmount(r.value)}</td>
+      <td class="amount">${formatRupiah(flow.lastDp)}</td>
+      <td class="amount">${wlmFormatOutflow(flow.lastWd)}</td>
+      <td class="amount">${formatRupiah(flow.dpMonth)}</td>
+      <td class="amount">${wlmFormatOutflow(flow.wdMonth)}</td>
+      <td class="amount">${formatAccountingSigned(flow.statusMonth)}</td>
+      <td class="amount">${formatRupiah(flow.dpAll)}</td>
+      <td class="amount">${wlmFormatOutflow(flow.wdAll)}</td>
+      <td class="amount">${formatAccountingSigned(flow.statusAll)}</td>
     `;
     body.appendChild(tr);
     makeCopyable(tr.querySelector('.idcell'), r.id);
@@ -2261,7 +2348,12 @@ document.getElementById('winloseProcessBtn').addEventListener('click', () => {
 });
 
 document.getElementById('winloseCopyBtn').addEventListener('click', () => {
-  const text = lastWinLoseRecords.map(r => `${r.id}\t${r.game}\t${formatSourceStyleAmount(r.value)}`).join('\n');
+  const text = lastWinLoseRecords.map(r => [
+    r.id, r.game, formatSourceStyleAmount(r.value),
+    r.flow.lastDp, r.flow.lastWd,
+    r.flow.dpMonth, r.flow.wdMonth, r.flow.statusMonth,
+    r.flow.dpAll, r.flow.wdAll, r.flow.statusAll,
+  ].join('\t')).join('\n');
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('winloseCopyBtn');
     const original = btn.textContent;

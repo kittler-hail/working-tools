@@ -411,6 +411,16 @@ body {
 .wlm-status-lose { color: var(--danger); font-weight: 700; }
 .wlm-status-impas { color: var(--text-muted); font-weight: 700; }
 #wlmResultFoot td { font-weight: 700; border-top: 2px solid var(--border); }
+.wlm-period-header {
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 8px 8px 0 0;
+  letter-spacing: 0.02em;
+}
 
 .nav-badge {
   margin-left: auto;
