@@ -1126,11 +1126,191 @@ function stopAuthedListeners() {
 const PAGE_NOTES_COLLECTION = 'pageNotes';
 let pageNotesCache = {};
 
+// Penjelasan bawaan yang tampil selama admin belum menyimpan teksnya sendiri di
+// Firestore (lihat renderHowtoBoxes). Begitu admin menyimpan teks, teks itu yang
+// dipakai untuk semua bahasa; kosongkan lalu simpan untuk kembali ke teks bawaan.
+// Ditulis per baris (array) supaya rapi dan tidak tergantung jenis baris baru file.
+const HOWTO_DEFAULTS = {
+  id: {
+    bonus: [
+      '1. Paste data History QR Pay dan History di kotak bagian atas halaman.',
+      '2. Pilih persen bonus (5% atau 10%), lalu klik "Proses Bonus".',
+      '',
+      'Hasilnya hanya menampilkan id yang bermasalah:',
+      '- Belum dapat bonus (pending)',
+      '- Bonus kelebihan / kekurangan',
+      '- Bonus dobel',
+      'Klik id atau nominal untuk copy. Klik "Sembunyikan" kalau id itu tidak perlu ditampilkan lagi (hanya tersimpan di browser ini).',
+    ],
+    inputbonus: [
+      '1. Paste data bonus yang sudah diberikan ke kotak "Data Input Bonus".',
+      '2. Pilih urutan: Nominal Terbesar atau Terkecil.',
+      '3. Klik "Proses".',
+      '',
+      'Hasilnya daftar id beserta nominal bonusnya. Id yang muncul 2x atau lebih ditandai "2x+" (dobel). Klik "Copy Hasil" untuk menyalin.',
+    ],
+    newmember: [
+      '1. Paste data History QR Pay dan History di kotak bagian atas halaman.',
+      '2. Isi daftar id member baru di kotak di bawah (satu id per baris).',
+      '3. Klik "Cek New Member First Deposit".',
+      '',
+      'Hasilnya tanggal dan nominal deposit pertama tiap id, urut sesuai daftar. Id yang belum pernah deposit tampil Rp0. Kalau ada id Member Safety di daftar, muncul peringatan.',
+    ],
+    flagged: [
+      'Daftar id yang perlu diwaspadai. Id di sini otomatis diberi tanda di Cek Bonus dan New Member First Deposit.',
+      '',
+      '1. Isi id, pilih kategori (Safety / Tidak Dapat Bonus / Lainnya), tambahkan keterangan kalau perlu.',
+      '2. Klik "Tambah".',
+      '3. Klik "Lihat Daftar Member Safety" untuk melihat atau menghapus id (perlu login admin).',
+      '',
+      'Backup & Restore (admin): "Export" untuk menyimpan cadangan, "Import" untuk memulihkannya.',
+    ],
+    winlose: [
+      '1. Upload file Excel win/lose (atau paste manual) di kotak Data Win/Lose.',
+      '2. Pilih game dan batas minimal nominal ("Semua ID" untuk tanpa batas).',
+      '3. Klik "Proses".',
+      '',
+      'Hasilnya daftar id member yang sudah diurutkan, lengkap dengan jumlah yang kalah dan menang. Klik "Copy Hasil" untuk menyalin.',
+    ],
+    withdrawreport: [
+      '1. Isi Nama Website dan ID Member. Waktu Register boleh dikosongkan.',
+      '2. Paste data Deposit 3 bulan terakhir ke kotak "Data Deposit".',
+      '3. Paste data Withdraw 3 bulan terakhir ke kotak "Data Withdraw". (Rentang tanggalnya ada di kotak biru, klik untuk copy.)',
+      '4. Buka "Jenis Game" lalu centang game-nya (boleh lebih dari satu). Kalau game sport, pilih juga jenis taruhannya.',
+      '5. Klik "Proses", lalu "Copy Hasil".',
+    ],
+    winlosemember: [
+      '1. Isi ID Member.',
+      '2. Paste data Deposit Request History ke kotak kiri dan data Withdraw History ke kotak kanan.',
+      '3. Klik "Proses".',
+      '',
+      'Hasilnya tabel per bulan: total deposit, withdraw, bonus harian, dan cashback.',
+      '- WIN = kita untung (deposit lebih besar dari withdraw + bonus).',
+      '- LOSE = kita rugi.',
+      '- IMPAS = sama.',
+      'Angka merah dalam kurung adalah uang yang keluar.',
+    ],
+    wdbalance: [
+      'Untuk mengecek apakah withdraw di panel sama dengan yang tercatat di Doc Spreadsheets.',
+      '',
+      '1. Paste data Withdraw History dari panel ke kotak kiri (atau upload file Excel-nya).',
+      '2. Paste data dari Doc Spreadsheets ke kotak kanan.',
+      '3. Klik "Proses".',
+      '',
+      'Yang tampil hanya yang perlu dicek:',
+      '- Nominal beda: id sama tapi nominal berbeda.',
+      '- Belum ada di sheet: ada di panel, belum dicatat di sheet.',
+      '- Tidak ada di Withdraw History: ada di sheet, tidak ada di panel.',
+      '- Refund (manual): ditandai REFUND di sheet, diproses manual, nominalnya tidak dihitung.',
+      '',
+      'Centang "Tampilkan yang cocok" untuk melihat yang sudah cocok. "Copy Temuan" menyalin daftar yang bermasalah.',
+      'Catatan: hanya withdraw bertanda (ABD) di panel yang dicek.',
+    ],
+  },
+  en: {
+    bonus: [
+      '1. Paste the History QR Pay and History data into the boxes at the top of the page.',
+      '2. Pick the bonus percent (5% or 10%), then click "Process Bonus".',
+      '',
+      'Only ids with a problem are shown:',
+      '- Bonus not given yet (pending)',
+      '- Bonus excess / shortage',
+      '- Bonus given twice',
+      'Click an id or amount to copy it. Click "Hide" to stop showing an id (saved in this browser only).',
+    ],
+    inputbonus: [
+      '1. Paste the bonus data that was already given into the "Input Bonus Data" box.',
+      '2. Choose the order: Largest or Smallest Amount.',
+      '3. Click "Process".',
+      '',
+      'The result is a list of ids with their bonus amounts. Ids that appear 2 or more times are marked "2x+" (duplicate). Click "Copy Result" to copy.',
+    ],
+    newmember: [
+      '1. Paste the History QR Pay and History data into the boxes at the top of the page.',
+      '2. Fill in the new member ids in the box below (one id per line).',
+      '3. Click "Check New Member First Deposit".',
+      '',
+      'The result is the date and amount of each id\'s first deposit, in the same order as the list. Ids that never deposited show Rp0. A warning appears if a Member Safety id is in the list.',
+    ],
+    flagged: [
+      'A list of ids to watch out for. Ids here are automatically marked in Check Bonus and New Member First Deposit.',
+      '',
+      '1. Fill in the id, pick a category (Safety / No Bonus / Other), add a note if needed.',
+      '2. Click "Add".',
+      '3. Click "Show Member Safety List" to see or delete ids (admin login required).',
+      '',
+      'Backup & Restore (admin): "Export" saves a backup, "Import" restores it.',
+    ],
+    winlose: [
+      '1. Upload the win/lose Excel file (or paste it manually) in the Win/Lose Data box.',
+      '2. Pick a game and a minimum amount ("All IDs" for no limit).',
+      '3. Click "Process".',
+      '',
+      'The result is the sorted list of member ids, with the number of losing and winning ids. Click "Copy Result" to copy.',
+    ],
+    withdrawreport: [
+      '1. Fill in the Website Name and Member ID. Registration Time is optional.',
+      '2. Paste the last 3 months of Deposit data into the "Deposit Data" box.',
+      '3. Paste the last 3 months of Withdraw data into the "Withdraw Data" box. (The date range is in the blue box, click to copy.)',
+      '4. Open "Game Type" and tick the game(s) (more than one is fine). For sport games, also pick the bet type.',
+      '5. Click "Process", then "Copy Result".',
+    ],
+    winlosemember: [
+      '1. Fill in the Member ID.',
+      '2. Paste the Deposit Request History into the left box and the Withdraw History into the right box.',
+      '3. Click "Process".',
+      '',
+      'The result is a monthly table: total deposit, withdraw, daily bonus, and cashback.',
+      '- WIN = we profit (deposit is higher than withdraw + bonus).',
+      '- LOSE = we lose.',
+      '- IMPAS = even.',
+      'Red amounts in brackets are money going out.',
+    ],
+    wdbalance: [
+      'Checks whether the withdraws in the panel match what is recorded in the Doc Spreadsheets.',
+      '',
+      '1. Paste the Withdraw History from the panel into the left box (or upload its Excel file).',
+      '2. Paste the data from the Doc Spreadsheets into the right box.',
+      '3. Click "Process".',
+      '',
+      'Only what needs checking is shown:',
+      '- Amount mismatch: same id but a different amount.',
+      '- Not in sheet yet: in the panel, not recorded in the sheet.',
+      '- Not in Withdraw History: in the sheet, not in the panel.',
+      '- Refund (manual): marked REFUND in the sheet, processed manually, amount not counted.',
+      '',
+      'Tick "Show matches" to see the ones that match. "Copy Findings" copies the problem list.',
+      'Note: only panel withdraws marked (ABD) are checked.',
+    ],
+  },
+};
+
+function howtoDefaultText(page) {
+  const lines = (HOWTO_DEFAULTS[currentLang] || HOWTO_DEFAULTS.id)[page] || HOWTO_DEFAULTS.id[page];
+  return lines ? lines.join('\n') : '';
+}
+
+// Kartu Cara Penggunaan bisa dibuka/tutup (default tertutup supaya tidak memakan
+// tempat). Status buka/tutup per halaman cuma preferensi tampilan di browser ini,
+// jadi disimpan di localStorage — dibungkus try/catch karena bisa diblokir browser.
+const HOWTO_OPEN_KEY_PREFIX = 'workingTools.howtoOpen.';
+
+function isHowtoOpen(page) {
+  try { return localStorage.getItem(HOWTO_OPEN_KEY_PREFIX + page) === '1'; } catch (e) { return false; }
+}
+
+function setHowtoOpen(card, page, open) {
+  card.classList.toggle('is-open', open);
+  const toggle = card.querySelector('.howto-toggle');
+  if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  try { localStorage.setItem(HOWTO_OPEN_KEY_PREFIX + page, open ? '1' : '0'); } catch (e) { /* abaikan */ }
+}
+
 function renderHowtoBoxes() {
   const admin = isAdminUser();
   document.querySelectorAll('.howto-card').forEach(card => {
     const page = card.getAttribute('data-howto-page');
-    const text = (pageNotesCache[page] || '').trim();
+    const text = (pageNotesCache[page] || '').trim() || howtoDefaultText(page);
     const viewEl = card.querySelector('.howto-text');
     const editBtn = card.querySelector('.howto-edit-btn');
     const formEl = card.querySelector('.howto-edit-form');
@@ -1156,9 +1336,23 @@ document.querySelectorAll('.howto-card').forEach(card => {
   const formEl = card.querySelector('.howto-edit-form');
   const textarea = card.querySelector('.howto-textarea');
 
+  // Judul kartu jadi tombol buka/tutup penjelasan.
+  const toggle = card.querySelector('.card-header h3');
+  toggle.classList.add('howto-toggle');
+  toggle.setAttribute('role', 'button');
+  toggle.setAttribute('tabindex', '0');
+  setHowtoOpen(card, page, isHowtoOpen(page));
+  const flip = () => setHowtoOpen(card, page, !card.classList.contains('is-open'));
+  toggle.addEventListener('click', flip);
+  toggle.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+  });
+
   editBtn.addEventListener('click', () => {
     if (!isAdminUser()) return;
-    textarea.value = pageNotesCache[page] || '';
+    // Kalau belum pernah disimpan, mulai edit dari teks bawaan yang sedang tampil.
+    textarea.value = pageNotesCache[page] || howtoDefaultText(page);
+    setHowtoOpen(card, page, true);
     formEl.style.display = 'block';
     textarea.focus();
   });

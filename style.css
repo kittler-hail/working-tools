@@ -678,6 +678,28 @@ tr.total-row td {
   white-space: pre-wrap;
 }
 .howto-text.is-placeholder { color: var(--text-muted); font-style: italic; }
+/* Kartu Cara Penggunaan: judulnya jadi tombol buka/tutup (default tertutup). */
+.howto-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.howto-toggle::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+.howto-card.is-open .howto-toggle::before { transform: rotate(45deg); }
+.howto-toggle:focus-visible { outline: 2px solid var(--text-muted); outline-offset: 3px; border-radius: 4px; }
+.howto-card:not(.is-open) .card-header { margin-bottom: 0; }
+.howto-card:not(.is-open) .howto-view,
+.howto-card:not(.is-open) .howto-edit-form { display: none !important; }
 .howto-textarea { min-height: 90px; font-family: inherit; font-size: 13.5px; background: white; }
 .howto-edit-actions { display: flex; gap: 8px; margin-top: 10px; }
 .admin-only-note {
