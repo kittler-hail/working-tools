@@ -68,7 +68,7 @@ const I18N = {
     'activity.logout': '{email} logout',
     'activity.flagAdd': '{email} menambahkan id "{id}" ke Member Safety ({category})',
     'activity.flagDelete': '{email} menghapus id "{id}" dari Member Safety',
-    'activity.requestSubmitted': '{name} ({email}) mengajukan permintaan akun',
+    'activity.requestSubmitted': '{name} mengajukan permintaan akun',
     'activity.requestApproved': '{email} menyetujui permintaan akun dari {target}',
     'activity.requestRejected': '{email} menolak permintaan akun dari {target}',
 
@@ -262,6 +262,37 @@ const I18N = {
     'wlm.emptyState': 'Isi ID member & data Deposit Request History/Withdraw History, lalu klik "Proses".',
     'wlm.noIdWarn': 'Isi ID member dulu.',
     'wlm.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
+
+    'nav.wdbalance': '3.4 Withdraw Balance',
+    'wb.title': 'Withdraw Balance',
+    'wb.pageDesc': 'Cek apakah ID & nominal di Google Sheet (yang sudah diproses) sama dengan Withdraw History di panel.',
+    'wb.panelDataTitle': 'Data Withdraw History (Panel)',
+    'wb.sheetDataTitle': 'Data Google Sheet (sudah diproses)',
+    'wb.optShowOk': 'Tampilkan yang cocok',
+    'wb.processTitle': 'Proses',
+    'wb.processBtn': 'Proses',
+    'wb.resultTitle': 'Hasil Pengecekan',
+    'wb.copyBtn': 'Copy Temuan',
+    'wb.copyBtnDone': 'Tersalin!',
+    'wb.thStatus': 'Status',
+    'wb.thUser': 'User Name',
+    'wb.thPanel': 'Panel',
+    'wb.thSheet': 'Sheet',
+    'wb.thDiff': 'Selisih',
+    'wb.thNote': 'Keterangan',
+    'wb.type.wrongAmount': 'Nominal beda',
+    'wb.type.missingInSheet': 'Belum ada di sheet',
+    'wb.type.notInPanel': 'Tidak ada di panel',
+    'wb.type.ok': 'Cocok',
+    'wb.noteRemark': 'Remark panel: {remark}',
+    'wb.summary': 'Panel (ABD): {panelCount} baris (Rp {panelTotal}) · Sheet: {sheetCount} baris (Rp {sheetTotal}) · Manual/TM tanpa (ABD) dilewati: {manual} baris · Cocok: {ok}',
+    'wb.issueCount': '{n} temuan',
+    'wb.allGood': 'Semua cocok',
+    'wb.noRows': 'Tidak ada temuan.',
+    'wb.emptyState': 'Paste data Withdraw History panel & data Google Sheet, lalu klik "Proses".',
+    'wb.noPanelWarn': 'Isi data Withdraw History panel dulu.',
+    'wb.noSheetWarn': 'Isi data Google Sheet dulu.',
+    'wb.noDataWarn': 'Tidak ada baris withdraw yang bisa dibaca dari data yang di-paste.',
   },
   en: {
     'nav.dashboard': 'Dashboard',
@@ -327,7 +358,7 @@ const I18N = {
     'activity.logout': '{email} logged out',
     'activity.flagAdd': '{email} added id "{id}" to Member Safety ({category})',
     'activity.flagDelete': '{email} removed id "{id}" from Member Safety',
-    'activity.requestSubmitted': '{name} ({email}) requested an account',
+    'activity.requestSubmitted': '{name} requested an account',
     'activity.requestApproved': '{email} approved the account request from {target}',
     'activity.requestRejected': '{email} rejected the account request from {target}',
 
@@ -521,6 +552,37 @@ const I18N = {
     'wlm.emptyState': 'Fill in the member ID & Deposit Request History/Withdraw History data, then click "Process".',
     'wlm.noIdWarn': 'Fill in the member ID first.',
     'wlm.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
+
+    'nav.wdbalance': '3.4 Withdraw Balance',
+    'wb.title': 'Withdraw Balance',
+    'wb.pageDesc': 'Check whether the IDs & amounts in the processed Google Sheet match the panel Withdraw History.',
+    'wb.panelDataTitle': 'Withdraw History Data (Panel)',
+    'wb.sheetDataTitle': 'Google Sheet Data (processed)',
+    'wb.optShowOk': 'Show matches',
+    'wb.processTitle': 'Process',
+    'wb.processBtn': 'Process',
+    'wb.resultTitle': 'Check Result',
+    'wb.copyBtn': 'Copy Findings',
+    'wb.copyBtnDone': 'Copied!',
+    'wb.thStatus': 'Status',
+    'wb.thUser': 'User Name',
+    'wb.thPanel': 'Panel',
+    'wb.thSheet': 'Sheet',
+    'wb.thDiff': 'Difference',
+    'wb.thNote': 'Note',
+    'wb.type.wrongAmount': 'Amount mismatch',
+    'wb.type.missingInSheet': 'Not in sheet yet',
+    'wb.type.notInPanel': 'Not in panel',
+    'wb.type.ok': 'Match',
+    'wb.noteRemark': 'Panel remark: {remark}',
+    'wb.summary': 'Panel (ABD): {panelCount} rows (Rp {panelTotal}) · Sheet: {sheetCount} rows (Rp {sheetTotal}) · Manual/TM without (ABD) skipped: {manual} rows · Matched: {ok}',
+    'wb.issueCount': '{n} findings',
+    'wb.allGood': 'All matched',
+    'wb.noRows': 'No findings.',
+    'wb.emptyState': 'Paste the panel Withdraw History & the Google Sheet data, then click "Process".',
+    'wb.noPanelWarn': 'Fill in the panel Withdraw History data first.',
+    'wb.noSheetWarn': 'Fill in the Google Sheet data first.',
+    'wb.noDataWarn': 'No withdraw rows could be read from the pasted data.',
   },
 };
 
@@ -574,6 +636,7 @@ function setLanguage(lang) {
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
   if (typeof renderHowtoBoxes === 'function') renderHowtoBoxes();
+  if (typeof renderWbResult === 'function') renderWbResult();
   if (typeof updateWdDateRange === 'function') updateWdDateRange();
   if (typeof updateWdGameSummary === 'function') updateWdGameSummary();
   // Tombol ini teksnya tergantung status buka/tutup, jadi tidak dipakaikan
@@ -1242,15 +1305,25 @@ function stopAdminListeners() {
 // Judul notifikasi dibangun dari field terstruktur (bukan string siap-pakai) supaya
 // ikut berganti bahasa waktu toggle bendera di-klik — sama prinsipnya dengan seluruh
 // teks lain di app ini yang lewat t().
+// Email tidak pernah ditampilkan utuh — cuma nama depannya (bagian sebelum "@",
+// dipotong di pemisah pertama seperti "." / "_" / "-"). Untuk nama yang diketik
+// bebas (requesterName) diambil kata pertamanya.
+function firstNameFromEmail(email) {
+  return String(email || '').split('@')[0].split(/[._\-+]/)[0];
+}
+function firstNameFromName(name, fallbackEmail) {
+  return String(name || '').trim().split(/\s+/)[0] || firstNameFromEmail(fallbackEmail);
+}
+
 function activityText(entry) {
   switch (entry.type) {
-    case 'login': return t('activity.login', { email: entry.actorEmail });
-    case 'logout': return t('activity.logout', { email: entry.actorEmail });
-    case 'flag_add': return t('activity.flagAdd', { email: entry.actorEmail, id: entry.targetId, category: categoryLabel(entry.category) });
-    case 'flag_delete': return t('activity.flagDelete', { email: entry.actorEmail, id: entry.targetId });
-    case 'account_request_submitted': return t('activity.requestSubmitted', { name: entry.requesterName, email: entry.requesterEmail });
-    case 'account_request_approved': return t('activity.requestApproved', { email: entry.actorEmail, target: entry.targetEmail });
-    case 'account_request_rejected': return t('activity.requestRejected', { email: entry.actorEmail, target: entry.targetEmail });
+    case 'login': return t('activity.login', { email: firstNameFromEmail(entry.actorEmail) });
+    case 'logout': return t('activity.logout', { email: firstNameFromEmail(entry.actorEmail) });
+    case 'flag_add': return t('activity.flagAdd', { email: firstNameFromEmail(entry.actorEmail), id: entry.targetId, category: categoryLabel(entry.category) });
+    case 'flag_delete': return t('activity.flagDelete', { email: firstNameFromEmail(entry.actorEmail), id: entry.targetId });
+    case 'account_request_submitted': return t('activity.requestSubmitted', { name: firstNameFromName(entry.requesterName, entry.requesterEmail) });
+    case 'account_request_approved': return t('activity.requestApproved', { email: firstNameFromEmail(entry.actorEmail), target: firstNameFromEmail(entry.targetEmail) });
+    case 'account_request_rejected': return t('activity.requestRejected', { email: firstNameFromEmail(entry.actorEmail), target: firstNameFromEmail(entry.targetEmail) });
     default: return entry.type;
   }
 }
@@ -1430,10 +1503,10 @@ function updateAdminUI() {
   document.getElementById('sidebarLogo').style.display = admin ? 'none' : 'block';
   document.getElementById('sidebarHello').style.display = admin ? 'flex' : 'none';
   if (currentUser) {
-    // Admin: sapaan pakai nama sebelum "@" (mis. "adminrey"). User biasa: email
-    // penuh saja di pojok kanan atas, tidak ada sapaan/tema khusus.
-    document.getElementById('adminEmailLabel').textContent = admin ? currentUser.email.split('@')[0] : currentUser.email;
-    if (admin) document.getElementById('sidebarHelloName').textContent = currentUser.email.split('@')[0];
+    // Email tidak ditampilkan utuh, baik admin maupun user biasa — cuma nama depannya
+    // di pojok kanan atas (dan di sapaan sidebar untuk admin).
+    document.getElementById('adminEmailLabel').textContent = firstNameFromEmail(currentUser.email);
+    if (admin) document.getElementById('sidebarHelloName').textContent = firstNameFromEmail(currentUser.email);
   }
   document.getElementById('importFlagsBtn').disabled = !admin;
 
@@ -1577,7 +1650,7 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport', 'winlosemember']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport', 'winlosemember', 'wdbalance']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -1589,7 +1662,7 @@ function activatePage(target) {
   // Buka grup accordion yang memuat halaman ini, supaya item aktifnya kelihatan.
   const activeBtn = Array.from(navItems).find(b => b.dataset.page === target);
   const group = activeBtn && activeBtn.closest('.nav-group');
-  if (group) group.classList.add('open');
+  if (group) openOnlyNavGroup(group);
 
   if (target === 'dashboard') renderDashboard();
 }
@@ -1599,9 +1672,19 @@ navItems.forEach(btn => {
 });
 
 // --- Grup menu sidebar bisa dibuka/tutup (accordion) ---
+// Hanya satu grup yang boleh terbuka sekaligus: membuka satu grup menutup yang lain.
+function openOnlyNavGroup(group) {
+  document.querySelectorAll('.nav-group.open').forEach(g => {
+    if (g !== group) g.classList.remove('open');
+  });
+  group.classList.add('open');
+}
+
 document.querySelectorAll('.nav-group-header').forEach(header => {
   header.addEventListener('click', () => {
-    header.closest('.nav-group').classList.toggle('open');
+    const group = header.closest('.nav-group');
+    if (group.classList.contains('open')) group.classList.remove('open');
+    else openOnlyNavGroup(group);
   });
 });
 
@@ -2404,8 +2487,11 @@ function parseWithdrawRecords(raw) {
     const newBalance = parseWithdrawAmount(cols[8]);
     const { timestamp, text: dateText } = parseDateTime((cols[5] || '').match(DATETIME_RE));
     const status = cols[10] || '';
+    // Remark & editor dipakai menu Withdraw Balance; menu lain tidak memakainya.
+    const remark = cols[12] || '';
+    const editedBy = cols[13] || '';
 
-    records.push({ username, amount, newBalance, timestamp, dateText, status, code });
+    records.push({ username, amount, newBalance, timestamp, dateText, status, code, remark, editedBy });
   });
   return records;
 }
@@ -2476,7 +2562,7 @@ function buildWithdrawReport(depositRaw, withdrawRaw, rawId, website, games, reg
     `TOTAL DP : ${formatRupiah(totalDpAll)}`,
     `TOTAL WD : ${formatRupiah(totalWdAll)}`,
     `TOTAL BONUS : ${formatRupiah(totalBonus)}`,
-    `STATUS : ${status} (${formatRupiah(winLoseAmount)})`,
+    `STATUS KITA : ${status} (${formatRupiah(winLoseAmount)})`,
   ];
   // Jenis game (bisa dicampur lebih dari satu) dan jenis taruhan (Single Bet/
   // Parlay/O-U, relevan cuma untuk game sport) ditempel jadi satu baris hashtag.
@@ -2729,6 +2815,296 @@ document.getElementById('wlmProcessBtn').addEventListener('click', () => {
   emptyCard.style.display = 'none';
   resultCard.style.display = 'block';
   renderWinLoseMemberReport(report);
+});
+
+// --- Withdraw Balance: cek apakah ID & nominal di Google Sheet (yang sudah diproses)
+// sama dengan yang ada di panel withdraw ---
+// Sheet mencatat withdraw yang diproses otomatis dari QRIS — di panel ditandai "(ABD)"
+// pada kolom "Edited By" (kolom biaya "(1,800)" di sheet = biaya QRIS per transaksi).
+// Jadi yang dibandingkan cuma baris panel ber-(ABD). Baris tanpa (ABD) dikirim manual
+// atau TM (termasuk Agent Withdraw "TM BONUS"/"TM DOUBLE BONUS") dan memang tidak ada
+// di sheet, jadi dilewati — bukan temuan.
+//
+// Format sheet (tab-separated, tanpa tanggal/jam): "Bank<TAB>Nama<TAB>No Rekening",
+// User Name, (Nominal), (Biaya). Nominal sheet Rupiah utuh dalam kurung, BEDA dengan
+// panel yang per-ribu (lihat parseWithdrawAmount). Sel Bank/Nama/Rekening bisa
+// berkutip dan berisi newline kalau disalin langsung dari Google Sheets.
+function wbEscape(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function wbParseSheet(raw) {
+  const rows = [];
+  const flat = (raw || '').replace(/"([^"]*)"/g, (m, inner) => inner.replace(/\r?\n/g, '\t'));
+  flat.split(/\r?\n/).forEach(line => {
+    const cols = line.split('\t').map(c => c.replace(/"/g, '').trim()).filter(c => c !== '');
+    const userIdx = cols.findIndex(c => /^[^\s@]+@\S+$/.test(c));
+    if (userIdx < 0) return;
+    const amountStr = cols[userIdx + 1] || '';
+    if (!/^\(?-?[\d,]+(?:\.\d+)?\)?$/.test(amountStr)) return;
+
+    const userCol = cols[userIdx];
+    rows.push({
+      code: userCol.slice(0, userCol.indexOf('@')),
+      username: userCol.slice(userCol.indexOf('@') + 1),
+      amount: Math.round(Math.abs(parseFloat(amountStr.replace(/[(),]/g, '')))),
+    });
+  });
+  return rows;
+}
+
+// Mencocokkan per user name: (1) nominal sama persis = cocok, (2) sisa dipasangkan
+// dengan nominal terdekat = nominal beda, (3) sisa panel = belum ada di sheet, sisa
+// sheet = tidak ada di panel. Sheet tidak punya jam, jadi tidak dipakai mencocokkan.
+function wbCompare(panelRows, sheetRows) {
+  const out = [];
+  const groups = new Map();
+  const groupOf = key => {
+    if (!groups.has(key)) groups.set(key, { panel: [], sheet: [] });
+    return groups.get(key);
+  };
+  panelRows.forEach(p => groupOf(p.username.toLowerCase()).panel.push(p));
+  sheetRows.forEach(s => groupOf(s.username.toLowerCase()).sheet.push(s));
+
+  groups.forEach(g => {
+    const sheetLeft = g.sheet.slice();
+    const panelLeft = [];
+    g.panel.forEach(p => {
+      const i = sheetLeft.findIndex(s => s.amount === p.amount);
+      if (i < 0) { panelLeft.push(p); return; }
+      out.push({ type: 'ok', panel: p, sheet: sheetLeft.splice(i, 1)[0] });
+    });
+
+    const pairs = [];
+    panelLeft.forEach((p, pi) => sheetLeft.forEach((s, si) => pairs.push({ pi, si, diff: Math.abs(p.amount - s.amount) })));
+    pairs.sort((a, b) => a.diff - b.diff);
+    const usedP = new Set();
+    const usedS = new Set();
+    pairs.forEach(({ pi, si }) => {
+      if (usedP.has(pi) || usedS.has(si)) return;
+      usedP.add(pi);
+      usedS.add(si);
+      out.push({ type: 'wrongAmount', panel: panelLeft[pi], sheet: sheetLeft[si] });
+    });
+    panelLeft.forEach((p, pi) => { if (!usedP.has(pi)) out.push({ type: 'missingInSheet', panel: p, sheet: null }); });
+    sheetLeft.forEach((s, si) => { if (!usedS.has(si)) out.push({ type: 'notInPanel', panel: null, sheet: s }); });
+  });
+  return out;
+}
+
+const WB_TYPE_ORDER = ['wrongAmount', 'missingInSheet', 'notInPanel', 'ok'];
+const WB_TYPE_BADGE = {
+  wrongAmount: 'badge-safety',
+  notInPanel: 'badge-safety',
+  missingInSheet: 'badge-warn',
+  ok: '',
+};
+
+// "var" (bukan let) sengaja: setLanguage() bisa memanggil renderWbResult() saat load,
+// sebelum baris ini dieksekusi — var tidak kena TDZ, jadi aman dibaca sebagai undefined.
+var wbState = null;
+
+function wbBuildReport(panelRaw, sheetRaw) {
+  const panelAll = parseWithdrawRecords(panelRaw).filter(r => r.status.toLowerCase() === 'confirmed');
+  const sheetRows = wbParseSheet(sheetRaw);
+  if (panelAll.length === 0 && sheetRows.length === 0) return null;
+
+  const panelAuto = panelAll.filter(r => /\(ABD\)/i.test(r.editedBy));
+
+  const findings = wbCompare(panelAuto, sheetRows);
+  findings.sort((a, b) => {
+    const o = WB_TYPE_ORDER.indexOf(a.type) - WB_TYPE_ORDER.indexOf(b.type);
+    if (o !== 0) return o;
+    return (b.panel ? b.panel.timestamp : 0) - (a.panel ? a.panel.timestamp : 0);
+  });
+
+  const sum = list => list.reduce((s, r) => s + r.amount, 0);
+  return {
+    findings,
+    panelCount: panelAuto.length,
+    panelTotal: sum(panelAuto),
+    sheetCount: sheetRows.length,
+    sheetTotal: sum(sheetRows),
+    manualSkipped: panelAll.length - panelAuto.length,
+  };
+}
+
+function wbDisplayUser(f) {
+  const r = f.panel || f.sheet;
+  return `${r.code}@${r.username}`;
+}
+
+function wbAmountText(r) {
+  return r ? formatRupiah(r.amount) : '-';
+}
+
+function wbNoteText(f) {
+  return f.type === 'missingInSheet' && f.panel.remark ? t('wb.noteRemark', { remark: f.panel.remark }) : '';
+}
+
+function wbDiffText(f) {
+  if (f.type !== 'wrongAmount') return '-';
+  const d = f.sheet.amount - f.panel.amount;
+  return (d > 0 ? '+' : '') + formatRupiah(d);
+}
+
+function renderWbResult() {
+  const resultCard = document.getElementById('wbResultCard');
+  const emptyCard = document.getElementById('wbEmptyCard');
+  if (!wbState) {
+    resultCard.style.display = 'none';
+    emptyCard.style.display = 'block';
+    return;
+  }
+  emptyCard.style.display = 'none';
+  resultCard.style.display = 'block';
+
+  const showOk = document.getElementById('wbShowOk').checked;
+  const issues = wbState.findings.filter(f => f.type !== 'ok');
+  const okCount = wbState.findings.length - issues.length;
+  const shown = showOk ? wbState.findings : issues;
+
+  document.getElementById('wbSummary').textContent = t('wb.summary', {
+    panelCount: wbState.panelCount, panelTotal: formatRupiah(wbState.panelTotal),
+    sheetCount: wbState.sheetCount, sheetTotal: formatRupiah(wbState.sheetTotal),
+    manual: wbState.manualSkipped, ok: okCount,
+  });
+  const badge = document.getElementById('wbOverallBadge');
+  badge.className = 'badge ' + (issues.length ? 'badge-warn' : '');
+  badge.textContent = issues.length ? t('wb.issueCount', { n: issues.length }) : t('wb.allGood');
+
+  const body = document.getElementById('wbResultBody');
+  body.innerHTML = '';
+  shown.forEach(f => {
+    const tr = document.createElement('tr');
+    const panelCell = f.panel
+      ? `${formatRupiah(f.panel.amount)}<div class="flag-note">${wbEscape(f.panel.dateText || '-')} · ${wbEscape(f.panel.editedBy || '-')}</div>`
+      : '-';
+    tr.innerHTML = `
+      <td><span class="badge ${WB_TYPE_BADGE[f.type]}">${t('wb.type.' + f.type)}</span></td>
+      <td>${wbEscape(wbDisplayUser(f))}</td>
+      <td class="amount">${panelCell}</td>
+      <td class="amount">${wbAmountText(f.sheet)}</td>
+      <td class="amount">${wbDiffText(f)}</td>
+      <td>${wbEscape(wbNoteText(f))}</td>
+    `;
+    body.appendChild(tr);
+  });
+  document.getElementById('wbNoRows').style.display = shown.length ? 'none' : 'block';
+}
+
+document.getElementById('wbProcessBtn').addEventListener('click', () => {
+  const panelRaw = document.getElementById('wbPanelData').value;
+  const sheetRaw = document.getElementById('wbSheetData').value;
+  const warnBox = document.getElementById('wbWarnBox');
+  warnBox.innerHTML = '';
+
+  const warn = key => {
+    warnBox.innerHTML = `<div class="warn-box">${t(key)}</div>`;
+    wbState = null;
+    renderWbResult();
+  };
+  if (!panelRaw.trim()) return warn('wb.noPanelWarn');
+  if (!sheetRaw.trim()) return warn('wb.noSheetWarn');
+
+  wbState = wbBuildReport(panelRaw, sheetRaw);
+  if (!wbState) return warn('wb.noDataWarn');
+  renderWbResult();
+});
+
+document.getElementById('wbShowOk').addEventListener('change', renderWbResult);
+
+document.getElementById('wbCopyBtn').addEventListener('click', () => {
+  if (!wbState) return;
+  const lines = wbState.findings
+    .filter(f => f.type !== 'ok')
+    .map(f => [
+      t('wb.type.' + f.type),
+      wbDisplayUser(f),
+      `${t('wb.thPanel')}: ${wbAmountText(f.panel)}`,
+      `${t('wb.thSheet')}: ${wbAmountText(f.sheet)}`,
+    ].join(' | '));
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const btn = document.getElementById('wbCopyBtn');
+    const original = btn.textContent;
+    btn.textContent = t('wb.copyBtnDone');
+    setTimeout(() => { btn.textContent = original; }, 1000);
+  });
+});
+
+// --- Upload file Excel untuk data Withdraw History (panel) ---
+// Sama seperti upload di Win/Lose All Game: sheet pertama dibaca lalu dijadikan teks
+// tab-separated di kotak Data Withdraw History, jadi parser paste (parseWithdrawRecords)
+// yang sama dipakai. Sel kosong tetap dipertahankan supaya urutan kolomnya tidak
+// bergeser; sel yang berisi newline diratakan jadi tab supaya tidak memecah baris.
+function wbExcelToText(workbook) {
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+  return rows
+    .map(row => row.map(cell => String(cell).trim().replace(/\s*\r?\n\s*/g, '\t')).join('\t'))
+    .join('\n');
+}
+
+function setWbFileChip(fileName) {
+  document.getElementById('wbFileName').textContent = fileName;
+  document.getElementById('wbFileChip').style.display = fileName ? 'flex' : 'none';
+}
+
+function handleWbFile(file) {
+  const warnBox = document.getElementById('wbWarnBox');
+  warnBox.innerHTML = '';
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const workbook = XLSX.read(e.target.result, { type: 'array' });
+      const text = wbExcelToText(workbook);
+      if (!text.trim()) {
+        warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadEmpty')}</div>`;
+        return;
+      }
+      document.getElementById('wbPanelData').value = text;
+      setWbFileChip(file.name);
+    } catch (err) {
+      warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadReadError', { error: err.message })}</div>`;
+    }
+  };
+  reader.onerror = () => {
+    warnBox.innerHTML = `<div class="warn-box">${t('winlose.uploadReadError', { error: reader.error && reader.error.message })}</div>`;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+const wbUploadZone = document.getElementById('wbUploadZone');
+const wbFileInput = document.getElementById('wbFileInput');
+
+wbUploadZone.addEventListener('click', () => wbFileInput.click());
+
+wbFileInput.addEventListener('change', (e) => {
+  handleWbFile(e.target.files[0]);
+  e.target.value = '';
+});
+
+['dragover', 'dragenter'].forEach(evt => {
+  wbUploadZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    wbUploadZone.classList.add('dragover');
+  });
+});
+['dragleave', 'dragend'].forEach(evt => {
+  wbUploadZone.addEventListener(evt, () => wbUploadZone.classList.remove('dragover'));
+});
+wbUploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  wbUploadZone.classList.remove('dragover');
+  handleWbFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('wbFileRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  setWbFileChip('');
+  document.getElementById('wbPanelData').value = '';
 });
 
 // --- Jam digital WIB di topbar ---
