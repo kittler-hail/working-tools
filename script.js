@@ -265,9 +265,9 @@ const I18N = {
 
     'nav.wdbalance': '3.4 Withdraw Balance',
     'wb.title': 'Withdraw Balance',
-    'wb.pageDesc': 'Cek apakah ID & nominal di Google Sheet (yang sudah diproses) sama dengan Withdraw History.',
+    'wb.pageDesc': 'Cek apakah ID & nominal di Doc Spreadsheets sama dengan Withdraw History.',
     'wb.panelDataTitle': 'Data Withdraw History',
-    'wb.sheetDataTitle': 'Data Google Sheet (sudah diproses)',
+    'wb.sheetDataTitle': 'Data Doc Spreadsheets',
     'wb.optShowOk': 'Tampilkan yang cocok',
     'wb.processTitle': 'Proses',
     'wb.processBtn': 'Proses',
@@ -284,14 +284,16 @@ const I18N = {
     'wb.type.missingInSheet': 'Belum ada di sheet',
     'wb.type.notInPanel': 'Tidak ada di Withdraw History',
     'wb.type.ok': 'Cocok',
+    'wb.type.refund': 'Refund (manual)',
     'wb.noteRemark': 'Remark: {remark}',
-    'wb.summary': 'Withdraw History (ABD): {panelCount} baris (Rp {panelTotal}) · Sheet: {sheetCount} baris (Rp {sheetTotal}) · Manual/TM tanpa (ABD) dilewati: {manual} baris · Cocok: {ok}',
+    'wb.noteRefund': 'Diproses manual, dicatat REFUND di sheet',
+    'wb.summary': 'Withdraw History (ABD): {panelCount} baris (Rp {panelTotal}) · Sheet: {sheetCount} baris (Rp {sheetTotal}) · Manual/TM tanpa (ABD) dilewati: {manual} baris · Cocok: {ok} · Refund manual: {refund}',
     'wb.issueCount': '{n} temuan',
     'wb.allGood': 'Semua cocok',
     'wb.noRows': 'Tidak ada temuan.',
-    'wb.emptyState': 'Paste data Withdraw History & data Google Sheet, lalu klik "Proses".',
+    'wb.emptyState': 'Paste data Withdraw History & data Doc Spreadsheets, lalu klik "Proses".',
     'wb.noPanelWarn': 'Isi data Withdraw History dulu.',
-    'wb.noSheetWarn': 'Isi data Google Sheet dulu.',
+    'wb.noSheetWarn': 'Isi data Doc Spreadsheets dulu.',
     'wb.noDataWarn': 'Tidak ada baris withdraw yang bisa dibaca dari data yang di-paste.',
   },
   en: {
@@ -555,9 +557,9 @@ const I18N = {
 
     'nav.wdbalance': '3.4 Withdraw Balance',
     'wb.title': 'Withdraw Balance',
-    'wb.pageDesc': 'Check whether the IDs & amounts in the processed Google Sheet match the Withdraw History.',
+    'wb.pageDesc': 'Check whether the IDs & amounts in the Doc Spreadsheets match the Withdraw History.',
     'wb.panelDataTitle': 'Withdraw History Data',
-    'wb.sheetDataTitle': 'Google Sheet Data (processed)',
+    'wb.sheetDataTitle': 'Data Doc Spreadsheets',
     'wb.optShowOk': 'Show matches',
     'wb.processTitle': 'Process',
     'wb.processBtn': 'Process',
@@ -574,14 +576,16 @@ const I18N = {
     'wb.type.missingInSheet': 'Not in sheet yet',
     'wb.type.notInPanel': 'Not in Withdraw History',
     'wb.type.ok': 'Match',
+    'wb.type.refund': 'Refund (manual)',
     'wb.noteRemark': 'Remark: {remark}',
-    'wb.summary': 'Withdraw History (ABD): {panelCount} rows (Rp {panelTotal}) · Sheet: {sheetCount} rows (Rp {sheetTotal}) · Manual/TM without (ABD) skipped: {manual} rows · Matched: {ok}',
+    'wb.noteRefund': 'Processed manually, marked REFUND in the sheet',
+    'wb.summary': 'Withdraw History (ABD): {panelCount} rows (Rp {panelTotal}) · Sheet: {sheetCount} rows (Rp {sheetTotal}) · Manual/TM without (ABD) skipped: {manual} rows · Matched: {ok} · Manual refunds: {refund}',
     'wb.issueCount': '{n} findings',
     'wb.allGood': 'All matched',
     'wb.noRows': 'No findings.',
-    'wb.emptyState': 'Paste the Withdraw History & the Google Sheet data, then click "Process".',
+    'wb.emptyState': 'Paste the Withdraw History & the Doc Spreadsheets data, then click "Process".',
     'wb.noPanelWarn': 'Fill in the Withdraw History data first.',
-    'wb.noSheetWarn': 'Fill in the Google Sheet data first.',
+    'wb.noSheetWarn': 'Fill in the Doc Spreadsheets data first.',
     'wb.noDataWarn': 'No withdraw rows could be read from the pasted data.',
   },
 };
@@ -2833,6 +2837,21 @@ function wbEscape(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Baris REFUND di sheet: withdraw itu diproses manual (bukan auto), nominalnya ditulis
+// bebas oleh operator tanpa format "(1,000.00)" dan tanpa kolom biaya — contoh
+// "2.900.000-/" (Rupiah utuh, titik pemisah ribuan) atau "108/" (per-ribu, seperti panel).
+// Angka dengan pemisah ribuan dianggap Rupiah utuh; angka polos di bawah 1000 dianggap
+// per-ribu (nominal withdraw minimal 50.000, jadi tidak ada Rupiah utuh sekecil itu).
+function wbParseRefundAmount(str) {
+  const s = String(str).replace(/[^\d.,]/g, '');
+  if (!s) return NaN;
+  let n;
+  if (/^\d{1,3}(?:[.,]\d{3})+$/.test(s)) n = parseInt(s.replace(/[.,]/g, ''), 10);
+  else n = parseFloat(s.replace(',', '.'));
+  if (!(n > 0)) return NaN;
+  return Math.round(n < 1000 ? n * 1000 : n);
+}
+
 function wbParseSheet(raw) {
   const rows = [];
   const flat = (raw || '').replace(/"([^"]*)"/g, (m, inner) => inner.replace(/\r?\n/g, '\t'));
@@ -2841,13 +2860,19 @@ function wbParseSheet(raw) {
     const userIdx = cols.findIndex(c => /^[^\s@]+@\S+$/.test(c));
     if (userIdx < 0) return;
     const amountStr = cols[userIdx + 1] || '';
-    if (!/^\(?-?[\d,]+(?:\.\d+)?\)?$/.test(amountStr)) return;
+    const refund = cols.slice(userIdx + 2).some(c => /refund/i.test(c));
+
+    let amount;
+    if (refund) amount = wbParseRefundAmount(amountStr);
+    else if (/^\(?-?[\d,]+(?:\.\d+)?\)?$/.test(amountStr)) amount = Math.round(Math.abs(parseFloat(amountStr.replace(/[(),]/g, ''))));
+    if (amount === undefined || isNaN(amount)) return;
 
     const userCol = cols[userIdx];
     rows.push({
       code: userCol.slice(0, userCol.indexOf('@')),
       username: userCol.slice(userCol.indexOf('@') + 1),
-      amount: Math.round(Math.abs(parseFloat(amountStr.replace(/[(),]/g, '')))),
+      amount,
+      refund,
     });
   });
   return rows;
@@ -2870,9 +2895,13 @@ function wbCompare(panelRows, sheetRows) {
     const sheetLeft = g.sheet.slice();
     const panelLeft = [];
     g.panel.forEach(p => {
-      const i = sheetLeft.findIndex(s => s.amount === p.amount);
+      // Baris sheet biasa didahulukan; baris REFUND (diproses manual) cuma dipakai kalau
+      // tidak ada baris biasa dengan nominal yang sama.
+      let i = sheetLeft.findIndex(s => !s.refund && s.amount === p.amount);
+      if (i < 0) i = sheetLeft.findIndex(s => s.refund && s.amount === p.amount);
       if (i < 0) { panelLeft.push(p); return; }
-      out.push({ type: 'ok', panel: p, sheet: sheetLeft.splice(i, 1)[0] });
+      const s = sheetLeft.splice(i, 1)[0];
+      out.push({ type: s.refund ? 'refund' : 'ok', panel: p, sheet: s });
     });
 
     const pairs = [];
@@ -2892,13 +2921,16 @@ function wbCompare(panelRows, sheetRows) {
   return out;
 }
 
-const WB_TYPE_ORDER = ['wrongAmount', 'missingInSheet', 'notInPanel', 'ok'];
+const WB_TYPE_ORDER = ['wrongAmount', 'missingInSheet', 'notInPanel', 'refund', 'ok'];
 const WB_TYPE_BADGE = {
   wrongAmount: 'badge-safety',
   notInPanel: 'badge-safety',
   missingInSheet: 'badge-warn',
+  refund: 'badge-other',
   ok: '',
 };
+// Bukan temuan: 'ok' cocok otomatis, 'refund' cocok tapi diproses manual (dicatat REFUND di sheet).
+const wbIsIssue = f => f.type !== 'ok' && f.type !== 'refund';
 
 // "var" (bukan let) sengaja: setLanguage() bisa memanggil renderWbResult() saat load,
 // sebelum baris ini dieksekusi — var tidak kena TDZ, jadi aman dibaca sebagai undefined.
@@ -2918,13 +2950,20 @@ function wbBuildReport(panelRaw, sheetRaw) {
     return (b.panel ? b.panel.timestamp : 0) - (a.panel ? a.panel.timestamp : 0);
   });
 
+  // Withdraw REFUND diproses dengan cara lain (manual), jadi nominalnya tidak masuk
+  // jumlah/total kedua sisi — barisnya tetap tampil sebagai informasi.
+  const refundPanel = new Set(findings.filter(f => f.type === 'refund').map(f => f.panel));
+  const refundSheet = new Set(findings.filter(f => f.type === 'refund').map(f => f.sheet));
+  const panelCounted = panelAuto.filter(r => !refundPanel.has(r));
+  const sheetCounted = sheetRows.filter(r => !refundSheet.has(r));
+
   const sum = list => list.reduce((s, r) => s + r.amount, 0);
   return {
     findings,
-    panelCount: panelAuto.length,
-    panelTotal: sum(panelAuto),
-    sheetCount: sheetRows.length,
-    sheetTotal: sum(sheetRows),
+    panelCount: panelCounted.length,
+    panelTotal: sum(panelCounted),
+    sheetCount: sheetCounted.length,
+    sheetTotal: sum(sheetCounted),
     manualSkipped: panelAll.length - panelAuto.length,
   };
 }
@@ -2939,6 +2978,7 @@ function wbAmountText(r) {
 }
 
 function wbNoteText(f) {
+  if (f.type === 'refund') return t('wb.noteRefund');
   return f.type === 'missingInSheet' && f.panel.remark ? t('wb.noteRemark', { remark: f.panel.remark }) : '';
 }
 
@@ -2960,14 +3000,16 @@ function renderWbResult() {
   resultCard.style.display = 'block';
 
   const showOk = document.getElementById('wbShowOk').checked;
-  const issues = wbState.findings.filter(f => f.type !== 'ok');
-  const okCount = wbState.findings.length - issues.length;
-  const shown = showOk ? wbState.findings : issues;
+  const issues = wbState.findings.filter(wbIsIssue);
+  const refundCount = wbState.findings.filter(f => f.type === 'refund').length;
+  const okCount = wbState.findings.length - issues.length - refundCount;
+  // Baris refund selalu tampil (informasi), yang 'ok' hanya kalau dicentang.
+  const shown = wbState.findings.filter(f => showOk || f.type !== 'ok');
 
   document.getElementById('wbSummary').textContent = t('wb.summary', {
     panelCount: wbState.panelCount, panelTotal: formatRupiah(wbState.panelTotal),
     sheetCount: wbState.sheetCount, sheetTotal: formatRupiah(wbState.sheetTotal),
-    manual: wbState.manualSkipped, ok: okCount,
+    manual: wbState.manualSkipped, ok: okCount, refund: refundCount,
   });
   const badge = document.getElementById('wbOverallBadge');
   badge.className = 'badge ' + (issues.length ? 'badge-warn' : '');
@@ -3017,7 +3059,7 @@ document.getElementById('wbShowOk').addEventListener('change', renderWbResult);
 document.getElementById('wbCopyBtn').addEventListener('click', () => {
   if (!wbState) return;
   const lines = wbState.findings
-    .filter(f => f.type !== 'ok')
+    .filter(wbIsIssue)
     .map(f => [
       t('wb.type.' + f.type),
       wbDisplayUser(f),
