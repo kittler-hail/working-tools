@@ -13,9 +13,10 @@ const I18N = {
     'nav.group2': '2. Member',
     'nav.flagged': '2.1 Member Safety',
     'nav.newmember': '2.2 New Member First Deposit',
-    'nav.group3': '3. Laporan',
+    'nav.group3': '3. Win/Lose',
+    'nav.group4': '4. Withdraw',
     'nav.winlose': '3.1 Win/Lose All Game',
-    'nav.withdrawreport': '3.2 Laporan Withdraw',
+    'nav.withdrawreport': '4.1 Laporan Withdraw',
 
     'admin.logout': 'Logout',
     'admin.emailPlaceholder': 'Email',
@@ -248,7 +249,7 @@ const I18N = {
     'wd.noIdWarn': 'Isi ID member dulu.',
     'wd.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
 
-    'nav.winlosemember': '3.3 Win/Lose Member',
+    'nav.winlosemember': '3.2 Win/Lose Member',
     'wlm.title': 'Win/Lose Member',
     'wlm.pageDesc': 'Rekap bulanan total deposit, withdraw, bonus harian & bonus cashback satu id member, tersusun per bulan lengkap dengan status win/lose-nya.',
     'wlm.idTitle': 'ID Member',
@@ -270,7 +271,7 @@ const I18N = {
     'wlm.noIdWarn': 'Isi ID member dulu.',
     'wlm.noDataWarn': 'Tidak ada data deposit maupun withdraw untuk id ini di data yang di-paste.',
 
-    'nav.wdbalance': '3.4 Withdraw Balance',
+    'nav.wdbalance': '4.2 Withdraw Balance',
     'wb.title': 'Withdraw Balance',
     'wb.pageDesc': 'Cek apakah ID & nominal di Doc Spreadsheets sama dengan Withdraw History.',
     'wb.panelDataTitle': 'Data Withdraw History',
@@ -312,9 +313,10 @@ const I18N = {
     'nav.group2': '2. Member',
     'nav.flagged': '2.1 Member Safety',
     'nav.newmember': '2.2 New Member First Deposit',
-    'nav.group3': '3. Reports',
+    'nav.group3': '3. Win/Lose',
+    'nav.group4': '4. Withdraw',
     'nav.winlose': '3.1 Win/Lose All Game',
-    'nav.withdrawreport': '3.2 Laporan Withdraw',
+    'nav.withdrawreport': '4.1 Laporan Withdraw',
 
     'admin.logout': 'Logout',
     'admin.emailPlaceholder': 'Email',
@@ -547,7 +549,7 @@ const I18N = {
     'wd.noIdWarn': 'Fill in the member ID first.',
     'wd.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
 
-    'nav.winlosemember': '3.3 Win/Lose Member',
+    'nav.winlosemember': '3.2 Win/Lose Member',
     'wlm.title': 'Win/Lose Member',
     'wlm.pageDesc': "Monthly recap of one member's total deposit, withdraw, daily bonus & cashback bonus, broken down by month with a win/lose status.",
     'wlm.idTitle': 'Member ID',
@@ -569,7 +571,7 @@ const I18N = {
     'wlm.noIdWarn': 'Fill in the member ID first.',
     'wlm.noDataWarn': 'No deposit or withdraw data found for this id in the pasted data.',
 
-    'nav.wdbalance': '3.4 Withdraw Balance',
+    'nav.wdbalance': '4.2 Withdraw Balance',
     'wb.title': 'Withdraw Balance',
     'wb.pageDesc': 'Check whether the IDs & amounts in the Doc Spreadsheets match the Withdraw History.',
     'wb.panelDataTitle': 'Withdraw History Data',
