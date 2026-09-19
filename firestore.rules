@@ -12,10 +12,13 @@ service cloud.firestore {
     }
 
     // Member Safety: siapa pun yang sudah login boleh baca & menambah id baru,
-    // tapi cuma admin yang boleh mengubah/menghapus entri yang sudah ada.
+    // tapi cuma admin yang boleh mengubah/menghapus entri yang sudah ada. Field addedBy
+    // (siapa yang menambahkan, dipakai di halaman Profil) tidak boleh atas nama orang
+    // lain — kecuali admin, karena import backup mengembalikan addedBy aslinya.
     match /flags/{docId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && !exists(/databases/$(database)/documents/flags/$(docId));
+      allow create: if isSignedIn() && !exists(/databases/$(database)/documents/flags/$(docId))
+                    && (isAdmin() || !('addedBy' in request.resource.data) || request.resource.data.addedBy == request.auth.token.email);
       allow update, delete: if isAdmin();
     }
 
@@ -51,15 +54,42 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Log aktivitas ringan (login/logout, ubah Member Safety, permintaan akun) —
-    // cuma untuk ditonton admin lewat notifikasi lonceng, bukan data yang butuh
-    // proteksi tinggi. Siapa pun (termasuk yang belum login, karena "mengajukan
-    // permintaan akun" memang terjadi sebelum login) boleh menambah satu entri,
-    // tapi cuma admin yang boleh membaca/menghapus daftarnya.
+    // Log aktivitas (login/logout, ubah Member Safety, permintaan akun) — ditonton admin
+    // lewat lonceng notifikasi dan halaman Pantau Pengguna. Supaya log tidak bisa
+    // dipalsukan: waktunya harus waktu server (createdAt == request.time), dan pelakunya
+    // harus akun yang sedang login (actorEmail == email akunnya). Satu-satunya pengecualian
+    // adalah "mengajukan permintaan akun", yang memang terjadi sebelum punya akun (tanpa
+    // actorEmail). Aksi yang memang khusus admin (hapus id, setujui/tolak akun) hanya
+    // boleh dicatat oleh admin. Cuma admin yang boleh membaca/menghapus daftarnya.
     match /activityLog/{logId} {
       allow create: if request.resource.data.keys().hasOnly(['type', 'actorEmail', 'requesterEmail', 'requesterName', 'targetId', 'targetEmail', 'category', 'createdAt'])
                     && request.resource.data.type is string
-                    && request.resource.data.createdAt is number;
+                    && request.resource.data.createdAt == request.time
+                    && (
+                      (request.resource.data.type == 'account_request_submitted'
+                        && !request.resource.data.keys().hasAny(['actorEmail']))
+                      || (isSignedIn()
+                        && request.resource.data.actorEmail == request.auth.token.email
+                        && (request.resource.data.type in ['login', 'logout', 'flag_add', 'password_change']
+                          || (isAdmin() && request.resource.data.type in ['flag_delete', 'account_request_approved', 'account_request_rejected'])))
+                    );
+      allow read, delete: if isAdmin();
+    }
+
+    // Status pengguna untuk halaman Pantau Pengguna: tiap akun cuma boleh menulis
+    // dokumen miliknya sendiri (id = uid), dengan email akunnya sendiri dan waktu server.
+    // Isinya murni metadata (status, terakhir aktif, menu, perangkat) — tanpa data kerja.
+    // Cuma admin yang boleh membacanya.
+    match /presence/{uid} {
+      allow create, update: if isSignedIn()
+                            && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['email', 'status', 'lastActiveAt', 'lastLoginAt', 'lastPage', 'device'])
+                            && request.resource.data.email == request.auth.token.email
+                            && request.resource.data.status in ['online', 'offline']
+                            && request.resource.data.lastActiveAt == request.time
+                            && (!('lastLoginAt' in request.resource.data) || request.resource.data.lastLoginAt is timestamp)
+                            && request.resource.data.lastPage is string && request.resource.data.lastPage.size() <= 40
+                            && request.resource.data.device is string && request.resource.data.device.size() <= 60;
       allow read, delete: if isAdmin();
     }
   }

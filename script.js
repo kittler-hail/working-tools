@@ -67,11 +67,90 @@ const I18N = {
     'activity.empty': 'Belum ada aktivitas.',
     'activity.login': '{email} login',
     'activity.logout': '{email} logout',
+    'activity.passwordChange': '{email} mengganti password',
     'activity.flagAdd': '{email} menambahkan id "{id}" ke Member Safety ({category})',
     'activity.flagDelete': '{email} menghapus id "{id}" dari Member Safety',
     'activity.requestSubmitted': '{name} mengajukan permintaan akun',
     'activity.requestApproved': '{email} menyetujui permintaan akun dari {target}',
     'activity.requestRejected': '{email} menolak permintaan akun dari {target}',
+
+    'nav.usermonitor': 'Pantau Pengguna',
+    'um.title': 'Pantau Pengguna',
+    'um.pageDesc': 'Lihat siapa yang sedang online dan telusuri log aktivitas semua pengguna.',
+    'um.tabUsers': 'Pengguna',
+    'um.tabLog': 'Log Aktivitas',
+    'um.usersTitle': 'Daftar Pengguna',
+    'um.onlineBadge': '{online} online · {total} pengguna',
+    'um.thUser': 'Pengguna',
+    'um.thStatus': 'Status',
+    'um.thLastLogin': 'Terakhir Login',
+    'um.thLastActive': 'Terakhir Aktif',
+    'um.thPage': 'Sedang di',
+    'um.thDevice': 'Perangkat',
+    'um.usersEmpty': 'Belum ada data pengguna.',
+    'um.usersNote': 'Online = aktif dalam 5 menit terakhir. Pengguna baru muncul setelah login sejak fitur ini aktif.',
+    'um.statusOnline': 'Online',
+    'um.statusOffline': 'Offline',
+    'um.statusNever': 'Belum pernah login',
+    'um.exportBtn': 'Export CSV',
+    'um.filterAllTypes': 'Semua aksi',
+    'um.filterLogin': 'Login & Akun',
+    'um.filterSafety': 'Member Safety',
+    'um.filterAccounts': 'Permintaan Akun',
+    'um.filterAllUsers': 'Semua pengguna',
+    'um.filterFrom': 'Dari tanggal',
+    'um.filterTo': 'Sampai tanggal',
+    'um.searchPlaceholder': 'Cari...',
+    'um.resetBtn': 'Reset',
+    'um.logInfo': 'Menampilkan {shown} dari {loaded} entri yang dimuat.',
+    'um.thTime': 'Waktu',
+    'um.thAction': 'Aksi',
+    'um.thDetail': 'Detail',
+    'um.logEmpty': 'Tidak ada aktivitas yang cocok.',
+    'um.loadMore': 'Muat lebih banyak',
+    'um.type.login': 'Login',
+    'um.type.logout': 'Logout',
+    'um.type.password_change': 'Ganti password',
+    'um.type.flag_add': 'Tambah Member Safety',
+    'um.type.flag_delete': 'Hapus Member Safety',
+    'um.type.account_request_submitted': 'Ajukan akun',
+    'um.type.account_request_approved': 'Setujui akun',
+    'um.type.account_request_rejected': 'Tolak akun',
+
+    'profile.title': 'Profil Saya',
+    'profile.pageDesc': 'Kelola akun, ganti password, dan atur preferensi tampilanmu.',
+    'profile.accountTitle': 'Akun',
+    'profile.name': 'Nama',
+    'profile.email': 'Email',
+    'profile.role': 'Peran',
+    'profile.roleAdmin': 'Admin',
+    'profile.roleUser': 'Pengguna',
+    'profile.created': 'Akun dibuat',
+    'profile.lastSignIn': 'Login terakhir',
+    'profile.passwordTitle': 'Ganti Password',
+    'profile.oldPw': 'Password saat ini',
+    'profile.newPw': 'Password baru (min. 8 karakter)',
+    'profile.confirmPw': 'Ulangi password baru',
+    'profile.pwBtn': 'Ganti Password',
+    'profile.pwFillAll': 'Isi semua kolom password dulu.',
+    'profile.pwTooShort': 'Password baru minimal {min} karakter.',
+    'profile.pwMismatch': 'Konfirmasi password tidak sama.',
+    'profile.pwSame': 'Password baru harus berbeda dari yang lama.',
+    'profile.pwWrong': 'Password saat ini salah.',
+    'profile.pwWeak': 'Password baru terlalu lemah.',
+    'profile.pwTooMany': 'Terlalu banyak percobaan. Coba lagi beberapa saat lagi.',
+    'profile.pwFailed': 'Gagal mengganti password: {error}',
+    'profile.pwDone': 'Password berhasil diganti.',
+    'profile.flagsTitle': 'Member Safety yang Saya Tambahkan',
+    'profile.flagsEmpty': 'Belum ada id yang kamu tambahkan.',
+    'profile.flagsNote': 'Hanya id yang ditambahkan lewat akunmu sejak fitur ini aktif yang tercatat di sini.',
+    'profile.prefsTitle': 'Preferensi',
+    'profile.language': 'Bahasa',
+    'profile.hiddenInfo': '{count} id disembunyikan di Cek Bonus (hanya di browser ini)',
+    'profile.hiddenReset': 'Tampilkan lagi semua',
+    'profile.howtoLabel': 'Kartu Cara Penggunaan',
+    'profile.howtoOpenAll': 'Buka semua',
+    'profile.howtoCloseAll': 'Tutup semua',
 
     'ticker.title': 'Member Safety Baru:',
     'ticker.empty': 'Belum ada Member Safety',
@@ -94,7 +173,6 @@ const I18N = {
     'dashboard.statSafety': 'Kategori Safety',
     'dashboard.statNoBonus': 'Tidak Dapat Bonus',
     'dashboard.statLatest': 'Terakhir Ditambahkan',
-    'dashboard.statsAdminOnly': 'Login admin untuk melihat statistik Member Safety.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Cek Bonus',
     'dashboard.linkBonusDesc': 'Deteksi bonus pending, tidak sesuai, dan dobel.',
@@ -367,11 +445,90 @@ const I18N = {
     'activity.empty': 'No activity yet.',
     'activity.login': '{email} logged in',
     'activity.logout': '{email} logged out',
+    'activity.passwordChange': '{email} changed their password',
     'activity.flagAdd': '{email} added id "{id}" to Member Safety ({category})',
     'activity.flagDelete': '{email} removed id "{id}" from Member Safety',
     'activity.requestSubmitted': '{name} requested an account',
     'activity.requestApproved': '{email} approved the account request from {target}',
     'activity.requestRejected': '{email} rejected the account request from {target}',
+
+    'nav.usermonitor': 'Monitor Users',
+    'um.title': 'Monitor Users',
+    'um.pageDesc': 'See who is online and browse the activity log of all users.',
+    'um.tabUsers': 'Users',
+    'um.tabLog': 'Activity Log',
+    'um.usersTitle': 'User List',
+    'um.onlineBadge': '{online} online · {total} users',
+    'um.thUser': 'User',
+    'um.thStatus': 'Status',
+    'um.thLastLogin': 'Last Login',
+    'um.thLastActive': 'Last Active',
+    'um.thPage': 'Currently on',
+    'um.thDevice': 'Device',
+    'um.usersEmpty': 'No user data yet.',
+    'um.usersNote': 'Online = active within the last 5 minutes. Users appear after they log in once this feature is live.',
+    'um.statusOnline': 'Online',
+    'um.statusOffline': 'Offline',
+    'um.statusNever': 'Never logged in',
+    'um.exportBtn': 'Export CSV',
+    'um.filterAllTypes': 'All actions',
+    'um.filterLogin': 'Login & Account',
+    'um.filterSafety': 'Member Safety',
+    'um.filterAccounts': 'Account Requests',
+    'um.filterAllUsers': 'All users',
+    'um.filterFrom': 'From date',
+    'um.filterTo': 'To date',
+    'um.searchPlaceholder': 'Search...',
+    'um.resetBtn': 'Reset',
+    'um.logInfo': 'Showing {shown} of {loaded} loaded entries.',
+    'um.thTime': 'Time',
+    'um.thAction': 'Action',
+    'um.thDetail': 'Detail',
+    'um.logEmpty': 'No matching activity.',
+    'um.loadMore': 'Load more',
+    'um.type.login': 'Login',
+    'um.type.logout': 'Logout',
+    'um.type.password_change': 'Changed password',
+    'um.type.flag_add': 'Added Member Safety',
+    'um.type.flag_delete': 'Removed Member Safety',
+    'um.type.account_request_submitted': 'Requested account',
+    'um.type.account_request_approved': 'Approved account',
+    'um.type.account_request_rejected': 'Rejected account',
+
+    'profile.title': 'My Profile',
+    'profile.pageDesc': 'Manage your account, change your password, and set your display preferences.',
+    'profile.accountTitle': 'Account',
+    'profile.name': 'Name',
+    'profile.email': 'Email',
+    'profile.role': 'Role',
+    'profile.roleAdmin': 'Admin',
+    'profile.roleUser': 'User',
+    'profile.created': 'Account created',
+    'profile.lastSignIn': 'Last sign-in',
+    'profile.passwordTitle': 'Change Password',
+    'profile.oldPw': 'Current password',
+    'profile.newPw': 'New password (min. 8 characters)',
+    'profile.confirmPw': 'Repeat new password',
+    'profile.pwBtn': 'Change Password',
+    'profile.pwFillAll': 'Fill in all password fields first.',
+    'profile.pwTooShort': 'The new password must be at least {min} characters.',
+    'profile.pwMismatch': 'The password confirmation does not match.',
+    'profile.pwSame': 'The new password must be different from the old one.',
+    'profile.pwWrong': 'The current password is incorrect.',
+    'profile.pwWeak': 'The new password is too weak.',
+    'profile.pwTooMany': 'Too many attempts. Please try again in a moment.',
+    'profile.pwFailed': 'Failed to change password: {error}',
+    'profile.pwDone': 'Password changed successfully.',
+    'profile.flagsTitle': 'Member Safety I Added',
+    'profile.flagsEmpty': "You haven't added any ids yet.",
+    'profile.flagsNote': 'Only ids added through your account since this feature went live are listed here.',
+    'profile.prefsTitle': 'Preferences',
+    'profile.language': 'Language',
+    'profile.hiddenInfo': '{count} ids hidden in Check Bonus (this browser only)',
+    'profile.hiddenReset': 'Show all again',
+    'profile.howtoLabel': 'Usage instruction cards',
+    'profile.howtoOpenAll': 'Open all',
+    'profile.howtoCloseAll': 'Close all',
 
     'ticker.title': 'New Member Safety:',
     'ticker.empty': 'No Member Safety yet',
@@ -394,7 +551,6 @@ const I18N = {
     'dashboard.statSafety': 'Safety Category',
     'dashboard.statNoBonus': 'No Bonus',
     'dashboard.statLatest': 'Last Added',
-    'dashboard.statsAdminOnly': 'Log in as admin to view the Member Safety statistics.',
     'dashboard.menuTitle': 'Menu',
     'dashboard.linkBonusTitle': 'Check Bonus',
     'dashboard.linkBonusDesc': 'Detect pending, mismatched, and duplicate bonuses.',
@@ -656,6 +812,8 @@ function setLanguage(lang) {
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof renderSidebarTicker === 'function') renderSidebarTicker();
   if (typeof renderHowtoBoxes === 'function') renderHowtoBoxes();
+  if (typeof renderMonitor === 'function') renderMonitor();
+  if (typeof renderProfile === 'function') renderProfile();
   if (typeof renderWbResult === 'function') renderWbResult();
   if (typeof updateWdDateRange === 'function') updateWdDateRange();
   if (typeof updateWdGameSummary === 'function') updateWdGameSummary();
@@ -1108,6 +1266,7 @@ function startAuthedListeners() {
       renderFlagTable();
       renderDashboard();
       renderSidebarTicker();
+      renderProfile();
     }, err => {
       console.error('Gagal memuat daftar Member Safety dari Firestore:', err);
     });
@@ -1479,11 +1638,146 @@ const NOTIF_LAST_SEEN_KEY = 'workingTools.lastSeenActivityAt';
 let activityLogCache = [];
 let unsubActivityLog = null;
 
+// --- Status pengguna (presence) & halaman Pantau Pengguna (khusus admin) ---
+// Tiap akun yang login menulis satu dokumen "presence/{uid}" miliknya sendiri: kapan
+// terakhir login, kapan terakhir aktif (denyut tiap ~90 detik selama tab terlihat),
+// sedang di menu apa, dan perangkatnya. "Online" = status 'online' DAN terakhir aktif
+// kurang dari 5 menit lalu, jadi tab yang ditutup tanpa logout otomatis jadi offline.
+// Cuma admin yang boleh membacanya (lihat firestore.rules). Yang dicatat murni metadata —
+// isi data yang di-paste ke fitur mana pun tidak pernah dikirim ke sini.
+const PRESENCE_COLLECTION = 'presence';
+const PRESENCE_HEARTBEAT_MS = 90 * 1000;
+const PRESENCE_MIN_GAP_MS = 15 * 1000;
+const PRESENCE_ONLINE_WINDOW_MS = 5 * 60 * 1000;
+const MONITOR_LOG_PAGE = 200;
+const MONITOR_TYPE_GROUPS = {
+  login: ['login', 'logout', 'password_change'],
+  safety: ['flag_add', 'flag_delete'],
+  accounts: ['account_request_submitted', 'account_request_approved', 'account_request_rejected'],
+};
+let currentPageId = 'dashboard';
+let presenceTimer = null;
+let lastPresenceWriteAt = 0;
+
+function describeDevice() {
+  const ua = navigator.userAgent || '';
+  const os = /Windows/i.test(ua) ? 'Windows' : /Android/i.test(ua) ? 'Android' : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
+    : /Mac OS X/i.test(ua) ? 'macOS' : /Linux/i.test(ua) ? 'Linux' : '?';
+  const browser = /Edg\//i.test(ua) ? 'Edge' : /OPR\/|Opera/i.test(ua) ? 'Opera' : /Firefox\//i.test(ua) ? 'Firefox'
+    : /Chrome\//i.test(ua) ? 'Chrome' : /Safari\//i.test(ua) ? 'Safari' : '?';
+  return `${browser} · ${os}`;
+}
+
+// throttled=true: lewati kalau baru menulis <15 detik lalu (dipakai saat pindah menu/
+// tab kembali terlihat, supaya klik menu beruntun tidak membanjiri Firestore).
+function writePresence(extra, throttled) {
+  if (!currentUser) return Promise.resolve();
+  const now = Date.now();
+  if (throttled && now - lastPresenceWriteAt < PRESENCE_MIN_GAP_MS) return Promise.resolve();
+  lastPresenceWriteAt = now;
+  return db.collection(PRESENCE_COLLECTION).doc(currentUser.uid).set({
+    email: currentUser.email,
+    status: 'online',
+    lastActiveAt: serverNow(),
+    lastPage: currentPageId,
+    device: describeDevice(),
+    ...extra,
+  }, { merge: true }).catch(err => console.error('Gagal memperbarui status pengguna:', err));
+}
+
+function startPresence() {
+  writePresence({});
+  if (!presenceTimer) {
+    presenceTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') writePresence({});
+    }, PRESENCE_HEARTBEAT_MS);
+  }
+}
+
+function stopPresence() {
+  if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') writePresence({}, true);
+});
+
+let unsubPresence = null;
+let unsubMonitorUsers = null;
+let unsubMonitorLog = null;
+let monitorTimer = null;
+let presenceCache = [];
+let monitorUsersCache = [];
+let monitorLogCache = [];
+let monitorLogLimit = MONITOR_LOG_PAGE;
+
+function subscribeMonitorLog() {
+  if (unsubMonitorLog) unsubMonitorLog();
+  unsubMonitorLog = db.collection(ACTIVITY_LOG_COLLECTION).orderBy('createdAt', 'desc').limit(monitorLogLimit)
+    .onSnapshot(snapshot => {
+      monitorLogCache = snapshot.docs.map(docWithId);
+      renderMonitor();
+    }, err => console.error('Gagal memuat log aktivitas dari Firestore:', err));
+}
+
+// Dijalankan pas halaman Pantau Pengguna pertama kali dibuka (bukan tiap admin login),
+// supaya ratusan dokumen log tidak dibaca kalau halamannya tidak pernah dibuka.
+function startMonitorListeners() {
+  if (!isAdminUser()) return;
+  if (!unsubPresence) {
+    unsubPresence = db.collection(PRESENCE_COLLECTION).onSnapshot(snapshot => {
+      presenceCache = snapshot.docs.map(docWithId);
+      renderMonitor();
+    }, err => console.error('Gagal memuat status pengguna dari Firestore:', err));
+  }
+  if (!unsubMonitorUsers) {
+    unsubMonitorUsers = db.collection(USERS_COLLECTION).onSnapshot(snapshot => {
+      monitorUsersCache = snapshot.docs.map(docWithId);
+      renderMonitor();
+    }, err => console.error('Gagal memuat daftar akun dari Firestore:', err));
+  }
+  if (!unsubMonitorLog) subscribeMonitorLog();
+  // Status "online" bergeser seiring waktu tanpa ada dokumen yang berubah — render ulang berkala.
+  if (!monitorTimer) monitorTimer = setInterval(() => { if (currentPageId === 'usermonitor') renderMonitor(); }, 30 * 1000);
+}
+
+function stopMonitorListeners() {
+  if (unsubPresence) { unsubPresence(); unsubPresence = null; }
+  if (unsubMonitorUsers) { unsubMonitorUsers(); unsubMonitorUsers = null; }
+  if (unsubMonitorLog) { unsubMonitorLog(); unsubMonitorLog = null; }
+  if (monitorTimer) { clearInterval(monitorTimer); monitorTimer = null; }
+  presenceCache = [];
+  monitorUsersCache = [];
+  monitorLogCache = [];
+  monitorLogLimit = MONITOR_LOG_PAGE;
+  if (typeof renderMonitor === 'function') renderMonitor();
+}
+
 // Gagal mencatat aktivitas TIDAK boleh menggagalkan aksi utamanya (login, hapus id,
 // dst) — makanya cuma di-log ke console kalau errornya, tidak ada .catch() yang
 // mengganggu alur pemanggilnya.
+// Waktu entri diisi SERVER (serverTimestamp) dan firestore.rules mewajibkan
+// createdAt == request.time, jadi jam browser yang salah/diakali tidak mengubah log.
+// Mengembalikan promise supaya pemanggil yang perlu menunggu (logout) bisa menunggu.
+function serverNow() {
+  return firebase.firestore.FieldValue.serverTimestamp();
+}
+
+// Entri lama menyimpan createdAt sebagai angka (ms), entri baru sebagai Timestamp
+// Firestore — ini menyeragamkan keduanya jadi ms.
+function tsMillis(v) {
+  if (v && typeof v.toMillis === 'function') return v.toMillis();
+  return typeof v === 'number' ? v : 0;
+}
+
+// 'estimate': tulisan lokal yang belum dikonfirmasi server tetap punya waktu perkiraan
+// (bukan null), jadi entri baru langsung muncul di daftar.
+function docWithId(doc) {
+  return { id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) };
+}
+
 function logActivity(fields) {
-  db.collection(ACTIVITY_LOG_COLLECTION).add({ ...fields, createdAt: Date.now() })
+  return db.collection(ACTIVITY_LOG_COLLECTION).add({ ...fields, createdAt: serverNow() })
     .catch(err => console.error('Gagal mencatat aktivitas:', err));
 }
 
@@ -1499,7 +1793,7 @@ function startAdminListeners() {
   if (!unsubActivityLog) {
     unsubActivityLog = db.collection(ACTIVITY_LOG_COLLECTION).orderBy('createdAt', 'desc').limit(ACTIVITY_LOG_LIMIT)
       .onSnapshot(snapshot => {
-        activityLogCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        activityLogCache = snapshot.docs.map(docWithId);
         renderActivityLog();
       }, err => {
         console.error('Gagal memuat aktivitas dari Firestore:', err);
@@ -1510,6 +1804,7 @@ function startAdminListeners() {
 function stopAdminListeners() {
   if (unsubAccountRequests) { unsubAccountRequests(); unsubAccountRequests = null; }
   if (unsubActivityLog) { unsubActivityLog(); unsubActivityLog = null; }
+  stopMonitorListeners();
   accountRequestsCache = [];
   activityLogCache = [];
   renderAccountRequests();
@@ -1533,6 +1828,7 @@ function activityText(entry) {
   switch (entry.type) {
     case 'login': return t('activity.login', { email: firstNameFromEmail(entry.actorEmail) });
     case 'logout': return t('activity.logout', { email: firstNameFromEmail(entry.actorEmail) });
+    case 'password_change': return t('activity.passwordChange', { email: firstNameFromEmail(entry.actorEmail) });
     case 'flag_add': return t('activity.flagAdd', { email: firstNameFromEmail(entry.actorEmail), id: entry.targetId, category: categoryLabel(entry.category) });
     case 'flag_delete': return t('activity.flagDelete', { email: firstNameFromEmail(entry.actorEmail), id: entry.targetId });
     case 'account_request_submitted': return t('activity.requestSubmitted', { name: firstNameFromName(entry.requesterName, entry.requesterEmail) });
@@ -1544,7 +1840,7 @@ function activityText(entry) {
 
 function renderActivityLog() {
   const lastSeenAt = parseInt(localStorage.getItem(NOTIF_LAST_SEEN_KEY) || '0', 10);
-  const unreadCount = activityLogCache.filter(e => e.createdAt > lastSeenAt).length;
+  const unreadCount = activityLogCache.filter(e => tsMillis(e.createdAt) > lastSeenAt).length;
 
   const badge = document.getElementById('notifBadge');
   badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
@@ -1565,7 +1861,7 @@ function renderActivityLog() {
     div.className = 'notif-item';
     div.innerHTML = `
       <div class="notif-item-text">${activityText(entry)}</div>
-      <div class="notif-item-time">${new Date(entry.createdAt).toLocaleString(localeCode())}</div>
+      <div class="notif-item-time">${new Date(tsMillis(entry.createdAt)).toLocaleString(localeCode())}</div>
     `;
     list.appendChild(div);
   });
@@ -1590,6 +1886,215 @@ document.addEventListener('click', (e) => {
     document.getElementById('notifDropdown').style.display = 'none';
   }
 });
+
+// --- Halaman Pantau Pengguna: tab Pengguna & tab Log Aktivitas ---
+function entryActor(entry) {
+  return entry.actorEmail || entry.requesterEmail || '';
+}
+
+function activityTypeLabel(type) {
+  const key = 'um.type.' + type;
+  const label = t(key);
+  return label === key ? type : label;
+}
+
+// Ringkasan aksi tanpa nama pelakunya (nama sudah punya kolom sendiri di tabel log).
+function activityDetail(entry) {
+  switch (entry.type) {
+    case 'flag_add': return `${entry.targetId} (${categoryLabel(entry.category)})`;
+    case 'flag_delete': return entry.targetId || '-';
+    case 'account_request_submitted': return firstNameFromName(entry.requesterName, entry.requesterEmail);
+    case 'account_request_approved':
+    case 'account_request_rejected': return firstNameFromEmail(entry.targetEmail);
+    default: return '-';
+  }
+}
+
+// Nama menu tanpa nomor di depannya ("1.1 Cek Bonus" -> "Cek Bonus").
+function pageLabel(page) {
+  const key = 'nav.' + page;
+  const label = t(key);
+  return label === key ? page : label.replace(/^\d+(?:\.\d+)?\s+/, '');
+}
+
+function monitorTime(ms) {
+  return ms ? new Date(ms).toLocaleString(localeCode()) : '-';
+}
+
+// Gabungan akun yang dibuat lewat persetujuan (koleksi users) dan dokumen presence, dicocokkan
+// lewat uid. Akun tanpa dokumen presence = belum pernah login sejak fitur ini aktif.
+function monitorUserRows() {
+  const byUid = new Map();
+  monitorUsersCache.forEach(u => byUid.set(u.id, { uid: u.id, email: u.email, name: u.name }));
+  presenceCache.forEach(p => {
+    const base = byUid.get(p.id) || { uid: p.id };
+    byUid.set(p.id, { ...base, email: p.email || base.email, presence: p });
+  });
+  const now = Date.now();
+  return Array.from(byUid.values()).map(r => {
+    const p = r.presence;
+    const lastActive = p ? tsMillis(p.lastActiveAt) : 0;
+    const online = !!p && p.status === 'online' && now - lastActive < PRESENCE_ONLINE_WINDOW_MS;
+    return {
+      name: firstNameFromName(r.name, r.email),
+      hasPresence: !!p,
+      online,
+      lastActive,
+      lastLogin: p ? tsMillis(p.lastLoginAt) : 0,
+      page: online && p.lastPage ? pageLabel(p.lastPage) : '-',
+      device: (p && p.device) || '-',
+    };
+  }).sort((a, b) => (b.online - a.online) || (b.lastActive - a.lastActive) || a.name.localeCompare(b.name));
+}
+
+function renderMonitorUsers() {
+  const rows = monitorUserRows();
+  const online = rows.filter(r => r.online).length;
+  document.getElementById('umOnlineBadge').textContent = t('um.onlineBadge', { online, total: rows.length });
+
+  const body = document.getElementById('umUsersBody');
+  body.innerHTML = '';
+  document.getElementById('umUsersTable').style.display = rows.length ? 'table' : 'none';
+  document.getElementById('umUsersEmpty').style.display = rows.length ? 'none' : 'block';
+
+  rows.forEach(r => {
+    const status = r.online
+      ? `<span class="badge badge-online">${t('um.statusOnline')}</span>`
+      : (r.hasPresence ? `<span class="badge badge-other">${t('um.statusOffline')}</span>` : `<span class="badge badge-other">${t('um.statusNever')}</span>`);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${wbEscape(r.name)}</td>
+      <td>${status}</td>
+      <td>${monitorTime(r.lastLogin)}</td>
+      <td>${monitorTime(r.lastActive)}</td>
+      <td>${wbEscape(r.page)}</td>
+      <td>${wbEscape(r.device)}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function monitorLogFiltered() {
+  const type = document.getElementById('umLogType').value;
+  const user = document.getElementById('umLogUser').value;
+  const from = document.getElementById('umLogFrom').value;
+  const to = document.getElementById('umLogTo').value;
+  const q = document.getElementById('umLogSearch').value.trim().toLowerCase();
+  const fromMs = from ? new Date(from + 'T00:00:00').getTime() : 0;
+  const toMs = to ? new Date(to + 'T23:59:59.999').getTime() : Infinity;
+
+  return monitorLogCache.filter(e => {
+    if (type !== 'all' && !MONITOR_TYPE_GROUPS[type].includes(e.type)) return false;
+    const actor = entryActor(e);
+    if (user !== 'all' && actor !== user) return false;
+    const ms = tsMillis(e.createdAt);
+    if (ms < fromMs || ms > toMs) return false;
+    if (q) {
+      const hay = `${firstNameFromEmail(actor)} ${activityTypeLabel(e.type)} ${activityDetail(e)}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderMonitorLog() {
+  // Isi pilihan pengguna dari log yang sudah dimuat, pilihan yang sedang aktif dipertahankan.
+  const userSelect = document.getElementById('umLogUser');
+  const selected = userSelect.value;
+  const actors = Array.from(new Set(monitorLogCache.map(entryActor).filter(Boolean)))
+    .sort((a, b) => firstNameFromEmail(a).localeCompare(firstNameFromEmail(b)));
+  userSelect.innerHTML = `<option value="all">${t('um.filterAllUsers')}</option>` +
+    actors.map(a => `<option value="${wbEscape(a)}">${wbEscape(firstNameFromEmail(a))}</option>`).join('');
+  userSelect.value = actors.includes(selected) ? selected : 'all';
+
+  const rows = monitorLogFiltered();
+  const body = document.getElementById('umLogBody');
+  body.innerHTML = '';
+  rows.forEach(e => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${monitorTime(tsMillis(e.createdAt))}</td>
+      <td>${wbEscape(firstNameFromEmail(entryActor(e)) || '-')}</td>
+      <td><span class="badge badge-other">${wbEscape(activityTypeLabel(e.type))}</span></td>
+      <td>${wbEscape(activityDetail(e))}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('umLogTable').style.display = rows.length ? 'table' : 'none';
+  document.getElementById('umLogEmpty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('umLogInfo').textContent = t('um.logInfo', { shown: rows.length, loaded: monitorLogCache.length });
+  // Kalau jumlah yang dimuat sudah mencapai batas, kemungkinan masih ada entri yang lebih lama.
+  document.getElementById('umLoadMoreBtn').style.display = monitorLogCache.length >= monitorLogLimit ? 'inline-block' : 'none';
+}
+
+// "var" (bukan let) sengaja, sama seperti wbState: setLanguage() bisa memanggil
+// renderMonitor() saat load, sebelum deklarasi let/const di atas dieksekusi (TDZ).
+// Flag ini baru true di akhir bagian ini, jadi pemanggilan sedini itu dilewati.
+var monitorInitialized = false;
+
+function renderMonitor() {
+  if (!monitorInitialized) return;
+  renderMonitorUsers();
+  renderMonitorLog();
+}
+
+function setMonitorTab(tab) {
+  document.querySelectorAll('[data-um-tab]').forEach(b => b.classList.toggle('active', b.dataset.umTab === tab));
+  document.getElementById('umPanelUsers').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('umPanelLog').style.display = tab === 'log' ? 'block' : 'none';
+}
+
+document.querySelectorAll('[data-um-tab]').forEach(b => b.addEventListener('click', () => setMonitorTab(b.dataset.umTab)));
+['umLogType', 'umLogUser', 'umLogFrom', 'umLogTo'].forEach(id => document.getElementById(id).addEventListener('change', renderMonitorLog));
+document.getElementById('umLogSearch').addEventListener('input', renderMonitorLog);
+document.getElementById('umLogReset').addEventListener('click', () => {
+  document.getElementById('umLogType').value = 'all';
+  document.getElementById('umLogFrom').value = '';
+  document.getElementById('umLogTo').value = '';
+  document.getElementById('umLogSearch').value = '';
+  document.getElementById('umLogUser').value = 'all';
+  renderMonitorLog();
+});
+document.getElementById('umLoadMoreBtn').addEventListener('click', () => {
+  monitorLogLimit += MONITOR_LOG_PAGE;
+  subscribeMonitorLog();
+});
+
+function csvCell(v) {
+  const s = String(v == null ? '' : v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function csvDateTime(ms) {
+  const d = new Date(ms);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+// Export mengikuti filter yang sedang aktif. BOM di depan supaya Excel membaca UTF-8 dengan benar.
+document.getElementById('umExportBtn').addEventListener('click', () => {
+  const rows = monitorLogFiltered();
+  if (rows.length === 0) return;
+  const lines = [[t('um.thTime'), t('um.thUser'), t('um.thAction'), t('um.thDetail')].map(csvCell).join(',')]
+    .concat(rows.map(e => [
+      csvDateTime(tsMillis(e.createdAt)),
+      firstNameFromEmail(entryActor(e)),
+      activityTypeLabel(e.type),
+      activityDetail(e),
+    ].map(csvCell).join(',')));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `log-aktivitas-${csvDateTime(Date.now()).slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+monitorInitialized = true;
 
 // Password acak sekali pakai, cuma dipakai sebentar untuk createUserWithEmailAndPassword
 // (Firebase Auth mewajibkan sebuah password saat bikin akun) lalu langsung dibuang dari
@@ -1733,12 +2238,15 @@ function updateAdminUI() {
 
   // Statistik Member Safety di Dashboard juga khusus admin.
   document.getElementById('dashAdminStats').style.display = admin ? 'flex' : 'none';
-  document.getElementById('dashStatsAdminNote').style.display = admin ? 'none' : 'block';
 
   // Halaman Permintaan Akun: khusus admin, disembunyikan total dari sidebar untuk
   // akun biasa (sama prinsipnya dengan proteksi Member Safety — lihat komentar di
   // firebaseConfig di atas).
   document.getElementById('navAccountRequests').style.display = admin ? 'flex' : 'none';
+  document.getElementById('navUserMonitor').style.display = admin ? 'flex' : 'none';
+  // Kalau akun non-admin masuk saat halaman admin-only masih terbuka (mis. admin logout
+  // lalu akun biasa login), kembalikan ke Dashboard.
+  if (!admin && currentPageId !== 'dashboard' && ADMIN_ONLY_PAGES.has(currentPageId)) activatePage('dashboard');
 
   // Lonceng notifikasi Aktivitas Pengguna: khusus admin juga.
   document.getElementById('topbarNotif').style.display = admin ? 'block' : 'none';
@@ -1751,7 +2259,114 @@ function updateAdminUI() {
   }
 
   renderHowtoBoxes();
+  renderProfile();
 }
+
+// --- Profil pengguna (ikon orang di topbar) ---
+// Terbuka untuk semua akun yang login: info akun, ganti password, id Member Safety yang
+// ditambahkan akun ini sendiri (dari field addedBy), dan preferensi tampilan.
+// "var" (bukan let) sengaja, sama seperti monitorInitialized: setLanguage() memanggil
+// renderProfile() saat load, sebelum deklarasi let/const di bawah dieksekusi (TDZ).
+var profileInitialized = false;
+const PASSWORD_MIN_LENGTH = 8;
+
+function formatAuthTime(str) {
+  const d = str ? new Date(str) : null;
+  return d && !isNaN(d) ? d.toLocaleString(localeCode()) : '-';
+}
+
+function renderProfile() {
+  if (!profileInitialized || !currentUser) return;
+  const meta = currentUser.metadata || {};
+  document.getElementById('pfName').textContent = firstNameFromEmail(currentUser.email);
+  document.getElementById('pfEmail').textContent = currentUser.email;
+  document.getElementById('pfRole').textContent = isAdminUser() ? t('profile.roleAdmin') : t('profile.roleUser');
+  document.getElementById('pfCreated').textContent = formatAuthTime(meta.creationTime);
+  document.getElementById('pfLastSignIn').textContent = formatAuthTime(meta.lastSignInTime);
+
+  const mine = loadFlags()
+    .filter(f => f.addedBy && f.addedBy === currentUser.email)
+    .sort((a, b) => b.addedAt - a.addedAt);
+  document.getElementById('pfFlagCount').textContent = mine.length;
+  document.getElementById('pfFlagTable').style.display = mine.length ? 'table' : 'none';
+  document.getElementById('pfFlagEmpty').style.display = mine.length ? 'none' : 'block';
+  const body = document.getElementById('pfFlagBody');
+  body.innerHTML = '';
+  mine.forEach(flag => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${wbEscape(flag.id)}</td>
+      <td><span class="badge badge-${wbEscape(flag.category)}">${categoryLabel(flag.category)}</span></td>
+      <td>${wbEscape(flag.note || '-')}</td>
+      <td>${new Date(flag.addedAt).toLocaleString(localeCode())}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('pfLangId').classList.toggle('active', currentLang === 'id');
+  document.getElementById('pfLangEn').classList.toggle('active', currentLang === 'en');
+  const hiddenCount = loadHiddenBonusIds().size;
+  document.getElementById('pfHiddenInfo').textContent = t('profile.hiddenInfo', { count: hiddenCount });
+  document.getElementById('pfHiddenResetBtn').disabled = hiddenCount === 0;
+}
+
+function setPasswordMsg(key, kind, params) {
+  const box = document.getElementById('pfPwMsg');
+  box.className = 'auth-gate-msg' + (kind ? ' is-' + kind : '');
+  box.textContent = key ? t(key, params) : '';
+}
+
+// Ganti password wajib verifikasi ulang password lama (reauthenticate) — Firebase juga
+// menolak updatePassword untuk sesi yang sudah lama, dan ini sekaligus mencegah orang
+// yang meminjam browser yang sedang login mengganti password.
+document.getElementById('pfPwForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const user = currentUser;
+  if (!user) return;
+  const oldPw = document.getElementById('pfOldPw').value;
+  const newPw = document.getElementById('pfNewPw').value;
+  const confirmPw = document.getElementById('pfConfirmPw').value;
+
+  if (!oldPw || !newPw || !confirmPw) return setPasswordMsg('profile.pwFillAll', 'error');
+  if (newPw.length < PASSWORD_MIN_LENGTH) return setPasswordMsg('profile.pwTooShort', 'error', { min: PASSWORD_MIN_LENGTH });
+  if (newPw !== confirmPw) return setPasswordMsg('profile.pwMismatch', 'error');
+  if (newPw === oldPw) return setPasswordMsg('profile.pwSame', 'error');
+
+  const btn = document.getElementById('pfPwBtn');
+  btn.disabled = true;
+  setPasswordMsg(null);
+  user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, oldPw))
+    .then(() => user.updatePassword(newPw))
+    .then(() => {
+      document.getElementById('pfPwForm').reset();
+      setPasswordMsg('profile.pwDone', 'success');
+      logActivity({ type: 'password_change', actorEmail: user.email });
+    })
+    .catch(err => {
+      const code = err && err.code;
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') setPasswordMsg('profile.pwWrong', 'error');
+      else if (code === 'auth/weak-password') setPasswordMsg('profile.pwWeak', 'error');
+      else if (code === 'auth/too-many-requests') setPasswordMsg('profile.pwTooMany', 'error');
+      else setPasswordMsg('profile.pwFailed', 'error', { error: err && err.message ? err.message : String(err) });
+    })
+    .finally(() => { btn.disabled = false; });
+});
+
+document.getElementById('pfLangId').addEventListener('click', () => setLanguage('id'));
+document.getElementById('pfLangEn').addEventListener('click', () => setLanguage('en'));
+document.getElementById('pfHiddenResetBtn').addEventListener('click', () => {
+  saveHiddenBonusIds(new Set());
+  renderBonusHiddenBar();
+  renderProfile();
+});
+function setAllHowtoOpen(open) {
+  document.querySelectorAll('.howto-card').forEach(card => setHowtoOpen(card, card.getAttribute('data-howto-page'), open));
+}
+document.getElementById('pfHowtoOpenBtn').addEventListener('click', () => setAllHowtoOpen(true));
+document.getElementById('pfHowtoCloseBtn').addEventListener('click', () => setAllHowtoOpen(false));
+document.getElementById('profileIcon').addEventListener('click', () => activatePage('profile'));
+
+profileInitialized = true;
 
 // Menampilkan/menyembunyikan seluruh app di balik gerbang login — akses semua fitur
 // (bukan cuma yang admin-only) sekarang wajib pakai akun. Ditentukan murni dari
@@ -1769,8 +2384,10 @@ auth.onAuthStateChanged(user => {
   updateAdminUI();
   if (user) {
     startAuthedListeners();
+    startPresence();
     if (isAdminUser()) startAdminListeners(); else stopAdminListeners();
   } else {
+    stopPresence();
     stopAuthedListeners();
     stopAdminListeners();
   }
@@ -1798,6 +2415,7 @@ function submitGateLogin() {
       // Pakai email dari hasil sign-in langsung (bukan variabel currentUser global)
       // supaya tidak bergantung urutan firing onAuthStateChanged vs promise ini.
       logActivity({ type: 'login', actorEmail: cred.user.email });
+      writePresence({ lastLoginAt: serverNow() });
     })
     .catch(() => {
       errBox.textContent = t('admin.loginError');
@@ -1853,9 +2471,14 @@ function submitAccountRequest() {
 
 document.getElementById('gateRequestBtn').addEventListener('click', submitAccountRequest);
 
+// Log & status offline harus terkirim SEBELUM signOut — aturan Firestore mewajibkan
+// pengirimnya masih login, jadi signOut menunggu kedua tulisan itu selesai.
 document.getElementById('adminLogoutBtn').addEventListener('click', () => {
-  if (currentUser) logActivity({ type: 'logout', actorEmail: currentUser.email });
-  auth.signOut();
+  if (!currentUser) { auth.signOut(); return; }
+  Promise.all([
+    logActivity({ type: 'logout', actorEmail: currentUser.email }),
+    writePresence({ status: 'offline' }),
+  ]).finally(() => auth.signOut());
 });
 
 // --- Navigasi sidebar: satu halaman ("page") aktif ditampilkan, sisanya disembunyikan ---
@@ -1864,7 +2487,8 @@ const pages = document.querySelectorAll('.page');
 const dataSumber = document.querySelector('.data-sumber');
 // Data Sumber (History QR Pay & History) cuma dipakai oleh Bonus/New Member/ID
 // Bermasalah — Dashboard & Win/Lose punya sumber datanya sendiri (atau tidak butuh sama sekali).
-const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'winlose', 'flagged', 'inputbonus', 'withdrawreport', 'winlosemember', 'wdbalance']);
+const ADMIN_ONLY_PAGES = new Set(['accountrequests', 'usermonitor']);
+const PAGES_WITHOUT_DATA_SUMBER = new Set(['dashboard', 'accountrequests', 'usermonitor', 'profile', 'winlose', 'flagged', 'inputbonus', 'withdrawreport', 'winlosemember', 'wdbalance']);
 
 function activatePage(target) {
   navItems.forEach(b => b.classList.toggle('active', b.dataset.page === target));
@@ -1878,7 +2502,12 @@ function activatePage(target) {
   const group = activeBtn && activeBtn.closest('.nav-group');
   if (group) openOnlyNavGroup(group);
 
+  currentPageId = target;
+  document.getElementById('profileIcon').classList.toggle('active', target === 'profile');
+  if (target === 'profile') renderProfile();
   if (target === 'dashboard') renderDashboard();
+  if (target === 'usermonitor' && isAdminUser()) { startMonitorListeners(); renderMonitor(); }
+  writePresence({}, true);
 }
 
 navItems.forEach(btn => {
@@ -1973,7 +2602,7 @@ document.getElementById('addFlagBtn').addEventListener('click', () => {
 
   // create ditolak Firestore Rules kalau id ini sudah ada dan yang menambahkan
   // bukan admin — itu memang disengaja (lihat komentar di bagian atas file).
-  db.collection(FLAGS_COLLECTION).doc(flagDocId(id)).set({ id, category, note, addedAt: Date.now() })
+  db.collection(FLAGS_COLLECTION).doc(flagDocId(id)).set({ id, category, note, addedAt: Date.now(), addedBy: currentUser.email })
     .then(() => {
       idInput.value = '';
       noteInput.value = '';
@@ -2039,6 +2668,8 @@ function importFlagsFromJson(text, warnBox) {
       category: FLAG_CATEGORY_KEYS.includes(item.category) ? item.category : 'other',
       note: typeof item.note === 'string' ? item.note : '',
       addedAt: typeof item.addedAt === 'number' ? item.addedAt : Date.now(),
+      // Pencatat asli ikut dipertahankan kalau ada di backup (id lama tidak punya field ini).
+      ...(typeof item.addedBy === 'string' && item.addedBy ? { addedBy: item.addedBy } : {}),
     };
     if (existingDocIds.has(docId)) updated++; else added++;
     batch.set(db.collection(FLAGS_COLLECTION).doc(docId), entry);

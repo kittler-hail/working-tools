@@ -923,3 +923,56 @@ tr.total-row td {
   .dash-links { grid-template-columns: 1fr; }
 }
 
+
+/* --- Pantau Pengguna (admin): sub-tab, filter log, badge online --- */
+.subtabs { display: flex; gap: 4px; background: #f1f2f4; border-radius: 8px; padding: 3px; margin-bottom: 16px; width: fit-content; max-width: 100%; }
+.subtab {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.subtab.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.badge-online { background: var(--success-bg); color: var(--success); }
+.um-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.um-filters select,
+.um-filters input {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  min-width: 0;
+}
+.um-filters input[type="text"] { flex: 1 1 160px; }
+.um-note { font-size: 12.5px; color: var(--text-muted); margin: 8px 0 12px; }
+
+/* --- Halaman Profil --- */
+.topbar-icon.active { background: var(--info-bg); color: var(--info); border-color: var(--info); }
+.pf-info { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 12px 0 0; font-size: 13.5px; }
+.pf-info dt { color: var(--text-muted); }
+.pf-info dd { margin: 0; font-weight: 600; word-break: break-all; }
+.pf-form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.pf-form input {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+}
+.pf-form .primary { align-self: flex-start; }
+.pf-pref { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 13.5px; }
+.pf-pref:first-of-type { border-top: none; }
+.pf-pref-label { font-weight: 600; }
+.pf-pref-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pf-lang.active { background: var(--info-bg); color: var(--info); border-color: var(--info); }
+.pf-pref button:disabled { opacity: 0.5; cursor: default; }
